@@ -16,15 +16,6 @@ const categories = {
   internacionales: 17119
 };
 
-// ✅ SPONSORS INDIVIDUALES (listos para personalizar)
-const sponsors = [
-  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
-];
-
 const cleanText = (text) => {
   if (!text) return text;
   return text
@@ -104,6 +95,7 @@ const processPost = (post, categoryKey) => {
   };
 };
 
+// ✅ Procesar solo el título para el sidebar (ligero)
 const processPostForSidebar = (post, categoryKey) => {
   let title = cleanText(post.title?.rendered || 'Sin título');
   return {
@@ -168,6 +160,7 @@ const renderRelatedCard = ({ news, basePath }) => {
   );
 };
 
+// ✅ SIDEBAR: Siempre muestra el título más reciente o "Sin noticias"
 const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
   return (
     <div key={categoryKey} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
@@ -194,68 +187,6 @@ const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
   );
 };
 
-// ✅ WIDGET DE COTIZACIONES
-const CotizacionesWidget = () => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchCotizaciones = async () => {
-      try {
-        const dolarRes = await fetch('https://dolarapi.com/v1/dolares');
-        const dolares = await dolarRes.json();
-        const oficial = dolares.find(d => d.casa === 'oficial');
-        const blue = dolares.find(d => d.casa === 'blue');
-
-        const metales = {
-          cobre: '4.20',
-          oro: '2650'
-        };
-
-        setData({
-          dolarOficial: oficial?.venta?.toFixed(2) || 'N/A',
-          dolarBlue: blue?.venta?.toFixed(2) || 'N/A',
-          cobre: metales.cobre,
-          oro: metales.oro
-        });
-      } catch (err) {
-        console.error('Error al cargar cotizaciones:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCotizaciones();
-  }, []);
-
-  if (loading) return <div className="text-sm text-gray-500">Cargando...</div>;
-
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-blue-100 dark:border-blue-900 p-4">
-      <h3 className="font-bold text-blue-900 dark:text-blue-200 mb-3 text-center">Cotizaciones</h3>
-      <div className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-gray-600 dark:text-gray-300">Dólar Oficial:</span>
-          <span className="font-medium">${data.dolarOficial}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600 dark:text-gray-300">Dólar Blue:</span>
-          <span className="font-medium">${data.dolarBlue}</span>
-        </div>
-        <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-        <div className="flex justify-between">
-          <span className="text-gray-600 dark:text-gray-300">Cobre (USD/lb):</span>
-          <span className="font-medium">{data.cobre}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600 dark:text-gray-300">Oro (USD/onza):</span>
-          <span className="font-medium">{data.oro}</span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
   const router = useRouter();
   const { cat, id } = router.query;
@@ -274,6 +205,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     );
   }
 
+  // Cerrar lightbox con ESC
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') setLightboxOpen(false);
@@ -420,7 +352,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
             </div>
           </div>
 
-          {/* Sidebar en escritorio */}
+          {/* ✅ SIDEBAR: Carga la última noticia de CADA categoría */}
           <div className="lg:col-span-1 hidden lg:block">
             {Object.entries(categories).map(([key, _]) => {
               if (key === cat) return null;
@@ -429,27 +361,17 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                 latestNews: sidebarNews[key]
               });
             })}
-            
-            {/* ✅ SPONSORS INDIVIDUALES */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mt-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
               <div className="p-3 space-y-3">
-                {sponsors.map((sponsor, i) => (
-                  <Link key={i} href={sponsor.url} legacyBehavior>
-                    <a target="_blank" rel="noopener noreferrer">
-                      <img 
-                        src={sponsor.image} 
-                        alt={`Colaborador ${i + 1}`}
-                        className="w-full h-16 object-contain rounded-lg"
-                      />
-                    </a>
-                  </Link>
+                {[...Array(5)].map((_, i) => (
+                  <img 
+                    key={i}
+                    src="/sponsors/aoma1.jpg" 
+                    alt="Colaborador AOMA" 
+                    className="w-full h-16 object-contain rounded-lg"
+                  />
                 ))}
               </div>
-            </div>
-
-            {/* ✅ WIDGET DE COTIZACIONES */}
-            <div className="mt-4">
-              <CotizacionesWidget />
             </div>
           </div>
         </div>
@@ -491,6 +413,7 @@ export async function getServerSideProps({ params }) {
   }
 
   try {
+    // Cargar la noticia principal
     const response = await fetch(
       `${WORDPRESS_API_URL}/posts?slug=${id}&_embed`,
       {
@@ -505,10 +428,10 @@ export async function getServerSideProps({ params }) {
     if (posts.length === 0) return { notFound: true };
     const noticia = processPost(posts[0], cat);
 
-    // ✅ Cargar sidebar: última noticia de CADA categoría
+    // ✅ Cargar el sidebar: última noticia de CADA categoría
     const sidebarNews = {};
     for (const [key, catId] of Object.entries(categories)) {
-      if (key === cat) continue;
+      if (key === cat) continue; // no cargar la actual
       try {
         const res = await fetch(
           `${WORDPRESS_API_URL}/posts?categories=${catId}&per_page=1&orderby=date&order=desc&_embed`,
