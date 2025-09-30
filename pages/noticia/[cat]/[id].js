@@ -95,6 +95,16 @@ const processPost = (post, categoryKey) => {
   };
 };
 
+// ✅ Procesar solo el título para el sidebar (ligero)
+const processPostForSidebar = (post, categoryKey) => {
+  let title = cleanText(post.title?.rendered || 'Sin título');
+  return {
+    id: post.slug,
+    title,
+    categoryKey
+  };
+};
+
 const getCategoryName = (categoryKey) => {
   switch(categoryKey) {
     case 'nacionales': return 'Noticias Nacionales';
@@ -150,7 +160,7 @@ const renderRelatedCard = ({ news, basePath }) => {
   );
 };
 
-// ✅ CORREGIDO: Sidebar con mensaje si no hay noticias
+// ✅ SIDEBAR: Siempre muestra el título más reciente o "Sin noticias"
 const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
   return (
     <div key={categoryKey} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
@@ -161,7 +171,7 @@ const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
             <div className="w-16 h-1 bg-red-500 mx-auto mt-1"></div>
           </div>
           <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
-            {latestNews && latestNews.title ? (
+            {latestNews ? (
               <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1 text-balance">
                 {latestNews.title}
               </p>
@@ -177,12 +187,10 @@ const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
   );
 };
 
-export default function NoticiaPage({ noticia, relatedNews, currentDate }) {
+export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
   const router = useRouter();
   const { cat, id } = router.query;
-  const basePath = router.basePath || '';
 
-  // ✅ Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState('');
 
@@ -197,7 +205,7 @@ export default function NoticiaPage({ noticia, relatedNews, currentDate }) {
     );
   }
 
-  // ✅ Cerrar lightbox con ESC
+  // Cerrar lightbox con ESC
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') setLightboxOpen(false);
@@ -340,28 +348,17 @@ export default function NoticiaPage({ noticia, relatedNews, currentDate }) {
                     </div>
                   </div>
                 </div>
-
-                {relatedNews && relatedNews.length > 0 && (
-                  <div className="mt-10 pt-6 border-t border-blue-200 dark:border-blue-900">
-                    <h3 className="text-xl font-bold text-blue-900 dark:text-blue-100 mb-4">Noticias Relacionadas</h3>
-                    <div className="space-y-4">
-                      {relatedNews.map(news => renderRelatedCard({ news, basePath }))}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
 
-          {/* Sidebar en escritorio */}
+          {/* ✅ SIDEBAR: Carga la última noticia de CADA categoría */}
           <div className="lg:col-span-1 hidden lg:block">
             {Object.entries(categories).map(([key, _]) => {
               if (key === cat) return null;
-              // Buscar última noticia relacionada en la misma categoría
-              const latest = relatedNews.find(n => n.categoryKey === key) || null;
               return renderSidebarCategoryCard({
                 categoryKey: key,
-                latestNews: latest
+                latestNews: sidebarNews[key]
               });
             })}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
@@ -379,23 +376,23 @@ export default function NoticiaPage({ noticia, relatedNews, currentDate }) {
           </div>
         </div>
 
-        {/* ✅ LIGHTBOX */}
+        {/* LIGHTBOX */}
         {lightboxOpen && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
             onClick={closeLightbox}
           >
-            <div className="relative max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
+            <div className="relative max-w-4xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
               <button 
-                className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75"
+                className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 z-10"
                 onClick={closeLightbox}
-                aria-label="Cerrar imagen"
+                aria-label="Cerrar"
               >
                 ✕
               </button>
               <img 
                 src={lightboxImage} 
-                alt="Ampliada" 
+                alt="Imagen ampliada"
                 className="max-h-[90vh] max-w-full object-contain"
               />
             </div>
@@ -406,6 +403,7 @@ export default function NoticiaPage({ noticia, relatedNews, currentDate }) {
   );
 }
 
+// ✅ Cargar noticia + sidebar completo (última noticia de cada categoría)
 export async function getServerSideProps({ params }) {
   const { cat, id } = params;
   const categoryId = categories[cat];
@@ -415,6 +413,7 @@ export async function getServerSideProps({ params }) {
   }
 
   try {
+    // Cargar la noticia principal
     const response = await fetch(
       `${WORDPRESS_API_URL}/posts?slug=${id}&_embed`,
       {
@@ -429,28 +428,35 @@ export async function getServerSideProps({ params }) {
     if (posts.length === 0) return { notFound: true };
     const noticia = processPost(posts[0], cat);
 
-    const relatedResponse = await fetch(
-      `${WORDPRESS_API_URL}/posts?categories=${categoryId}&per_page=10&orderby=date&order=desc&_embed`,
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ug-noticias-mineras.vercel.app)',
-          'Accept': 'application/json'
+    // ✅ Cargar el sidebar: última noticia de CADA categoría
+    const sidebarNews = {};
+    for (const [key, catId] of Object.entries(categories)) {
+      if (key === cat) continue; // no cargar la actual
+      try {
+        const res = await fetch(
+          `${WORDPRESS_API_URL}/posts?categories=${catId}&per_page=1&orderby=date&order=desc&_embed`,
+          {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ug-noticias-mineras.vercel.app)',
+              'Accept': 'application/json'
+            }
+          }
+        );
+        if (res.ok) {
+          const posts = await res.json();
+          if (posts.length > 0) {
+            sidebarNews[key] = processPostForSidebar(posts[0], key);
+          }
         }
+      } catch (e) {
+        // Silently fail
       }
-    );
-    let relatedNews = [];
-    if (relatedResponse.ok) {
-      const relatedPosts = await relatedResponse.json();
-      relatedNews = relatedPosts
-        .filter(p => p.slug !== id)
-        .map(p => processPost(p, cat))
-        .slice(0, 3);
     }
 
     return {
       props: {
         noticia,
-        relatedNews,
+        sidebarNews,
         currentDate: new Date().toISOString()
       }
     };
