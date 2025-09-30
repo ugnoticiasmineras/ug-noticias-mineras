@@ -1,10 +1,12 @@
 // pages/noticia/[cat]/[id].js
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import Layout from '../../../components/Layout';
 
 const SITE_URL = 'https://ug-noticias-mineras.vercel.app';
+const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
 
 const categories = {
   nacionales: 170094,
@@ -148,6 +150,7 @@ const renderRelatedCard = ({ news, basePath }) => {
   );
 };
 
+// ✅ CORREGIDO: Sidebar con mensaje si no hay noticias
 const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
   return (
     <div key={categoryKey} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
@@ -158,12 +161,14 @@ const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
             <div className="w-16 h-1 bg-red-500 mx-auto mt-1"></div>
           </div>
           <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
-            {latestNews ? (
-              <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1">
+            {latestNews && latestNews.title ? (
+              <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1 text-balance">
                 {latestNews.title}
               </p>
             ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center text-sm">Sin noticias recientes</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center text-sm">
+                Sin noticias aún
+              </p>
             )}
           </div>
         </a>
@@ -177,6 +182,10 @@ export default function NoticiaPage({ noticia, relatedNews, currentDate }) {
   const { cat, id } = router.query;
   const basePath = router.basePath || '';
 
+  // ✅ Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState('');
+
   if (!noticia) {
     return (
       <Layout currentDate={currentDate}>
@@ -187,6 +196,32 @@ export default function NoticiaPage({ noticia, relatedNews, currentDate }) {
       </Layout>
     );
   }
+
+  // ✅ Cerrar lightbox con ESC
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setLightboxOpen(false);
+    };
+    if (lightboxOpen) {
+      window.addEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'auto';
+    };
+  }, [lightboxOpen]);
+
+  const openLightbox = (imgSrc) => {
+    setLightboxImage(imgSrc);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+  };
 
   const shareOnWhatsApp = () => {
     const url = encodeURIComponent(`${SITE_URL}/noticia/${cat}/${id}`);
@@ -205,8 +240,7 @@ export default function NoticiaPage({ noticia, relatedNews, currentDate }) {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}`, '_blank', 'width=600,height=400');
   };
 
-  // ✅ Usa la imagen de la noticia, pero proxyada por tu dominio
-  const ogImageUrl = noticia.image && noticia.image.startsWith('http')
+  const ogImageUrl = noticia.image && noticia.image.startsWith('http') 
     ? `${SITE_URL}/api/image?url=${encodeURIComponent(noticia.image)}`
     : `${SITE_URL}/logo.png`;
 
@@ -243,7 +277,10 @@ export default function NoticiaPage({ noticia, relatedNews, currentDate }) {
               <div className="p-6">
                 <div className="bg-gradient-to-br from-blue-50 to-white dark:from-gray-700 dark:to-gray-800 rounded-xl shadow-lg border border-blue-200 dark:border-blue-900 overflow-hidden">
                   {noticia.image && (
-                    <div className="h-80 bg-gradient-to-br from-blue-200 to-blue-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center relative overflow-hidden">
+                    <div 
+                      className="h-80 bg-gradient-to-br from-blue-200 to-blue-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center relative overflow-hidden cursor-pointer"
+                      onClick={() => openLightbox(noticia.image)}
+                    >
                       <img 
                         src={noticia.image} 
                         alt={noticia.title} 
@@ -316,12 +353,15 @@ export default function NoticiaPage({ noticia, relatedNews, currentDate }) {
             </div>
           </div>
 
+          {/* Sidebar en escritorio */}
           <div className="lg:col-span-1 hidden lg:block">
             {Object.entries(categories).map(([key, _]) => {
               if (key === cat) return null;
+              // Buscar última noticia relacionada en la misma categoría
+              const latest = relatedNews.find(n => n.categoryKey === key) || null;
               return renderSidebarCategoryCard({
                 categoryKey: key,
-                latestNews: relatedNews.find(n => n.categoryKey === key) || null
+                latestNews: latest
               });
             })}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
@@ -338,6 +378,29 @@ export default function NoticiaPage({ noticia, relatedNews, currentDate }) {
             </div>
           </div>
         </div>
+
+        {/* ✅ LIGHTBOX */}
+        {lightboxOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+            onClick={closeLightbox}
+          >
+            <div className="relative max-w-4xl max-h-full" onClick={(e) => e.stopPropagation()}>
+              <button 
+                className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75"
+                onClick={closeLightbox}
+                aria-label="Cerrar imagen"
+              >
+                ✕
+              </button>
+              <img 
+                src={lightboxImage} 
+                alt="Ampliada" 
+                className="max-h-[90vh] max-w-full object-contain"
+              />
+            </div>
+          </div>
+        )}
       </Layout>
     </>
   );
@@ -350,8 +413,6 @@ export async function getServerSideProps({ params }) {
   if (!categoryId) {
     return { notFound: true };
   }
-
-  const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
 
   try {
     const response = await fetch(
