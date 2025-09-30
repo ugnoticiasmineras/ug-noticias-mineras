@@ -2,6 +2,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 
 const SITE_URL = 'https://ug-noticias-mineras.vercel.app';
@@ -14,6 +15,15 @@ const categories = {
   opinion: 352,
   internacionales: 17119
 };
+
+// ✅ SPONSORS INDIVIDUALES
+const sponsors = [
+  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
+];
 
 const cleanText = (text) => {
   if (!text) return text;
@@ -229,15 +239,81 @@ const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
           </div>
           <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
             {latestNews ? (
-              <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1">
+              <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1 text-balance">
                 {latestNews.title}
               </p>
             ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center text-sm">Sin noticias recientes</p>
+              <p className="text-gray-500 dark:text-gray-400 text-center text-sm">
+                Sin noticias aún
+              </p>
             )}
           </div>
         </a>
       </Link>
+    </div>
+  );
+};
+
+// ✅ WIDGET DE COTIZACIONES
+const CotizacionesWidget = () => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCotizaciones = async () => {
+      try {
+        // Dólar: usamos dolarapi.com (pública y gratuita)
+        const dolarRes = await fetch('https://dolarapi.com/v1/dolares');
+        const dolares = await dolarRes.json();
+        const oficial = dolares.find(d => d.casa === 'oficial');
+        const blue = dolares.find(d => d.casa === 'blue');
+
+        // Metales: usamos MetalpriceAPI (simulación con valores fijos por ahora)
+        const metales = {
+          cobre: '4.20', // USD/lb
+          oro: '2650'   // USD/onza
+        };
+
+        setData({
+          dolarOficial: oficial?.venta || 'N/A',
+          dolarBlue: blue?.venta || 'N/A',
+          cobre: metales.cobre,
+          oro: metales.oro
+        });
+      } catch (err) {
+        console.error('Error al cargar cotizaciones:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCotizaciones();
+  }, []);
+
+  if (loading) return <div className="text-sm text-gray-500">Cargando...</div>;
+
+  return (
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-blue-100 dark:border-blue-900 p-4">
+      <h3 className="font-bold text-blue-900 dark:text-blue-200 mb-3 text-center">Cotizaciones</h3>
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between">
+          <span className="text-gray-600 dark:text-gray-300">Dólar Oficial:</span>
+          <span className="font-medium">${data.dolarOficial}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-600 dark:text-gray-300">Dólar Blue:</span>
+          <span className="font-medium">${data.dolarBlue}</span>
+        </div>
+        <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+        <div className="flex justify-between">
+          <span className="text-gray-600 dark:text-gray-300">Cobre (USD/lb):</span>
+          <span className="font-medium">{data.cobre}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-600 dark:text-gray-300">Oro (USD/onza):</span>
+          <span className="font-medium">{data.oro}</span>
+        </div>
+      </div>
     </div>
   );
 };
@@ -347,17 +423,27 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
                 latestNews: sidebarNews[key]
               });
             })}
+            
+            {/* ✅ SPONSORS INDIVIDUALES */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
               <div className="p-3 space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <img 
-                    key={i}
-                    src="/sponsors/aoma1.jpg" 
-                    alt="Colaborador AOMA" 
-                    className="w-full h-16 object-contain rounded-lg"
-                  />
+                {sponsors.map((sponsor, i) => (
+                  <Link key={i} href={sponsor.url} legacyBehavior>
+                    <a target="_blank" rel="noopener noreferrer">
+                      <img 
+                        src={sponsor.image} 
+                        alt={`Colaborador ${i + 1}`}
+                        className="w-full h-16 object-contain rounded-lg"
+                      />
+                    </a>
+                  </Link>
                 ))}
               </div>
+            </div>
+
+            {/* ✅ WIDGET DE COTIZACIONES (solo escritorio) */}
+            <div className="hidden lg:block mt-4">
+              <CotizacionesWidget />
             </div>
           </div>
         </div>
