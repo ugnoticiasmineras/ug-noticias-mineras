@@ -3,8 +3,17 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import CotizacionesWidget from '../components/CotizacionesWidget';
 
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
+
+const categories = {
+  nacionales: 170094,
+  sanjuan: 67720,
+  sindicales: 3865306,
+  opinion: 352,
+  internacionales: 17119
+};
 
 const cleanText = (text) => {
   if (!text) return text;
@@ -68,37 +77,33 @@ const processPost = (post) => {
 
   let title = cleanText(post.title?.rendered || 'Sin título');
 
+  // Determinar categoría
+  const catId = post.categories?.[0];
+  let categoryKey = 'nacionales';
+  if (catId) {
+    for (const [key, id] of Object.entries(categories)) {
+      if (id === catId) {
+        categoryKey = key;
+        break;
+      }
+    }
+  }
+
   return {
     id: post.slug,
     title,
     subtitle: excerpt,
     image: imageUrl,
-    categoryKey: post.categories?.[0] ? getCategoryKeyFromId(post.categories[0]) : 'nacionales',
-    categoryColor: getCategoryColor(post.categories?.[0]),
+    categoryKey,
+    categoryColor: categoryKey === 'nacionales' ? 'bg-blue-600' : 
+                  categoryKey === 'sanjuan' ? 'bg-red-500' : 
+                  categoryKey === 'sindicales' ? 'bg-green-600' : 
+                  categoryKey === 'internacionales' ? 'bg-yellow-600' : 'bg-purple-600',
     source,
     date: formattedDate,
     originalDate: post.date,
-    content: processedContent // Para búsqueda
+    content: processedContent
   };
-};
-
-const getCategoryKeyFromId = (id) => {
-  const map = {
-    170094: 'nacionales',
-    67720: 'sanjuan',
-    3865306: 'sindicales',
-    352: 'opinion',
-    17119: 'internacionales'
-  };
-  return map[id] || 'nacionales';
-};
-
-const getCategoryColor = (id) => {
-  const key = getCategoryKeyFromId(id);
-  return key === 'nacionales' ? 'bg-blue-600' : 
-         key === 'sanjuan' ? 'bg-red-500' : 
-         key === 'sindicales' ? 'bg-green-600' : 
-         key === 'internacionales' ? 'bg-yellow-600' : 'bg-purple-600';
 };
 
 const getCategoryName = (categoryKey) => {
@@ -160,10 +165,33 @@ const renderNewsCard = ({ news, basePath }) => {
   );
 };
 
-export default function Home({ allNews, currentDate }) {
+const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
+  return (
+    <div key={categoryKey} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
+      <Link href={`/noticia/${categoryKey}`} legacyBehavior>
+        <a className="block">
+          <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-3 text-center">
+            <h3 className="text-lg font-bold text-white">{getCategoryName(categoryKey)}</h3>
+            <div className="w-16 h-1 bg-red-500 mx-auto mt-1"></div>
+          </div>
+          <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
+            {latestNews ? (
+              <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1">
+                {latestNews.title}
+              </p>
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 text-center text-sm">Sin noticias</p>
+            )}
+          </div>
+        </a>
+      </Link>
+    </div>
+  );
+};
+
+export default function Home({ allNews, sidebarNews, currentDate }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredNews, setFilteredNews] = useState(allNews);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -179,13 +207,8 @@ export default function Home({ allNews, currentDate }) {
     }
   }, [searchQuery, allNews]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setIsSearchOpen(false);
-  };
-
-  const featuredNews = filteredNews[0];
-  const otherNews = filteredNews.slice(1);
+  const featuredNews = filteredNews.slice(0, 4);
+  const otherNews = filteredNews.slice(4);
   const pageSize = 15;
   const [page, setPage] = useState(1);
   const startIndex = (page - 1) * pageSize;
@@ -204,53 +227,24 @@ export default function Home({ allNews, currentDate }) {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      {/* Barra de búsqueda (fuera del layout para acceso global) */}
-      {isSearchOpen && (
-        <div className="fixed top-0 left-0 right-0 bg-white dark:bg-gray-900 z-50 border-b border-blue-200 dark:border-blue-900 p-4">
-          <form onSubmit={handleSearch} className="max-w-4xl mx-auto flex">
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar en noticias..."
-              className="flex-1 px-4 py-2 border border-blue-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              autoFocus
-            />
-            <button 
-              type="submit"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-r-lg transition-colors"
-            >
-              Buscar
-            </button>
-            <button 
-              type="button"
-              onClick={() => {
-                setIsSearchOpen(false);
-                setSearchQuery('');
-                setFilteredNews(allNews);
-              }}
-              className="ml-2 bg-gray-300 dark:bg-gray-600 hover:bg-gray-400 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg"
-            >
-              Cancelar
-            </button>
-          </form>
-        </div>
-      )}
-
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-4">
-          {featuredNews && (
+          {/* NOTICIAS DESTACADAS */}
+          {featuredNews.length > 0 && (
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-6">
               <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-6">
-                <h2 className="text-2xl font-bold text-white">Noticia Destacada</h2>
+                <h2 className="text-2xl font-bold text-white">Noticias Destacadas</h2>
                 <div className="w-24 h-1 bg-red-500 mt-2"></div>
               </div>
               <div className="p-6">
-                {renderNewsCard({ news: featuredNews, basePath: '' })}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {featuredNews.map(news => renderNewsCard({ news, basePath: '' }))}
+                </div>
               </div>
             </div>
           )}
 
+          {/* ÚLTIMAS NOTICIAS */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-6">
               <h2 className="text-2xl font-bold text-white">Últimas Noticias</h2>
@@ -303,9 +297,47 @@ export default function Home({ allNews, currentDate }) {
           </div>
         </div>
 
+        {/* SIDEBAR DERECHO */}
         <div className="lg:col-span-1">
-          {/* Aquí iría el sidebar con categorías, sponsors, etc. */}
-          {/* Por brevedad, se omite, pero puedes reutilizar el de [cat].js */}
+          {/* ✅ COTIZACIONES */}
+          <CotizacionesWidget />
+          
+          {/* CATEGORÍAS */}
+          {Object.entries(categories).map(([key, _]) => (
+            <div key={key} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
+              <Link href={`/noticia/${key}`} legacyBehavior>
+                <a className="block">
+                  <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-3 text-center">
+                    <h3 className="text-lg font-bold text-white">{getCategoryName(key)}</h3>
+                    <div className="w-16 h-1 bg-red-500 mx-auto mt-1"></div>
+                  </div>
+                  <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
+                    {sidebarNews[key] ? (
+                      <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1">
+                        {sidebarNews[key].title}
+                      </p>
+                    ) : (
+                      <p className="text-gray-500 dark:text-gray-400 text-center text-sm">Sin noticias</p>
+                    )}
+                  </div>
+                </a>
+              </Link>
+            </div>
+          ))}
+          
+          {/* SPONSORS */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
+            <div className="p-3 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <img 
+                  key={i}
+                  src="/sponsors/aoma1.jpg" 
+                  alt="Colaborador"
+                  className="w-full h-16 object-contain rounded-lg"
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </Layout>
@@ -314,6 +346,7 @@ export default function Home({ allNews, currentDate }) {
 
 export async function getServerSideProps() {
   try {
+    // Cargar todas las noticias
     const response = await fetch(
       `${WORDPRESS_API_URL}/posts?per_page=100&orderby=date&order=desc&_embed`,
       {
@@ -330,9 +363,34 @@ export async function getServerSideProps() {
       allNews = posts.map(processPost);
     }
 
+    // Cargar última noticia por categoría para el sidebar
+    const sidebarNews = {};
+    for (const [key, id] of Object.entries(categories)) {
+      try {
+        const res = await fetch(
+          `${WORDPRESS_API_URL}/posts?categories=${id}&per_page=1&orderby=date&order=desc&_embed`,
+          {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ug-noticias-mineras.vercel.app)',
+              'Accept': 'application/json'
+            }
+          }
+        );
+        if (res.ok) {
+          const posts = await res.json();
+          if (posts.length > 0) {
+            sidebarNews[key] = { title: cleanText(posts[0].title?.rendered || 'Sin título') };
+          }
+        }
+      } catch (e) {
+        // Silently fail
+      }
+    }
+
     return {
       props: {
         allNews,
+        sidebarNews,
         currentDate: new Date().toISOString()
       }
     };
@@ -340,6 +398,7 @@ export async function getServerSideProps() {
     return {
       props: {
         allNews: [],
+        sidebarNews: {},
         currentDate: new Date().toISOString()
       }
     };
