@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import Layout from '../../../components/Layout';
+import CotizacionesWidget from '../../../components/CotizacionesWidget'; // ✅
 
 const SITE_URL = 'https://ug-noticias-mineras.vercel.app';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
@@ -15,6 +16,14 @@ const categories = {
   opinion: 352,
   internacionales: 17119
 };
+
+const sponsors = [
+  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
+];
 
 const cleanText = (text) => {
   if (!text) return text;
@@ -95,7 +104,6 @@ const processPost = (post, categoryKey) => {
   };
 };
 
-// ✅ Procesar solo el título para el sidebar (ligero)
 const processPostForSidebar = (post, categoryKey) => {
   let title = cleanText(post.title?.rendered || 'Sin título');
   return {
@@ -160,7 +168,6 @@ const renderRelatedCard = ({ news, basePath }) => {
   );
 };
 
-// ✅ SIDEBAR: Siempre muestra el título más reciente o "Sin noticias"
 const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
   return (
     <div key={categoryKey} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
@@ -205,7 +212,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     );
   }
 
-  // Cerrar lightbox con ESC
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') setLightboxOpen(false);
@@ -248,9 +254,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}`, '_blank', 'width=600,height=400');
   };
 
-  const ogImageUrl = noticia.image && noticia.image.startsWith('http') 
-    ? `${SITE_URL}/api/image?url=${encodeURIComponent(noticia.image)}`
-    : `${SITE_URL}/logo.png`;
+  const ogImageUrl = `${SITE_URL}/logo.png`;
 
   return (
     <>
@@ -352,8 +356,10 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
             </div>
           </div>
 
-          {/* ✅ SIDEBAR: Carga la última noticia de CADA categoría */}
           <div className="lg:col-span-1 hidden lg:block">
+            {/* ✅ WIDGET EN LA PARTE SUPERIOR */}
+            <CotizacionesWidget />
+            
             {Object.entries(categories).map(([key, _]) => {
               if (key === cat) return null;
               return renderSidebarCategoryCard({
@@ -361,22 +367,25 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                 latestNews: sidebarNews[key]
               });
             })}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
+            
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mt-4">
               <div className="p-3 space-y-3">
-                {[...Array(5)].map((_, i) => (
-                  <img 
-                    key={i}
-                    src="/sponsors/aoma1.jpg" 
-                    alt="Colaborador AOMA" 
-                    className="w-full h-16 object-contain rounded-lg"
-                  />
+                {sponsors.map((sponsor, i) => (
+                  <Link key={i} href={sponsor.url} legacyBehavior>
+                    <a target="_blank" rel="noopener noreferrer">
+                      <img 
+                        src={sponsor.image} 
+                        alt={`Colaborador ${i + 1}`}
+                        className="w-full h-16 object-contain rounded-lg"
+                      />
+                    </a>
+                  </Link>
                 ))}
               </div>
             </div>
           </div>
         </div>
 
-        {/* LIGHTBOX */}
         {lightboxOpen && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
@@ -403,7 +412,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
   );
 }
 
-// ✅ Cargar noticia + sidebar completo (última noticia de cada categoría)
 export async function getServerSideProps({ params }) {
   const { cat, id } = params;
   const categoryId = categories[cat];
@@ -413,7 +421,6 @@ export async function getServerSideProps({ params }) {
   }
 
   try {
-    // Cargar la noticia principal
     const response = await fetch(
       `${WORDPRESS_API_URL}/posts?slug=${id}&_embed`,
       {
@@ -428,10 +435,9 @@ export async function getServerSideProps({ params }) {
     if (posts.length === 0) return { notFound: true };
     const noticia = processPost(posts[0], cat);
 
-    // ✅ Cargar el sidebar: última noticia de CADA categoría
     const sidebarNews = {};
     for (const [key, catId] of Object.entries(categories)) {
-      if (key === cat) continue; // no cargar la actual
+      if (key === cat) continue;
       try {
         const res = await fetch(
           `${WORDPRESS_API_URL}/posts?categories=${catId}&per_page=1&orderby=date&order=desc&_embed`,
