@@ -15,6 +15,11 @@ const categories = {
   internacionales: 17119
 };
 
+// Invertir para mapear ID → key
+const categoryIdToKey = Object.fromEntries(
+  Object.entries(categories).map(([key, id]) => [id, key])
+);
+
 const cleanText = (text) => {
   if (!text) return text;
   return text
@@ -79,14 +84,9 @@ const processPost = (post) => {
 
   // Determinar categoría
   const catId = post.categories?.[0];
-  let categoryKey = 'nacionales';
-  if (catId) {
-    for (const [key, id] of Object.entries(categories)) {
-      if (id === catId) {
-        categoryKey = key;
-        break;
-      }
-    }
+  let categoryKey = null;
+  if (catId && categoryIdToKey[catId]) {
+    categoryKey = categoryIdToKey[catId];
   }
 
   return {
@@ -128,7 +128,47 @@ const getCategoryLabel = (categoryKey) => {
   }
 };
 
+// ✅ Tarjeta para noticias destacadas: imagen arriba, texto abajo
+const renderFeaturedCard = ({ news }) => {
+  if (!news.categoryKey) return null;
+  
+  return (
+    <Link key={news.id} href={`/noticia/${news.categoryKey}/${news.id}`} legacyBehavior>
+      <a className="block bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-blue-100 dark:border-blue-900 overflow-hidden">
+        <div className="h-48 w-full relative">
+          <img 
+            src={news.image} 
+            alt={news.title} 
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.parentNode.innerHTML = `
+                <div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+                  <div class="text-blue-800 dark:text-blue-200 font-bold text-center p-2">${news.title}</div>
+                </div>
+              `;
+            }}
+          />
+          <div className={`absolute top-2 left-2 ${news.categoryColor} text-white px-2 py-1 rounded text-xs font-semibold`}>
+            {getCategoryLabel(news.categoryKey)}
+          </div>
+        </div>
+        <div className="p-4">
+          <h3 className="font-bold text-blue-900 dark:text-blue-100 text-lg">{news.title}</h3>
+          <p className="text-gray-600 dark:text-gray-300 text-sm mt-1 mb-2">{news.subtitle}</p>
+          <div className="mt-2 pt-2 border-t border-blue-100 dark:border-blue-900 flex justify-between items-center">
+            <p className="text-blue-800 dark:text-blue-200 text-xs font-medium">{news.source}</p>
+            <p className="text-gray-500 dark:text-gray-400 text-xs">{news.date}</p>
+          </div>
+        </div>
+      </a>
+    </Link>
+  );
+};
+
 const renderNewsCard = ({ news, basePath }) => {
+  if (!news.categoryKey) return null;
+  
   return (
     <Link key={news.id} href={`/noticia/${news.categoryKey}/${news.id}`} legacyBehavior>
       <a className="block bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100 dark:border-blue-900 overflow-hidden">
@@ -238,7 +278,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {featuredNews.map(news => renderNewsCard({ news, basePath: '' }))}
+                  {featuredNews.map(news => news.categoryKey && renderFeaturedCard({ news }))}
                 </div>
               </div>
             </div>
@@ -252,7 +292,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
             </div>
             <div className="p-6">
               <div className="space-y-6">
-                {paginatedNews.map(news => renderNewsCard({ news, basePath: '' }))}
+                {paginatedNews.map(news => news.categoryKey && renderNewsCard({ news, basePath: '' }))}
               </div>
               {totalPages > 1 && (
                 <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-center items-center space-x-2 mt-6">
@@ -299,10 +339,8 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 
         {/* SIDEBAR DERECHO */}
         <div className="lg:col-span-1">
-          {/* ✅ COTIZACIONES */}
           <CotizacionesWidget />
           
-          {/* CATEGORÍAS */}
           {Object.entries(categories).map(([key, _]) => (
             <div key={key} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
               <Link href={`/noticia/${key}`} legacyBehavior>
@@ -325,7 +363,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
             </div>
           ))}
           
-          {/* SPONSORS */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
             <div className="p-3 space-y-3">
               {[...Array(5)].map((_, i) => (
@@ -346,7 +383,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 
 export async function getServerSideProps() {
   try {
-    // Cargar todas las noticias
     const response = await fetch(
       `${WORDPRESS_API_URL}/posts?per_page=100&orderby=date&order=desc&_embed`,
       {
@@ -360,10 +396,12 @@ export async function getServerSideProps() {
     let allNews = [];
     if (response.ok) {
       const posts = await response.json();
-      allNews = posts.map(processPost);
+      // ✅ Filtrar solo posts con categoría válida
+      allNews = posts
+        .filter(post => post.categories && post.categories.length > 0 && categoryIdToKey[post.categories[0]])
+        .map(processPost);
     }
 
-    // Cargar última noticia por categoría para el sidebar
     const sidebarNews = {};
     for (const [key, id] of Object.entries(categories)) {
       try {
