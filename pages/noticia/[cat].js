@@ -249,7 +249,7 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
   const router = useRouter();
   const basePath = router.basePath || '';
   const page = parseInt(router.query.page) || 1;
-  const pageSize = 15;
+  const pageSize = 15; // ✅ Paginación de 15 noticias por página
   const startIndex = (page - 1) * pageSize;
   const paginatedNews = newsList.slice(startIndex, startIndex + pageSize);
   const totalPages = Math.ceil(newsList.length / pageSize);
@@ -360,7 +360,7 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
                   <img 
                     key={i}
                     src="/sponsors/aoma1.jpg" 
-                    alt="Colaborador AOMA" 
+                    alt="Colaborador"
                     className="w-full h-16 object-contain rounded-lg"
                   />
                 ))}

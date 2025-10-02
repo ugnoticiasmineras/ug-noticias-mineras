@@ -325,7 +325,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 
   const featuredNews = filteredNews.slice(0, 4);
   const otherNews = filteredNews.slice(4);
-  const pageSize = 15;
+  const pageSize = 10; // ✅ Cambiado a 10 noticias por página
   const [page, setPage] = useState(1);
   const startIndex = (page - 1) * pageSize;
   const paginatedNews = otherNews.slice(startIndex, startIndex + pageSize);

@@ -254,8 +254,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}`, '_blank', 'width=600,height=400');
   };
 
-  const ogImageUrl = `${SITE_URL}/logo.png`;
-
   return (
     <>
       <Head>
@@ -265,14 +263,14 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
         <meta property="og:url" content={`${SITE_URL}/noticia/${cat}/${id}`} />
         <meta property="og:title" content={noticia.title} />
         <meta property="og:description" content={noticia.subtitle} />
-        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image" content={noticia.image} /> {/* ✅ Imagen dinámica de la noticia */}
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="UG Noticias Mineras" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={noticia.title} />
         <meta name="twitter:description" content={noticia.subtitle} />
-        <meta name="twitter:image" content={ogImageUrl} />
+        <meta name="twitter:image" content={noticia.image} /> {/* ✅ Imagen dinámica de la noticia */}
         <meta name="twitter:site" content="@ugnoticiasmin" />
       </Head>
 
