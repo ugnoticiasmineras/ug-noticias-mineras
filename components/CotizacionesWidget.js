@@ -10,17 +10,15 @@ export default function CotizacionesWidget() {
       try {
         const dolarRes = await fetch('https://dolarapi.com/v1/dolares');
         const dolares = await dolarRes.json();
-        const oficial = dolares.find(d => d.casa === 'oficial')?.venta;
-        const blue = dolares.find(d => d.casa === 'blue')?.venta;
-
-        const metalsRes = await fetch('/api/metals');
-        const metals = await metalsRes.json();
+        
+        const oficial = dolares.find(d => d.casa === 'oficial');
+        const blue = dolares.find(d => d.casa === 'blue');
+        const mep = dolares.find(d => d.casa === 'mep');
 
         setData({
-          dolarOficial: oficial ? oficial.toFixed(2) : 'N/A',
-          dolarBlue: blue ? blue.toFixed(2) : 'N/A',
-          oro: metals.oro || 'N/A',
-          cobre: metals.cobre || 'N/A'
+          oficial: oficial || null,
+          blue: blue || null,
+          mep: mep || null
         });
       } catch (err) {
         console.error('Error al cargar cotizaciones:', err);
@@ -40,23 +38,47 @@ export default function CotizacionesWidget() {
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-blue-100 dark:border-blue-900 p-4 mb-4">
       <h3 className="font-bold text-blue-900 dark:text-blue-200 mb-3 text-center">Cotizaciones</h3>
       <div className="space-y-2 text-sm">
-        <div className="flex justify-between">
-          <span className="text-gray-600 dark:text-gray-300">Dólar Oficial:</span>
-          <span className="font-medium">${data.dolarOficial}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600 dark:text-gray-300">Dólar Blue:</span>
-          <span className="font-medium">${data.dolarBlue}</span>
-        </div>
-        <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
-        <div className="flex justify-between">
-          <span className="text-gray-600 dark:text-gray-300">Oro (USD/onza):</span>
-          <span className="font-medium">{data.oro}</span>
-        </div>
-        <div className="flex justify-between">
-          <span className="text-gray-600 dark:text-gray-300">Cobre (USD/lb):</span>
-          <span className="font-medium">{data.cobre}</span>
-        </div>
+        {data.oficial && (
+          <>
+            <div className="font-medium text-blue-800 dark:text-blue-300">Dólar Oficial</div>
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-300">Compra:</span>
+              <span className="font-medium">${data.oficial.compra?.toFixed(2) || 'N/A'}</span>
+            </div>
+            <div className="flex justify-between mb-2">
+              <span className="text-gray-600 dark:text-gray-300">Venta:</span>
+              <span className="font-medium">${data.oficial.venta?.toFixed(2) || 'N/A'}</span>
+            </div>
+          </>
+        )}
+
+        {data.blue && (
+          <>
+            <div className="font-medium text-blue-800 dark:text-blue-300">Dólar Blue</div>
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-300">Compra:</span>
+              <span className="font-medium">${data.blue.compra?.toFixed(2) || 'N/A'}</span>
+            </div>
+            <div className="flex justify-between mb-2">
+              <span className="text-gray-600 dark:text-gray-300">Venta:</span>
+              <span className="font-medium">${data.blue.venta?.toFixed(2) || 'N/A'}</span>
+            </div>
+          </>
+        )}
+
+        {data.mep && (
+          <>
+            <div className="font-medium text-blue-800 dark:text-blue-300">Dólar MEP</div>
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-300">Compra:</span>
+              <span className="font-medium">${data.mep.compra?.toFixed(2) || 'N/A'}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600 dark:text-gray-300">Venta:</span>
+              <span className="font-medium">${data.mep.venta?.toFixed(2) || 'N/A'}</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
