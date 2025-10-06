@@ -1,7 +1,7 @@
 // pages/index.js
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Layout from '../components/Layout';
 import CotizacionesWidget from '../components/CotizacionesWidget';
 
@@ -309,24 +309,49 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredNews, setFilteredNews] = useState(allNews);
 
+  // ✅ Mejora: búsqueda con puntuación y orden por relevancia
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredNews(allNews);
     } else {
       const query = searchQuery.toLowerCase();
-      const results = allNews.filter(news => 
-        news.title.toLowerCase().includes(query) ||
-        news.subtitle.toLowerCase().includes(query) ||
-        news.content.toLowerCase().includes(query)
-      );
-      setFilteredNews(results);
+
+      const scoredNews = allNews
+        .map(news => {
+          let score = 0;
+          const title = news.title.toLowerCase();
+          const subtitle = news.subtitle.toLowerCase();
+          const content = news.content.toLowerCase();
+
+          if (title.includes(query)) score += 10;
+          if (subtitle.includes(query)) score += 5;
+          if (content.includes(query)) score += 1;
+
+          // Coincidencia exacta
+          if (title === query) score += 20;
+          if (subtitle === query) score += 10;
+
+          return { ...news, _score: score };
+        })
+        .filter(item => item._score > 0)
+        .sort((a, b) => b._score - a._score); // Mayor puntuación primero
+
+      setFilteredNews(scoredNews);
     }
   }, [searchQuery, allNews]);
 
   const featuredNews = filteredNews.slice(0, 4);
   const otherNews = filteredNews.slice(4);
-  const pageSize = 10; // ✅ Cambiado a 10 noticias por página
+  const pageSize = 10;
   const [page, setPage] = useState(1);
+
+  // ✅ Scroll al cambiar de página
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    // Desplazar al inicio del contenedor principal del listado
+    document.querySelector('main')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const startIndex = (page - 1) * pageSize;
   const paginatedNews = otherNews.slice(startIndex, startIndex + pageSize);
   const totalPages = Math.ceil(otherNews.length / pageSize);
@@ -371,7 +396,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               {totalPages > 1 && (
                 <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-center items-center space-x-2 mt-6">
                   <button 
-                    onClick={() => setPage(Math.max(1, page - 1))}
+                    onClick={() => handlePageChange(Math.max(1, page - 1))}
                     disabled={page === 1}
                     className={`px-4 py-2 rounded-lg ${page === 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
                   >
@@ -382,7 +407,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                     return (
                       <button 
                         key={pageNum}
-                        onClick={() => setPage(pageNum)}
+                        onClick={() => handlePageChange(pageNum)}
                         className={`px-4 py-2 rounded-lg ${page === pageNum ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'} transition-colors`}
                       >
                         {pageNum}
@@ -392,14 +417,14 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                   {totalPages > 5 && <span>...</span>}
                   {totalPages > 5 && (
                     <button 
-                      onClick={() => setPage(totalPages)}
+                      onClick={() => handlePageChange(totalPages)}
                       className={`px-4 py-2 rounded-lg ${page === totalPages ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'} transition-colors`}
                     >
                       {totalPages}
                     </button>
                   )}
                   <button 
-                    onClick={() => setPage(Math.min(totalPages, page + 1))}
+                    onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
                     disabled={page === totalPages}
                     className={`px-4 py-2 rounded-lg ${page === totalPages ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
                   >
