@@ -1,7 +1,7 @@
 // pages/index.js
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import CotizacionesWidget from '../components/CotizacionesWidget';
 
@@ -304,46 +304,22 @@ const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
 
 export default function Home({ allNews, sidebarNews, currentDate }) {
   const [searchQuery, setSearchQuery] = useState('');
+  const [filteredNews, setFilteredNews] = useState(allNews);
   const [page, setPage] = useState(1);
-  const mainRef = useRef(null);
 
-  // Filtrar y ordenar **antes** de separar destacadas
-  const filteredNews = React.useMemo(() => {
+  useEffect(() => {
     if (!searchQuery.trim()) {
-      return allNews;
+      setFilteredNews(allNews);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const results = allNews.filter(news => 
+        news.title.toLowerCase().includes(query) ||
+        news.subtitle.toLowerCase().includes(query) ||
+        news.content.toLowerCase().includes(query)
+      );
+      setFilteredNews(results);
     }
-
-    const query = searchQuery.toLowerCase();
-    return allNews
-      .map(news => {
-        let score = 0;
-        const title = news.title.toLowerCase();
-        const subtitle = news.subtitle.toLowerCase();
-        const content = news.content.toLowerCase();
-
-        if (title.includes(query)) score += 10;
-        if (subtitle.includes(query)) score += 5;
-        if (content.includes(query)) score += 1;
-        if (title === query) score += 20;
-        if (subtitle === query) score += 10;
-
-        return { ...news, _score: score };
-      })
-      .filter(item => item._score > 0)
-      .sort((a, b) => b._score - a._score);
   }, [searchQuery, allNews]);
-
-  // Reiniciar página a 1 cuando cambie la búsqueda
-  useEffect(() => {
-    setPage(1);
-  }, [searchQuery]);
-
-  // Scroll al cambiar de página
-  useEffect(() => {
-    if (mainRef.current) {
-      mainRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [page]);
 
   const featuredNews = filteredNews.slice(0, 4);
   const otherNews = filteredNews.slice(4);
@@ -354,6 +330,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -368,7 +345,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
         <meta name="twitter:card" content="summary_large_image" />
       </Head>
 
-      <div ref={mainRef} className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-4">
           {featuredNews.length > 0 && (
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-6">

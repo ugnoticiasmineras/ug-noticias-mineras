@@ -1,5 +1,5 @@
 // pages/noticia/[cat]/[id].js
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -194,33 +194,6 @@ const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
   );
 };
 
-// ✅ Componente seguro para renderizar contenido con imágenes interactivas
-const ContentWithLightbox = ({ htmlContent, onImageClick }) => {
-  const contentRef = useRef(null);
-
-  useEffect(() => {
-    if (contentRef.current) {
-      const images = contentRef.current.querySelectorAll('img');
-      images.forEach(img => {
-        img.style.cursor = 'zoom-in';
-        const handleClick = () => onImageClick(img.src);
-        img.addEventListener('click', handleClick);
-        return () => img.removeEventListener('click', handleClick);
-      });
-    }
-  }, [htmlContent, onImageClick]);
-
-  return (
-    <div
-      ref={contentRef}
-      className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose"
-      dangerouslySetInnerHTML={{ __html: htmlContent }}
-    />
-  );
-};
-
-import { useRef } from 'react';
-
 export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
   const router = useRouter();
   const { cat, id } = router.query;
@@ -339,12 +312,9 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                   <div className="p-6">
                     <h3 className="font-bold text-2xl text-blue-900 dark:text-blue-100 mb-4">{noticia.title}</h3>
                     {noticia.subtitle && <p className="text-blue-700 dark:text-blue-300 font-medium mb-4">{noticia.subtitle}</p>}
-                    
-                    <ContentWithLightbox 
-                      htmlContent={noticia.content} 
-                      onImageClick={openLightbox} 
-                    />
-
+                    <div className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose" 
+                      dangerouslySetInnerHTML={{ __html: noticia.content }}>
+                    </div>
                     <div className="mt-6 pt-4 border-t border-blue-100 dark:border-blue-900">
                       <p className="text-blue-800 dark:text-blue-200 font-medium">{noticia.source}</p>
                       <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Publicado: {noticia.date}</p>
@@ -418,10 +388,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
             className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
             onClick={closeLightbox}
           >
-            <div 
-              className="relative max-w-4xl max-h-[90vh]" 
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="relative max-w-4xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
               <button 
                 className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 z-10"
                 onClick={closeLightbox}
@@ -497,7 +464,6 @@ export async function getServerSideProps({ params }) {
       }
     };
   } catch (err) {
-    // ✅ Evitar error 500: devolver notFound en lugar de fallar
     return { notFound: true };
   }
 }
