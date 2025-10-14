@@ -1,7 +1,7 @@
 // pages/index.js
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import CotizacionesWidget from '../components/CotizacionesWidget';
 
@@ -127,7 +127,6 @@ const getCategoryLabel = (categoryKey) => {
   }
 };
 
-// ✅ Funciones de compartir
 const shareOnWhatsApp = (news) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
   const title = encodeURIComponent(news.title);
@@ -145,7 +144,6 @@ const shareOnLinkedIn = (news) => {
   window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}`, '_blank', 'width=600,height=400');
 };
 
-// ✅ Tarjeta destacada: imagen arriba, texto abajo + botones de redes
 const renderFeaturedCard = ({ news }) => {
   if (!news.categoryKey) return null;
   
@@ -212,7 +210,6 @@ const renderFeaturedCard = ({ news }) => {
   );
 };
 
-// ✅ Tarjeta normal: con botones de redes
 const renderNewsCard = ({ news, basePath }) => {
   if (!news.categoryKey) return null;
   
@@ -309,7 +306,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredNews, setFilteredNews] = useState(allNews);
 
-  // ✅ Mejora: búsqueda con puntuación y orden por relevancia
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredNews(allNews);
@@ -327,14 +323,13 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
           if (subtitle.includes(query)) score += 5;
           if (content.includes(query)) score += 1;
 
-          // Coincidencia exacta
           if (title === query) score += 20;
           if (subtitle === query) score += 10;
 
           return { ...news, _score: score };
         })
         .filter(item => item._score > 0)
-        .sort((a, b) => b._score - a._score); // Mayor puntuación primero
+        .sort((a, b) => b._score - a._score);
 
       setFilteredNews(scoredNews);
     }
@@ -345,10 +340,8 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
   const pageSize = 10;
   const [page, setPage] = useState(1);
 
-  // ✅ Scroll al cambiar de página
   const handlePageChange = (newPage) => {
     setPage(newPage);
-    // Desplazar al inicio del contenedor principal del listado
     document.querySelector('main')?.scrollIntoView({ behavior: 'smooth' });
   };
 

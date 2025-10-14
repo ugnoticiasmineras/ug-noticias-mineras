@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import Layout from '../../../components/Layout';
-import CotizacionesWidget from '../../../components/CotizacionesWidget'; // ✅
+import CotizacionesWidget from '../../../components/CotizacionesWidget';
 
 const SITE_URL = 'https://ug-noticias-mineras.vercel.app';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
@@ -263,14 +263,14 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
         <meta property="og:url" content={`${SITE_URL}/noticia/${cat}/${id}`} />
         <meta property="og:title" content={noticia.title} />
         <meta property="og:description" content={noticia.subtitle} />
-        <meta property="og:image" content={noticia.image} /> {/* ✅ Imagen dinámica de la noticia */}
+        <meta property="og:image" content={noticia.image} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="UG Noticias Mineras" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={noticia.title} />
         <meta name="twitter:description" content={noticia.subtitle} />
-        <meta name="twitter:image" content={noticia.image} /> {/* ✅ Imagen dinámica de la noticia */}
+        <meta name="twitter:image" content={noticia.image} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
       </Head>
 
@@ -355,7 +355,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
           </div>
 
           <div className="lg:col-span-1 hidden lg:block">
-            {/* ✅ WIDGET EN LA PARTE SUPERIOR */}
             <CotizacionesWidget />
             
             {Object.entries(categories).map(([key, _]) => {
@@ -384,12 +383,16 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
           </div>
         </div>
 
+        {/* ✅ Lightbox actualizado: cierra al hacer clic fuera o con ESC */}
         {lightboxOpen && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
             onClick={closeLightbox}
           >
-            <div className="relative max-w-4xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+            <div 
+              className="relative max-w-4xl max-h-[90vh]" 
+              onClick={(e) => e.stopPropagation()}
+            >
               <button 
                 className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 z-10"
                 onClick={closeLightbox}
