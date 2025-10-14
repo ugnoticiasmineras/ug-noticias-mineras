@@ -305,10 +305,12 @@ const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
 export default function Home({ allNews, sidebarNews, currentDate }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredNews, setFilteredNews] = useState(allNews);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredNews(allNews);
+      setPage(1); // ✅ Reiniciar a página 1
     } else {
       const query = searchQuery.toLowerCase();
 
@@ -322,7 +324,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
           if (title.includes(query)) score += 10;
           if (subtitle.includes(query)) score += 5;
           if (content.includes(query)) score += 1;
-
           if (title === query) score += 20;
           if (subtitle === query) score += 10;
 
@@ -332,22 +333,21 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
         .sort((a, b) => b._score - a._score);
 
       setFilteredNews(scoredNews);
+      setPage(1); // ✅ Reiniciar a página 1 al buscar
     }
   }, [searchQuery, allNews]);
 
   const featuredNews = filteredNews.slice(0, 4);
   const otherNews = filteredNews.slice(4);
   const pageSize = 10;
-  const [page, setPage] = useState(1);
+  const startIndex = (page - 1) * pageSize;
+  const paginatedNews = otherNews.slice(startIndex, startIndex + pageSize);
+  const totalPages = Math.ceil(otherNews.length / pageSize);
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
     document.querySelector('main')?.scrollIntoView({ behavior: 'smooth' });
   };
-
-  const startIndex = (page - 1) * pageSize;
-  const paginatedNews = otherNews.slice(startIndex, startIndex + pageSize);
-  const totalPages = Math.ceil(otherNews.length / pageSize);
 
   return (
     <Layout currentDate={currentDate}>

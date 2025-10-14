@@ -222,9 +222,17 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     } else {
       document.body.style.overflow = 'auto';
     }
+
+    // ✅ Exponer openLightbox globalmente para imágenes del contenido
+    window.openLightbox = (src) => {
+      setLightboxImage(src);
+      setLightboxOpen(true);
+    };
+
     return () => {
       window.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = 'auto';
+      delete window.openLightbox;
     };
   }, [lightboxOpen]);
 
@@ -252,6 +260,23 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     const url = encodeURIComponent(`${SITE_URL}/noticia/${cat}/${id}`);
     const title = encodeURIComponent(noticia.title);
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}`, '_blank', 'width=600,height=400');
+  };
+
+  // ✅ Procesar contenido para añadir lightbox a todas las imágenes
+  const processContentWithLightbox = (htmlContent) => {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+    const images = doc.querySelectorAll('img');
+
+    images.forEach(img => {
+      const src = img.src;
+      if (src) {
+        img.setAttribute('onclick', 'window.openLightbox(this.src)');
+        img.style.cursor = 'zoom-in';
+      }
+    });
+
+    return doc.body.innerHTML;
   };
 
   return (
@@ -312,9 +337,12 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                   <div className="p-6">
                     <h3 className="font-bold text-2xl text-blue-900 dark:text-blue-100 mb-4">{noticia.title}</h3>
                     {noticia.subtitle && <p className="text-blue-700 dark:text-blue-300 font-medium mb-4">{noticia.subtitle}</p>}
-                    <div className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose" 
-                      dangerouslySetInnerHTML={{ __html: noticia.content }}>
-                    </div>
+                    <div 
+                      className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose"
+                      dangerouslySetInnerHTML={{ 
+                        __html: processContentWithLightbox(noticia.content) 
+                      }}
+                    />
                     <div className="mt-6 pt-4 border-t border-blue-100 dark:border-blue-900">
                       <p className="text-blue-800 dark:text-blue-200 font-medium">{noticia.source}</p>
                       <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Publicado: {noticia.date}</p>
@@ -383,7 +411,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
           </div>
         </div>
 
-        {/* ✅ Lightbox actualizado: cierra al hacer clic fuera o con ESC */}
+        {/* ✅ Lightbox: cierra con clic fuera o ESC */}
         {lightboxOpen && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
