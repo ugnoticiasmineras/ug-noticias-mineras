@@ -135,42 +135,6 @@ const getCategoryLabel = (categoryKey) => {
   }
 };
 
-// ✅ Componente para renderizar el contenido con lightbox en todas las imágenes
-const ContentWithLightbox = ({ htmlContent, onImageClick }) => {
-  // Crear un documento temporal para manipular el HTML
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlContent, 'text/html');
-  const images = doc.querySelectorAll('img');
-
-  images.forEach(img => {
-    const src = img.src;
-    if (!src) return;
-
-    // Crear un contenedor clickeable
-    const wrapper = doc.createElement('div');
-    wrapper.style.cursor = 'zoom-in';
-    wrapper.style.display = 'inline-block';
-    wrapper.style.width = '100%';
-    wrapper.onclick = () => onImageClick(src);
-
-    // Clonar la imagen y añadirla al contenedor
-    const imgClone = img.cloneNode(true);
-    imgClone.style.width = '100%';
-    imgClone.style.height = 'auto';
-    wrapper.appendChild(imgClone);
-
-    // Reemplazar la imagen original por el contenedor
-    img.parentNode.replaceChild(wrapper, img);
-  });
-
-  return (
-    <div 
-      className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose"
-      dangerouslySetInnerHTML={{ __html: doc.body.innerHTML }}
-    />
-  );
-};
-
 export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
   const router = useRouter();
   const { cat, id } = router.query;
@@ -290,10 +254,10 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                     <h3 className="font-bold text-2xl text-blue-900 dark:text-blue-100 mb-4">{noticia.title}</h3>
                     {noticia.subtitle && <p className="text-blue-700 dark:text-blue-300 font-medium mb-4">{noticia.subtitle}</p>}
                     
-                    {/* ✅ Aquí renderizamos el contenido con lightbox en todas las imágenes */}
-                    <ContentWithLightbox 
-                      htmlContent={noticia.content} 
-                      onImageClick={openLightbox} 
+                    {/* ✅ Mostramos el contenido SIN modificar las imágenes */}
+                    <div 
+                      className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose"
+                      dangerouslySetInnerHTML={{ __html: noticia.content }}
                     />
 
                     <div className="mt-6 pt-4 border-t border-blue-100 dark:border-blue-900">
