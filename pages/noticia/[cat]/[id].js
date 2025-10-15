@@ -135,9 +135,8 @@ const getCategoryLabel = (categoryKey) => {
   }
 };
 
-// ✅ Componente para renderizar el contenido con lightbox en todas las imágenes
+// ✅ Renderizado seguro del contenido: todas las imágenes abren SOLO el lightbox
 const ContentWithLightbox = ({ htmlContent, onImageClick }) => {
-  // Crear un documento temporal para manipular el HTML
   const parser = new DOMParser();
   const doc = parser.parseFromString(htmlContent, 'text/html');
   const images = doc.querySelectorAll('img');
@@ -146,20 +145,33 @@ const ContentWithLightbox = ({ htmlContent, onImageClick }) => {
     const src = img.src;
     if (!src) return;
 
-    // Crear un contenedor clickeable
+    // Crear un <div> contenedor seguro
     const wrapper = doc.createElement('div');
     wrapper.style.cursor = 'zoom-in';
-    wrapper.style.display = 'inline-block';
-    wrapper.style.width = '100%';
-    wrapper.onclick = () => onImageClick(src);
+    wrapper.style.display = 'block';
+    wrapper.style.margin = '1rem 0';
+    wrapper.style.textAlign = 'center';
 
-    // Clonar la imagen y añadirla al contenedor
-    const imgClone = img.cloneNode(true);
-    imgClone.style.width = '100%';
-    imgClone.style.height = 'auto';
-    wrapper.appendChild(imgClone);
+    // Nueva imagen SIN enlace, SIN atributos peligrosos
+    const safeImg = doc.createElement('img');
+    safeImg.src = src;
+    safeImg.alt = 'Imagen de la noticia';
+    safeImg.style.maxWidth = '100%';
+    safeImg.style.height = 'auto';
+    safeImg.style.borderRadius = '8px';
+    
+    // Prevenir clic derecho y arrastre
+    safeImg.setAttribute('oncontextmenu', 'return false;');
+    safeImg.setAttribute('draggable', 'false');
 
-    // Reemplazar la imagen original por el contenedor
+    // Abrir lightbox al hacer clic
+    safeImg.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onImageClick(src);
+    };
+
+    wrapper.appendChild(safeImg);
     img.parentNode.replaceChild(wrapper, img);
   });
 
@@ -193,15 +205,24 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     const handleEsc = (e) => {
       if (e.key === 'Escape') setLightboxOpen(false);
     };
+    const handleClickOutside = (e) => {
+      if (e.target.classList.contains('lightbox-overlay')) {
+        setLightboxOpen(false);
+      }
+    };
+
     if (lightboxOpen) {
-      window.addEventListener('keydown', handleEsc);
       document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleEsc);
+      window.addEventListener('click', handleClickOutside);
     } else {
       document.body.style.overflow = 'auto';
     }
+
     return () => {
-      window.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = 'auto';
+      window.removeEventListener('keydown', handleEsc);
+      window.removeEventListener('click', handleClickOutside);
     };
   }, [lightboxOpen]);
 
@@ -280,6 +301,8 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                             </div>
                           `;
                         }}
+                        onContextMenu={(e) => e.preventDefault()}
+                        draggable={false}
                       />
                       <div className={`absolute top-4 left-4 ${noticia.categoryColor} text-white px-3 py-1 rounded-full font-semibold text-sm`}>
                         {getCategoryLabel(noticia.categoryKey)}
@@ -290,7 +313,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                     <h3 className="font-bold text-2xl text-blue-900 dark:text-blue-100 mb-4">{noticia.title}</h3>
                     {noticia.subtitle && <p className="text-blue-700 dark:text-blue-300 font-medium mb-4">{noticia.subtitle}</p>}
                     
-                    {/* ✅ Aquí renderizamos el contenido con lightbox en todas las imágenes */}
                     <ContentWithLightbox 
                       htmlContent={noticia.content} 
                       onImageClick={openLightbox} 
@@ -383,7 +405,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
 
         {lightboxOpen && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+            className="lightbox-overlay fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
             onClick={closeLightbox}
           >
             <div className="relative max-w-4xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
@@ -398,6 +420,8 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                 src={lightboxImage} 
                 alt="Imagen ampliada"
                 className="max-h-[90vh] max-w-full object-contain"
+                onContextMenu={(e) => e.preventDefault()}
+                draggable={false}
               />
             </div>
           </div>
