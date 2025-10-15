@@ -135,6 +135,38 @@ const getCategoryLabel = (categoryKey) => {
   }
 };
 
+// ✅ Procesa el contenido para que TODAS las imágenes usen el lightbox interno
+const ContentWithSafeImages = ({ htmlContent, onImageClick }) => {
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+
+  const images = tempDiv.querySelectorAll('img');
+  images.forEach(img => {
+    const src = img.src;
+    if (!src) return;
+
+    // Evitar que la imagen sea arrastrable o tenga menú contextual
+    img.setAttribute('draggable', 'false');
+    img.style.pointerEvents = 'none'; // ✅ Esto evita que se abra en Cloudinary
+
+    // Envolver en un contenedor clickeable
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'inline-block';
+    wrapper.style.cursor = 'zoom-in';
+    wrapper.style.margin = '0.5rem 0';
+    wrapper.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onImageClick(src);
+    };
+
+    img.parentNode.replaceChild(wrapper, img);
+    wrapper.appendChild(img);
+  });
+
+  return tempDiv.innerHTML;
+};
+
 export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
   const router = useRouter();
   const { cat, id } = router.query;
@@ -152,6 +184,20 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
       </Layout>
     );
   }
+
+  // Procesar contenido una sola vez
+  const [processedContent, setProcessedContent] = useState('');
+  useEffect(() => {
+    try {
+      const safeHtml = ContentWithSafeImages({
+        htmlContent: noticia.content,
+        onImageClick: openLightbox
+      });
+      setProcessedContent(safeHtml);
+    } catch (e) {
+      setProcessedContent(noticia.content);
+    }
+  }, [noticia.content]);
 
   useEffect(() => {
     const handleEsc = (e) => {
@@ -254,10 +300,10 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                     <h3 className="font-bold text-2xl text-blue-900 dark:text-blue-100 mb-4">{noticia.title}</h3>
                     {noticia.subtitle && <p className="text-blue-700 dark:text-blue-300 font-medium mb-4">{noticia.subtitle}</p>}
                     
-                    {/* ✅ Mostramos el contenido SIN modificar las imágenes */}
+                    {/* ✅ Contenido con imágenes seguras */}
                     <div 
                       className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose"
-                      dangerouslySetInnerHTML={{ __html: noticia.content }}
+                      dangerouslySetInnerHTML={{ __html: processedContent }}
                     />
 
                     <div className="mt-6 pt-4 border-t border-blue-100 dark:border-blue-900">
@@ -362,6 +408,8 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                 src={lightboxImage} 
                 alt="Imagen ampliada"
                 className="max-h-[90vh] max-w-full object-contain"
+                onContextMenu={(e) => e.preventDefault()}
+                draggable={false}
               />
             </div>
           </div>
