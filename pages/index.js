@@ -302,32 +302,27 @@ const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
   );
 };
 
-// ✅ Ícono de búsqueda en sidebar
-const SearchCategoryCard = () => {
-  return (
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
-      <Link href="/noticia/buscar" legacyBehavior>
-        <a className="block">
-          <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-3 text-center">
-            <h3 className="text-lg font-bold text-white">Buscar Noticias</h3>
-            <div className="w-16 h-1 bg-red-500 mx-auto mt-1"></div>
-          </div>
-          <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-        </a>
-      </Link>
-    </div>
-  );
-};
-
 export default function Home({ allNews, sidebarNews, currentDate }) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredNews, setFilteredNews] = useState(allNews);
   const [page, setPage] = useState(1);
 
-  const featuredNews = allNews.slice(0, 4);
-  const otherNews = allNews.slice(4);
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setFilteredNews(allNews);
+    } else {
+      const query = searchQuery.toLowerCase();
+      const results = allNews.filter(news => 
+        news.title.toLowerCase().includes(query) ||
+        news.subtitle.toLowerCase().includes(query) ||
+        news.content.toLowerCase().includes(query)
+      );
+      setFilteredNews(results);
+    }
+  }, [searchQuery, allNews]);
+
+  const featuredNews = filteredNews.slice(0, 4);
+  const otherNews = filteredNews.slice(4);
   const pageSize = 10;
   const startIndex = (page - 1) * pageSize;
   const paginatedNews = otherNews.slice(startIndex, startIndex + pageSize);
@@ -420,8 +415,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 
         <div className="lg:col-span-1">
           <CotizacionesWidget />
-          
-          <SearchCategoryCard />
           
           {Object.entries(categories).map(([key, _]) => (
             <div key={key} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">

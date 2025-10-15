@@ -14,8 +14,7 @@ const categories = {
   sanjuan: 67720,
   sindicales: 3865306,
   opinion: 352,
-  internacionales: 17119,
-  buscar: null // ✅ para soportar ruta /buscar
+  internacionales: 17119
 };
 
 const sponsors = [
@@ -121,7 +120,6 @@ const getCategoryName = (categoryKey) => {
     case 'sindicales': return 'Noticias Sindicales';
     case 'internacionales': return 'Noticias Internacionales';
     case 'opinion': return 'Columna de Opinión';
-    case 'buscar': return 'Resultados de Búsqueda';
     default: return 'Noticia';
   }
 };
@@ -133,35 +131,8 @@ const getCategoryLabel = (categoryKey) => {
     case 'sindicales': return 'SINDICAL';
     case 'internacionales': return 'INTERNACIONAL';
     case 'opinion': return 'OPINIÓN';
-    case 'buscar': return 'BÚSQUEDA';
     default: return 'NOTICIA';
   }
-};
-
-// ✅ Componente seguro para renderizar contenido con lightbox en imágenes
-const ContentWithLightbox = ({ htmlContent, onImageClick }) => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlContent, 'text/html');
-  const images = doc.querySelectorAll('img');
-
-  // Reemplazar cada <img> por un <button> que abre el lightbox
-  images.forEach(img => {
-    const src = img.src;
-    if (!src) return;
-    const button = doc.createElement('button');
-    button.type = 'button';
-    button.className = 'cursor-zoom-in w-full h-auto';
-    button.onclick = () => onImageClick(src);
-    button.innerHTML = `<img src="${src}" alt="Imagen de noticia" class="w-full h-auto" />`;
-    img.parentNode.replaceChild(button, img);
-  });
-
-  return (
-    <div 
-      className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose"
-      dangerouslySetInnerHTML={{ __html: doc.body.innerHTML }}
-    />
-  );
 };
 
 export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
@@ -282,12 +253,9 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                   <div className="p-6">
                     <h3 className="font-bold text-2xl text-blue-900 dark:text-blue-100 mb-4">{noticia.title}</h3>
                     {noticia.subtitle && <p className="text-blue-700 dark:text-blue-300 font-medium mb-4">{noticia.subtitle}</p>}
-                    
-                    <ContentWithLightbox 
-                      htmlContent={noticia.content} 
-                      onImageClick={openLightbox} 
-                    />
-
+                    <div className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose" 
+                      dangerouslySetInnerHTML={{ __html: noticia.content }}>
+                    </div>
                     <div className="mt-6 pt-4 border-t border-blue-100 dark:border-blue-900">
                       <p className="text-blue-800 dark:text-blue-200 font-medium">{noticia.source}</p>
                       <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">Publicado: {noticia.date}</p>
@@ -330,12 +298,30 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
           <div className="lg:col-span-1 hidden lg:block">
             <CotizacionesWidget />
             
-            {Object.entries(categories).filter(([key]) => key !== cat && key !== 'buscar').map(([key, _]) => (
-              renderSidebarCategoryCard({
-                categoryKey: key,
-                latestNews: sidebarNews[key]
-              })
-            ))}
+            {Object.entries(categories).map(([key, _]) => {
+              if (key === cat) return null;
+              return (
+                <div key={key} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
+                  <Link href={`/noticia/${key}`} legacyBehavior>
+                    <a className="block">
+                      <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-3 text-center">
+                        <h3 className="text-lg font-bold text-white">{getCategoryName(key)}</h3>
+                        <div className="w-16 h-1 bg-red-500 mx-auto mt-1"></div>
+                      </div>
+                      <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
+                        {sidebarNews[key] ? (
+                          <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1">
+                            {sidebarNews[key].title}
+                          </p>
+                        ) : (
+                          <p className="text-gray-500 dark:text-gray-400 text-center text-sm">Sin noticias aún</p>
+                        )}
+                      </div>
+                    </a>
+                  </Link>
+                </div>
+              );
+            })}
             
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mt-4">
               <div className="p-3 space-y-3">
@@ -385,10 +371,6 @@ export async function getServerSideProps({ params }) {
   const { cat, id } = params;
   const categoryId = categories[cat];
 
-  if (cat === 'buscar') {
-    return { notFound: true }; // La búsqueda se maneja en otra página
-  }
-
   if (!categoryId) {
     return { notFound: true };
   }
@@ -410,7 +392,7 @@ export async function getServerSideProps({ params }) {
 
     const sidebarNews = {};
     for (const [key, catId] of Object.entries(categories)) {
-      if (key === cat || key === 'buscar') continue;
+      if (key === cat) continue;
       try {
         const res = await fetch(
           `${WORDPRESS_API_URL}/posts?categories=${catId}&per_page=1&orderby=date&order=desc&_embed`,
