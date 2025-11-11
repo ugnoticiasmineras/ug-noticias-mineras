@@ -135,9 +135,47 @@ const getCategoryLabel = (categoryKey) => {
   }
 };
 
+// ✅ Componente para renderizar contenido con imágenes clickeables que abren lightbox
+const ContentWithLightbox = ({ htmlContent, onImageClick }) => {
+  // Usamos un div temporal para manipular el DOM del contenido
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+
+  const images = tempDiv.querySelectorAll('img');
+  images.forEach(img => {
+    const src = img.src;
+    if (!src) return;
+
+    // Removemos posibles enlaces que envuelvan la imagen
+    if (img.parentElement.tagName === 'A') {
+      img.parentElement.replaceWith(img);
+    }
+
+    // Creamos un contenedor clickeable
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'inline-block';
+    wrapper.style.cursor = 'zoom-in';
+    wrapper.style.margin = '0.5rem 0';
+    wrapper.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onImageClick(src);
+    };
+
+    // Remplazamos la imagen por el contenedor con la imagen adentro
+    img.parentNode.replaceChild(wrapper, img);
+    wrapper.appendChild(img);
+  });
+
+  return tempDiv.innerHTML;
+};
+
 export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
   const router = useRouter();
   const { cat, id } = router.query;
+
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState('');
 
   if (!noticia) {
     return (
@@ -150,8 +188,45 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     );
   }
 
-  // ✅ NO hay lightbox, NO hay zoom, NO hay eventos
-  // Solo mostramos el contenido tal cual, sin manipular imágenes
+  // Procesamos el contenido para añadir eventos de lightbox a las imágenes
+  const [processedContent, setProcessedContent] = useState('');
+  useEffect(() => {
+    try {
+      const safeHtml = ContentWithLightbox({
+        htmlContent: noticia.content,
+        onImageClick: openLightbox
+      });
+      setProcessedContent(safeHtml);
+    } catch (e) {
+      // Si falla, usamos el contenido original sin manipular
+      setProcessedContent(noticia.content);
+    }
+  }, [noticia.content]);
+
+  useEffect(() => {
+    const handleEsc = (e) => {
+      if (e.key === 'Escape') setLightboxOpen(false);
+    };
+    if (lightboxOpen) {
+      window.addEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+      document.body.style.overflow = 'auto';
+    };
+  }, [lightboxOpen]);
+
+  const openLightbox = (imgSrc) => {
+    setLightboxImage(imgSrc);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+  };
 
   const shareOnWhatsApp = () => {
     const url = encodeURIComponent(`${SITE_URL}/noticia/${cat}/${id}`);
@@ -203,7 +278,10 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
               <div className="p-6">
                 <div className="bg-gradient-to-br from-blue-50 to-white dark:from-gray-700 dark:to-gray-800 rounded-xl shadow-lg border border-blue-200 dark:border-blue-900 overflow-hidden">
                   {noticia.image && (
-                    <div className="h-80 bg-gradient-to-br from-blue-200 to-blue-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center relative overflow-hidden">
+                    <div 
+                      className="h-80 bg-gradient-to-br from-blue-200 to-blue-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center relative overflow-hidden cursor-pointer"
+                      onClick={() => openLightbox(noticia.image)}
+                    >
                       <img 
                         src={noticia.image} 
                         alt={noticia.title} 
@@ -226,10 +304,10 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                     <h3 className="font-bold text-2xl text-blue-900 dark:text-blue-100 mb-4">{noticia.title}</h3>
                     {noticia.subtitle && <p className="text-blue-700 dark:text-blue-300 font-medium mb-4">{noticia.subtitle}</p>}
                     
-                    {/* ✅ Imágenes del contenido: NO son clickeables */}
+                    {/* ✅ Contenido con imágenes que abren lightbox */}
                     <div 
                       className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose"
-                      dangerouslySetInnerHTML={{ __html: noticia.content }}
+                      dangerouslySetInnerHTML={{ __html: processedContent }}
                     />
 
                     <div className="mt-6 pt-4 border-t border-blue-100 dark:border-blue-900">
@@ -290,9 +368,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                             {sidebarNews[key].title}
                           </p>
                         ) : (
-                          <p className="text-gray-500 dark:text-gray-400 text-center text-sm">
-                            Sin noticias aún
-                          </p>
+                          <p className="text-gray-500 dark:text-gray-400 text-center text-sm">Sin noticias aún</p>
                         )}
                       </div>
                     </a>
@@ -318,6 +394,31 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
             </div>
           </div>
         </div>
+
+        {/* ✅ Lightbox para imágenes del contenido */}
+        {lightboxOpen && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+            onClick={closeLightbox}
+          >
+            <div className="relative max-w-4xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+              <button 
+                className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 z-10"
+                onClick={closeLightbox}
+                aria-label="Cerrar"
+              >
+                ✕
+              </button>
+              <img 
+                src={lightboxImage} 
+                alt="Imagen ampliada"
+                className="max-h-[90vh] max-w-full object-contain"
+                onContextMenu={(e) => e.preventDefault()}
+                draggable={false}
+              />
+            </div>
+          </div>
+        )}
       </Layout>
     </>
   );
