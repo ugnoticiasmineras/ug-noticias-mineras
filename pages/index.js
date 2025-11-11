@@ -249,36 +249,17 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
   const [filteredNews, setFilteredNews] = useState(allNews);
   const [page, setPage] = useState(1);
 
-  // 🔍 Filtrar y ordenar por relevancia
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredNews(allNews);
-      setPage(1); // Reiniciar a página 1
     } else {
       const query = searchQuery.toLowerCase();
-
-      const scoredNews = allNews
-        .map(news => {
-          let score = 0;
-          const title = news.title.toLowerCase();
-          const subtitle = news.subtitle.toLowerCase();
-          const content = news.content.toLowerCase();
-
-          if (title.includes(query)) score += 10;
-          if (subtitle.includes(query)) score += 5;
-          if (content.includes(query)) score += 1;
-
-          // Coincidencia exacta
-          if (title === query) score += 20;
-          if (subtitle === query) score += 10;
-
-          return { ...news, _score: score };
-        })
-        .filter(item => item._score > 0)
-        .sort((a, b) => b._score - a._score); // Mayor puntuación primero
-
-      setFilteredNews(scoredNews);
-      setPage(1); // Reiniciar paginación
+      const results = allNews.filter(news => 
+        news.title.toLowerCase().includes(query) ||
+        news.subtitle.toLowerCase().includes(query) ||
+        news.content.toLowerCase().includes(query)
+      );
+      setFilteredNews(results);
     }
   }, [searchQuery, allNews]);
 
@@ -376,7 +357,8 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 
         <div className="lg:col-span-1">
           <CotizacionesWidget />
-          
+
+          {/* ✅ Categorías sin la lupa */}
           {Object.entries(categories).map(([key, _]) => (
             <div key={key} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
               <Link href={`/noticia/${key}`} legacyBehavior>
@@ -398,7 +380,8 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </Link>
             </div>
           ))}
-          
+
+          {/* ✅ Sin el logo de GitHub */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
             <div className="p-3 space-y-3">
               {[...Array(5)].map((_, i) => (
