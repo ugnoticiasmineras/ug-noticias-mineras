@@ -127,47 +127,46 @@ const getCategoryLabel = (categoryKey) => {
   }
 };
 
-// ✅ Componente seguro para imagen con fallback
-const NewsImage = ({ src, alt, className, categoryColor, categoryLabel }) => {
-  const [imgError, setImgError] = useState(false);
+const shareOnWhatsApp = (news) => {
+  const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
+  const title = encodeURIComponent(news.title);
+  window.open(`https://wa.me/?text=${title}%20${url}`, '_blank');
+};
 
-  if (imgError) {
-    return (
-      <div className="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-        <div className="text-blue-800 dark:text-blue-200 font-bold text-center p-2">{alt}</div>
-      </div>
-    );
-  }
+const shareOnFacebook = (news) => {
+  const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+};
 
-  return (
-    <>
-      <img 
-        src={src} 
-        alt={alt} 
-        className={className}
-        onError={() => setImgError(true)}
-      />
-      <div className={`absolute top-2 left-2 ${categoryColor} text-white px-2 py-1 rounded text-xs font-semibold`}>
-        {categoryLabel}
-      </div>
-    </>
-  );
+const shareOnLinkedIn = (news) => {
+  const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
+  const title = encodeURIComponent(news.title);
+  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}`, '_blank', 'width=600,height=400');
 };
 
 const renderFeaturedCard = ({ news }) => {
   if (!news.categoryKey) return null;
   
   return (
-    <Link href={`/noticia/${news.categoryKey}/${news.id}`} legacyBehavior>
+    <Link key={news.id} href={`/noticia/${news.categoryKey}/${news.id}`} legacyBehavior>
       <a className="block bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-blue-100 dark:border-blue-900 overflow-hidden">
         <div className="h-48 w-full relative">
-          <NewsImage
-            src={news.image}
-            alt={news.title}
+          <img 
+            src={news.image} 
+            alt={news.title} 
             className="w-full h-full object-cover"
-            categoryColor={news.categoryColor}
-            categoryLabel={getCategoryLabel(news.categoryKey)}
+            onError={(e) => {
+              e.target.style.display = 'none';
+              e.target.parentNode.innerHTML = `
+                <div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+                  <div class="text-blue-800 dark:text-blue-200 font-bold text-center p-2">${news.title}</div>
+                </div>
+              `;
+            }}
           />
+          <div className={`absolute top-2 left-2 ${news.categoryColor} text-white px-2 py-1 rounded text-xs font-semibold`}>
+            {getCategoryLabel(news.categoryKey)}
+          </div>
         </div>
         <div className="p-4">
           <h3 className="font-bold text-blue-900 dark:text-blue-100 text-lg">{news.title}</h3>
@@ -182,21 +181,30 @@ const renderFeaturedCard = ({ news }) => {
   );
 };
 
-const renderNewsCard = ({ news }) => {
+const renderNewsCard = ({ news, basePath }) => {
   if (!news.categoryKey) return null;
   
   return (
-    <Link href={`/noticia/${news.categoryKey}/${news.id}`} legacyBehavior>
+    <Link key={news.id} href={`/noticia/${news.categoryKey}/${news.id}`} legacyBehavior>
       <a className="block bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100 dark:border-blue-900 overflow-hidden">
         <div className="flex flex-col md:flex-row">
           <div className="md:w-1/3 h-48 md:h-full relative">
-            <NewsImage
-              src={news.image}
-              alt={news.title}
+            <img 
+              src={news.image} 
+              alt={news.title} 
               className="w-full h-full object-cover rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
-              categoryColor={news.categoryColor}
-              categoryLabel={getCategoryLabel(news.categoryKey)}
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.parentNode.innerHTML = `
+                  <div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
+                    <div class="text-blue-800 dark:text-blue-200 font-bold text-center p-4">${news.title}</div>
+                  </div>
+                `;
+              }}
             />
+            <div className={`absolute top-2 left-2 ${news.categoryColor} text-white px-2 py-1 rounded text-xs font-semibold`}>
+              {getCategoryLabel(news.categoryKey)}
+            </div>
           </div>
           <div className="md:w-2/3 p-6">
             <h3 className="font-bold text-blue-900 dark:text-blue-100 text-xl">{news.title}</h3>
@@ -241,17 +249,36 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
   const [filteredNews, setFilteredNews] = useState(allNews);
   const [page, setPage] = useState(1);
 
+  // 🔍 Filtrar y ordenar por relevancia
   useEffect(() => {
     if (!searchQuery.trim()) {
       setFilteredNews(allNews);
+      setPage(1); // Reiniciar a página 1
     } else {
       const query = searchQuery.toLowerCase();
-      const results = allNews.filter(news => 
-        news.title.toLowerCase().includes(query) ||
-        news.subtitle.toLowerCase().includes(query) ||
-        news.content.toLowerCase().includes(query)
-      );
-      setFilteredNews(results);
+
+      const scoredNews = allNews
+        .map(news => {
+          let score = 0;
+          const title = news.title.toLowerCase();
+          const subtitle = news.subtitle.toLowerCase();
+          const content = news.content.toLowerCase();
+
+          if (title.includes(query)) score += 10;
+          if (subtitle.includes(query)) score += 5;
+          if (content.includes(query)) score += 1;
+
+          // Coincidencia exacta
+          if (title === query) score += 20;
+          if (subtitle === query) score += 10;
+
+          return { ...news, _score: score };
+        })
+        .filter(item => item._score > 0)
+        .sort((a, b) => b._score - a._score); // Mayor puntuación primero
+
+      setFilteredNews(scoredNews);
+      setPage(1); // Reiniciar paginación
     }
   }, [searchQuery, allNews]);
 
@@ -264,7 +291,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.querySelector('main')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -302,7 +329,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
             </div>
             <div className="p-6">
               <div className="space-y-6">
-                {paginatedNews.map(news => news.categoryKey && renderNewsCard({ news }))}
+                {paginatedNews.map(news => news.categoryKey && renderNewsCard({ news, basePath: '' }))}
               </div>
               {totalPages > 1 && (
                 <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-center items-center space-x-2 mt-6">
