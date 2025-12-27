@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Layout from '../../../components/Layout';
 import CotizacionesWidget from '../../../components/CotizacionesWidget';
 
-// ✅ Solo cambiamos esta línea
+// ✅ Dominio personalizado, sin espacios
 const SITE_URL = 'https://ugnoticiasmineras.com';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
 
@@ -43,9 +43,10 @@ const cleanText = (text) => {
     .trim();
 };
 
+// ✅ Aseguramos que la URL sea limpia y segura
 const forceHttps = (url) => {
   if (!url) return `${SITE_URL}/logo.png`;
-  return url.replace(/^http:/, 'https:').trim(); // ✅ trim() por seguridad
+  return url.trim().replace(/^http:/, 'https:');
 };
 
 const processPost = (post, categoryKey) => {
@@ -238,9 +239,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
   };
 
-  // ✅ Aseguramos que la imagen para OG esté limpia y completa
-  const ogImageUrl = noticia.image.trim() || `${SITE_URL}/logo.png`;
-
   return (
     <>
       <Head>
@@ -250,14 +248,14 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
         <meta property="og:url" content={`${SITE_URL}/noticia/${cat}/${id}`} />
         <meta property="og:title" content={noticia.title} />
         <meta property="og:description" content={noticia.subtitle} />
-        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:image" content={noticia.image} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="UG Noticias Mineras" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={noticia.title} />
         <meta name="twitter:description" content={noticia.subtitle} />
-        <meta name="twitter:image" content={ogImageUrl} />
+        <meta name="twitter:image" content={noticia.image} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={`${SITE_URL}/noticia/${cat}/${id}`} />
       </Head>
