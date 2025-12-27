@@ -3,9 +3,10 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
-import CotizacionesWidget from '../../components/CotizacionesWidget'; // ✅ Importado
+import CotizacionesWidget from '../../components/CotizacionesWidget';
 
-const SITE_URL = 'https://ug-noticias-mineras.vercel.app';
+// ✅ Dominio personalizado, sin espacios
+const SITE_URL = 'https://ugnoticiasmineras.com';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
 
 const categories = {
@@ -33,9 +34,10 @@ const cleanText = (text) => {
     .trim();
 };
 
+// ✅ Aseguramos que la URL sea limpia y segura
 const forceHttps = (url) => {
   if (!url) return `${SITE_URL}/logo.png`;
-  return url.replace(/^http:/, 'https:');
+  return url.trim().replace(/^http:/, 'https:');
 };
 
 const processPostForSidebar = (post, categoryKey) => {
@@ -63,7 +65,7 @@ const processPosts = (posts, categoryKey) => {
 
     let imageUrl = `${SITE_URL}/logo.png`;
     if (post.featured_media && post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
-      imageUrl = forceHttps(post._embedded['wp:featuredmedia'][0].source_url);
+      imageUrl = forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim();
     } else if (firstContentImage) {
       imageUrl = firstContentImage;
     }
@@ -140,8 +142,7 @@ const shareOnFacebook = (news, basePath) => {
 
 const shareOnLinkedIn = (news, basePath) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
-  const title = encodeURIComponent(news.title);
-  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}`, '_blank', 'width=600,height=400');
+  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
 };
 
 const renderNewsCard = ({ news, basePath }) => {
@@ -249,12 +250,13 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
   const router = useRouter();
   const basePath = router.basePath || '';
   const page = parseInt(router.query.page) || 1;
-  const pageSize = 15; // ✅ Paginación de 15 noticias por página
+  const pageSize = 15;
   const startIndex = (page - 1) * pageSize;
   const paginatedNews = newsList.slice(startIndex, startIndex + pageSize);
   const totalPages = Math.ceil(newsList.length / pageSize);
 
   const categoryName = getCategoryName(cat);
+  // ✅ Usamos una imagen fija para OG (por seguridad), pero si quieres usar la primera noticia, cambia esto
   const ogImageUrl = `${SITE_URL}/logo.png`;
 
   if (!newsList || newsList.length === 0) {
@@ -386,7 +388,7 @@ export async function getServerSideProps({ params }) {
       `${WORDPRESS_API_URL}/posts?categories=${categoryId}&per_page=100&orderby=date&order=desc&_embed`,
       {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ug-noticias-mineras.vercel.app)',
+          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
           'Accept': 'application/json'
         }
       }
@@ -406,7 +408,7 @@ export async function getServerSideProps({ params }) {
           `${WORDPRESS_API_URL}/posts?categories=${id}&per_page=1&orderby=date&order=desc&_embed`,
           {
             headers: {
-              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ug-noticias-mineras.vercel.app)',
+              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
               'Accept': 'application/json'
             }
           }
