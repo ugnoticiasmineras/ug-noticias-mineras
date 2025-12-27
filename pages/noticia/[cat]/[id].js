@@ -6,7 +6,8 @@ import Link from 'next/link';
 import Layout from '../../../components/Layout';
 import CotizacionesWidget from '../../../components/CotizacionesWidget';
 
-const SITE_URL = 'https://ug-noticias-mineras.vercel.app';
+// ✅ Dominio personalizado (sin espacios ni www)
+const SITE_URL = 'https://ugnoticiasmineras.com';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
 
 const categories = {
@@ -18,11 +19,11 @@ const categories = {
 };
 
 const sponsors = [
-  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ug-noticias-mineras.vercel.app' },
+  { image: '/sponsors/aoma1.jpg', url: SITE_URL },
+  { image: '/sponsors/aoma1.jpg', url: SITE_URL },
+  { image: '/sponsors/aoma1.jpg', url: SITE_URL },
+  { image: '/sponsors/aoma1.jpg', url: SITE_URL },
+  { image: '/sponsors/aoma1.jpg', url: SITE_URL },
 ];
 
 const cleanText = (text) => {
@@ -137,7 +138,6 @@ const getCategoryLabel = (categoryKey) => {
 
 // ✅ Componente para renderizar contenido con imágenes clickeables que abren lightbox
 const ContentWithLightbox = ({ htmlContent, onImageClick }) => {
-  // Usamos un div temporal para manipular el DOM del contenido
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = htmlContent;
 
@@ -146,12 +146,10 @@ const ContentWithLightbox = ({ htmlContent, onImageClick }) => {
     const src = img.src;
     if (!src) return;
 
-    // Removemos posibles enlaces que envuelvan la imagen
     if (img.parentElement.tagName === 'A') {
       img.parentElement.replaceWith(img);
     }
 
-    // Creamos un contenedor clickeable
     const wrapper = document.createElement('div');
     wrapper.style.display = 'inline-block';
     wrapper.style.cursor = 'zoom-in';
@@ -162,7 +160,6 @@ const ContentWithLightbox = ({ htmlContent, onImageClick }) => {
       onImageClick(src);
     };
 
-    // Remplazamos la imagen por el contenedor con la imagen adentro
     img.parentNode.replaceChild(wrapper, img);
     wrapper.appendChild(img);
   });
@@ -188,7 +185,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     );
   }
 
-  // Procesamos el contenido para añadir eventos de lightbox a las imágenes
   const [processedContent, setProcessedContent] = useState('');
   useEffect(() => {
     try {
@@ -198,7 +194,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
       });
       setProcessedContent(safeHtml);
     } catch (e) {
-      // Si falla, usamos el contenido original sin manipular
       setProcessedContent(noticia.content);
     }
   }, [noticia.content]);
@@ -228,6 +223,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     setLightboxOpen(false);
   };
 
+  // ✅ Funciones de compartir corregidas (sin espacios)
   const shareOnWhatsApp = () => {
     const url = encodeURIComponent(`${SITE_URL}/noticia/${cat}/${id}`);
     const title = encodeURIComponent(noticia.title);
@@ -241,8 +237,8 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
 
   const shareOnLinkedIn = () => {
     const url = encodeURIComponent(`${SITE_URL}/noticia/${cat}/${id}`);
-    const title = encodeURIComponent(noticia.title);
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}&title=${title}`, '_blank', 'width=600,height=400');
+    // LinkedIn solo necesita la URL; el título lo toma de los metadatos
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
   };
 
   return (
@@ -263,6 +259,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
         <meta name="twitter:description" content={noticia.subtitle} />
         <meta name="twitter:image" content={noticia.image} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
+        <link rel="canonical" href={`${SITE_URL}/noticia/${cat}/${id}`} />
       </Head>
 
       <Layout currentDate={currentDate}>
@@ -304,7 +301,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                     <h3 className="font-bold text-2xl text-blue-900 dark:text-blue-100 mb-4">{noticia.title}</h3>
                     {noticia.subtitle && <p className="text-blue-700 dark:text-blue-300 font-medium mb-4">{noticia.subtitle}</p>}
                     
-                    {/* ✅ Contenido con imágenes que abren lightbox */}
                     <div 
                       className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose"
                       dangerouslySetInnerHTML={{ __html: processedContent }}
@@ -395,7 +391,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
           </div>
         </div>
 
-        {/* ✅ Lightbox para imágenes del contenido */}
         {lightboxOpen && (
           <div 
             className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
@@ -437,7 +432,7 @@ export async function getServerSideProps({ params }) {
       `${WORDPRESS_API_URL}/posts?slug=${id}&_embed`,
       {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ug-noticias-mineras.vercel.app)',
+          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
           'Accept': 'application/json'
         }
       }
@@ -455,7 +450,7 @@ export async function getServerSideProps({ params }) {
           `${WORDPRESS_API_URL}/posts?categories=${catId}&per_page=1&orderby=date&order=desc&_embed`,
           {
             headers: {
-              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ug-noticias-mineras.vercel.app)',
+              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
               'Accept': 'application/json'
             }
           }
