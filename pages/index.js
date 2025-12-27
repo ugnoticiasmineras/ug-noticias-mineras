@@ -275,6 +275,16 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
     document.querySelector('main')?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  // ✅ Números de página adaptativos: máximo 3 (prev, current, next)
+  const getPageNumbers = () => {
+    if (totalPages <= 1) return [];
+    const pages = [];
+    if (page > 1) pages.push(page - 1);
+    pages.push(page);
+    if (page < totalPages) pages.push(page + 1);
+    return pages;
+  };
+
   return (
     <Layout currentDate={currentDate}>
       <Head>
@@ -313,39 +323,29 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                 {paginatedNews.map(news => news.categoryKey && renderNewsCard({ news, basePath: '' }))}
               </div>
               {totalPages > 1 && (
-                <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-center items-center space-x-2 mt-6">
+                <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex justify-center items-center space-x-1 sm:space-x-2 mt-6 overflow-x-auto">
                   <button 
                     onClick={() => handlePageChange(Math.max(1, page - 1))}
                     disabled={page === 1}
-                    className={`px-4 py-2 rounded-lg ${page === 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
+                    className={`px-3 py-1.5 text-sm rounded-lg whitespace-nowrap ${page === 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
                   >
                     Anterior
                   </button>
-                  {[...Array(Math.min(totalPages, 5))].map((_, i) => {
-                    const pageNum = i + 1;
-                    return (
-                      <button 
-                        key={pageNum}
-                        onClick={() => handlePageChange(pageNum)}
-                        className={`px-4 py-2 rounded-lg ${page === pageNum ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'} transition-colors`}
-                      >
-                        {pageNum}
-                      </button>
-                    );
-                  })}
-                  {totalPages > 5 && <span>...</span>}
-                  {totalPages > 5 && (
+                  
+                  {getPageNumbers().map(pageNum => (
                     <button 
-                      onClick={() => handlePageChange(totalPages)}
-                      className={`px-4 py-2 rounded-lg ${page === totalPages ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'} transition-colors`}
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-1.5 text-sm rounded-lg whitespace-nowrap ${page === pageNum ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'} transition-colors`}
                     >
-                      {totalPages}
+                      {pageNum}
                     </button>
-                  )}
+                  ))}
+                  
                   <button 
                     onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
                     disabled={page === totalPages}
-                    className={`px-4 py-2 rounded-lg ${page === totalPages ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
+                    className={`px-3 py-1.5 text-sm rounded-lg whitespace-nowrap ${page === totalPages ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
                   >
                     Siguiente
                   </button>
@@ -358,7 +358,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
         <div className="lg:col-span-1">
           <CotizacionesWidget />
 
-          {/* ✅ Categorías sin la lupa */}
           {Object.entries(categories).map(([key, _]) => (
             <div key={key} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
               <Link href={`/noticia/${key}`} legacyBehavior>
@@ -381,7 +380,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
             </div>
           ))}
 
-          {/* ✅ Sin el logo de GitHub */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
             <div className="p-3 space-y-3">
               {[...Array(5)].map((_, i) => (
