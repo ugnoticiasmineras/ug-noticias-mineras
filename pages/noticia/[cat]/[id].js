@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Layout from '../../../components/Layout';
 import CotizacionesWidget from '../../../components/CotizacionesWidget';
 
-// ✅ Dominio personalizado (sin espacios ni www)
+// ✅ Solo cambiamos esta línea
 const SITE_URL = 'https://ugnoticiasmineras.com';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
 
@@ -19,11 +19,11 @@ const categories = {
 };
 
 const sponsors = [
-  { image: '/sponsors/aoma1.jpg', url: SITE_URL },
-  { image: '/sponsors/aoma1.jpg', url: SITE_URL },
-  { image: '/sponsors/aoma1.jpg', url: SITE_URL },
-  { image: '/sponsors/aoma1.jpg', url: SITE_URL },
-  { image: '/sponsors/aoma1.jpg', url: SITE_URL },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
 ];
 
 const cleanText = (text) => {
@@ -45,7 +45,7 @@ const cleanText = (text) => {
 
 const forceHttps = (url) => {
   if (!url) return `${SITE_URL}/logo.png`;
-  return url.replace(/^http:/, 'https:');
+  return url.replace(/^http:/, 'https:').trim(); // ✅ trim() por seguridad
 };
 
 const processPost = (post, categoryKey) => {
@@ -136,7 +136,6 @@ const getCategoryLabel = (categoryKey) => {
   }
 };
 
-// ✅ Componente para renderizar contenido con imágenes clickeables que abren lightbox
 const ContentWithLightbox = ({ htmlContent, onImageClick }) => {
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = htmlContent;
@@ -223,7 +222,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     setLightboxOpen(false);
   };
 
-  // ✅ Funciones de compartir corregidas (sin espacios)
   const shareOnWhatsApp = () => {
     const url = encodeURIComponent(`${SITE_URL}/noticia/${cat}/${id}`);
     const title = encodeURIComponent(noticia.title);
@@ -237,9 +235,11 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
 
   const shareOnLinkedIn = () => {
     const url = encodeURIComponent(`${SITE_URL}/noticia/${cat}/${id}`);
-    // LinkedIn solo necesita la URL; el título lo toma de los metadatos
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
   };
+
+  // ✅ Aseguramos que la imagen para OG esté limpia y completa
+  const ogImageUrl = noticia.image.trim() || `${SITE_URL}/logo.png`;
 
   return (
     <>
@@ -250,14 +250,14 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
         <meta property="og:url" content={`${SITE_URL}/noticia/${cat}/${id}`} />
         <meta property="og:title" content={noticia.title} />
         <meta property="og:description" content={noticia.subtitle} />
-        <meta property="og:image" content={noticia.image} />
+        <meta property="og:image" content={ogImageUrl} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="UG Noticias Mineras" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={noticia.title} />
         <meta name="twitter:description" content={noticia.subtitle} />
-        <meta name="twitter:image" content={noticia.image} />
+        <meta name="twitter:image" content={ogImageUrl} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={`${SITE_URL}/noticia/${cat}/${id}`} />
       </Head>
