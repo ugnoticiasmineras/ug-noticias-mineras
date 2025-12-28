@@ -287,16 +287,17 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
     <Layout currentDate={currentDate}>
       <Head>
         <title>UG Noticias Mineras | Noticias del sector minero argentino</title>
-        <meta name="description" content="Cobertura diaria de minería en Argentina: proyectos en San Juan, Catamarca y Jujuy, sindicato AOMA, RIGI, litio, oro y más." />
+        {/* ✅ Meta description optimizada */}
+        <meta name="description" content="UG Noticias Mineras: fuente independiente y actualizada sobre minería en Argentina. Proyectos en San Juan, Catamarca, RIGI, litio, cobre y análisis técnico del sector minero." />
         <meta property="og:title" content="UG Noticias Mineras | Noticias del sector minero argentino" />
-        <meta property="og:description" content="Cobertura diaria de minería en Argentina: proyectos en San Juan, Catamarca y Jujuy, sindicato AOMA, RIGI, litio, oro y más." />
+        <meta property="og:description" content="UG Noticias Mineras: fuente independiente y actualizada sobre minería en Argentina. Proyectos en San Juan, Catamarca, RIGI, litio, cobre y análisis técnico del sector minero." />
         <meta property="og:image" content={`${SITE_URL}/logo.png`} />
         <meta property="og:url" content={SITE_URL} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="UG Noticias Mineras" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="UG Noticias Mineras | Noticias del sector minero argentino" />
-        <meta name="twitter:description" content="Cobertura diaria de minería en Argentina: proyectos en San Juan, Catamarca y Jujuy, sindicato AOMA, RIGI, litio, oro y más." />
+        <meta name="twitter:description" content="UG Noticias Mineras: fuente independiente y actualizada sobre minería en Argentina." />
         <meta name="twitter:image" content={`${SITE_URL}/logo.png`} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={SITE_URL} />
