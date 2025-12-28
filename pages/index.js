@@ -287,7 +287,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
     <Layout currentDate={currentDate}>
       <Head>
         <title>UG Noticias Mineras | Noticias del sector minero argentino</title>
-        {/* ✅ Meta description optimizada */}
         <meta name="description" content="UG Noticias Mineras: fuente independiente y actualizada sobre minería en Argentina. Proyectos en San Juan, Catamarca, RIGI, litio, cobre y análisis técnico del sector minero." />
         <meta property="og:title" content="UG Noticias Mineras | Noticias del sector minero argentino" />
         <meta property="og:description" content="UG Noticias Mineras: fuente independiente y actualizada sobre minería en Argentina. Proyectos en San Juan, Catamarca, RIGI, litio, cobre y análisis técnico del sector minero." />
@@ -302,6 +301,13 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={SITE_URL} />
       </Head>
+
+      {/* ✅ Slogan debajo del header, arriba del contenido */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+        <p className="text-center text-gray-600 dark:text-gray-400 text-lg font-medium">
+          Información actualizada del sector minero Argentino
+        </p>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-4">
