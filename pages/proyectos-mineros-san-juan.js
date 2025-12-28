@@ -27,7 +27,7 @@ const ProyectosSanJuan = () => {
       nombre: "Casposo",
       ubicacion: "Departamento Calingasta",
       mineral: "Oro y plata",
-      empresa: "Austral Gold (ligada a Eduardo Elsztain)",
+      empresa: "Austral Gold",
       estado: "Operación (reactivada en 2025)",
       descripcion: "La producción comercial se reanudó en 2025 tras modernización de planta. Genera empleo directo e indirecto y contribuye al desarrollo minero de Calingasta."
     },
@@ -43,7 +43,7 @@ const ProyectosSanJuan = () => {
       nombre: "Hualilán",
       ubicacion: "Departamento Ullum",
       mineral: "Oro y plata",
-      empresa: "Challenger Gold (Australia), con financiamiento de Eduardo Elsztain",
+      empresa: "Challenger Gold (Australia)",
       estado: "Inicio de producción previsto para finales de 2025",
       descripcion: "Primer proyecto aurífero en iniciar producción en Ullum. El mineral se procesará inicialmente en la planta de Casposo bajo acuerdo de maquila."
     },
@@ -64,7 +64,7 @@ const ProyectosSanJuan = () => {
       descripcion: "Ubicado a 4.100 msnm, en zona cordillerana. En etapa final de ingeniería, con énfasis en uso responsable del agua y licencia social."
     },
     {
-      nombre: "Luna Hua**s**i",
+      nombre: "Luna Huasi",
       ubicacion: "Distrito Vicuña, Cordillera de los Andes",
       mineral: "Cobre, oro y plata",
       empresa: "NGEx Minerals (Grupo Lundin, Canadá)",
@@ -190,92 +190,4 @@ const ProyectosSanJuan = () => {
       <Head>
         <title>Mapa de Proyectos Mineros de San Juan 2025 | UG Noticias Mineras</title>
         <meta name="description" content="Guía técnica actualizada de los proyectos mineros en San Juan: Veladero, Los Azules, Casposo, Hualilán, Filo del Sol y más. Empresas, ubicación, estado y recursos." />
-        <meta property="og:title" content="Mapa de Proyectos Mineros de San Juan 2025 | UG Noticias Mineras" />
-        <meta property="og:description" content="Guía técnica actualizada de los proyectos mineros en San Juan: Veladero, Los Azules, Casposo, Hualilán, Filo del Sol y más. Empresas, ubicación, estado y recursos." />
-        <meta property="og:image" content={`${SITE_URL}/logo.png`} />
-        <meta property="og:url" content={`${SITE_URL}/proyectos-mineros-san-juan`} />
-        <meta property="og:type" content="article" />
-        <meta property="og:site_name" content="UG Noticias Mineras" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Mapa de Proyectos Mineros de San Juan 2025 | UG Noticias Mineras" />
-        <meta name="twitter:description" content="Guía técnica actualizada de los proyectos mineros en San Juan." />
-        <meta name="twitter:image" content={`${SITE_URL}/logo.png`} />
-        <link rel="canonical" href={`${SITE_URL}/proyectos-mineros-san-juan`} />
-      </Head>
-
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-blue-900 dark:text-blue-100 mb-6">
-          Mapa de Proyectos Mineros de San Juan 2025
-        </h1>
-        
-        <p className="text-gray-700 dark:text-gray-300 mb-6">
-          San Juan alberga algunos de los proyectos mineros más relevantes de Argentina y Sudamérica, 
-          con presencia de oro, plata, cobre y litio. Esta guía técnica reúne información actualizada 
-          sobre operadores, ubicación, estado de desarrollo y contexto geológico de más de 20 proyectos 
-          en los departamentos de Iglesia, Calingasta, Jachal y Ullum.
-        </p>
-
-        <div className="bg-gradient-to-r from-blue-900 to-blue-700 h-1 w-24 mb-8"></div>
-
-        <div className="space-y-8">
-          {proyectos.map((proyecto, index) => (
-            <div 
-              key={index}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-blue-100 dark:border-blue-900 overflow-hidden"
-            >
-              <div className="p-6">
-                <h2 className="text-2xl font-bold text-blue-900 dark:text-blue-100 mb-3">
-                  {proyecto.nombre}
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-sm">
-                  <div>
-                    <span className="font-semibold text-gray-600 dark:text-gray-400">📍 Ubicación:</span>{' '}
-                    {proyecto.ubicacion}
-                  </div>
-                  <div>
-                    <span className="font-semibold text-gray-600 dark:text-gray-400">⛏️ Mineral:</span>{' '}
-                    {proyecto.mineral}
-                  </div>
-                  <div>
-                    <span className="font-semibold text-gray-600 dark:text-gray-400">🏢 Empresa:</span>{' '}
-                    {proyecto.empresa}
-                  </div>
-                  <div>
-                    <span className="font-semibold text-gray-600 dark:text-gray-400">📊 Estado:</span>{' '}
-                    <span className={proyecto.estado === 'Operación' ? 'text-green-600' : proyecto.estado.includes('Exploración') ? 'text-yellow-600' : 'text-blue-600'}>
-                      {proyecto.estado}
-                    </span>
-                  </div>
-                </div>
-                <p className="text-gray-700 dark:text-gray-300 mt-3">
-                  {proyecto.descripcion}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-10 p-6 bg-blue-50 dark:bg-gray-900 rounded-2xl border border-blue-200 dark:border-blue-800">
-          <h3 className="font-bold text-lg text-blue-900 dark:text-blue-200 mb-3">
-            ¿Buscás información sobre minería en otras provincias?
-          </h3>
-          <p className="text-gray-700 dark:text-gray-300 mb-4">
-            Seguí a <strong>UG Noticias Mineras</strong> para cobertura técnica y actualizada 
-            sobre proyectos en Catamarca, Jujuy, Salta, Santa Cruz y todo el país.
-          </p>
-          <Link href="/" legacyBehavior>
-            <a className="inline-block bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-2 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-900 transition-all">
-              Ver últimas noticias
-            </a>
-          </Link>
-        </div>
-
-        <p className="mt-8 text-sm text-gray-500 dark:text-gray-400 italic">
-          Última actualización: {new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'long', year: 'numeric' })}
-        </p>
-      </div>
-    </Layout>
-  );
-};
-
-export default ProyectosSanJuan;
+        <meta property="og:title" content="Mapa de Proyectos Mineros de San Juan 2.
