@@ -38,7 +38,7 @@ const cleanText = (text) => {
 };
 
 const forceHttps = (url) => {
-  if (!url) return `${SITE_URL}/logo.png`;
+  if (!url) return `${SITE_URL}/UGNoticias.png`;
   return url.trim().replace(/^http:/, 'https:');
 };
 
@@ -55,7 +55,7 @@ const processPost = (post) => {
     }
   }
 
-  let imageUrl = `${SITE_URL}/logo.png`;
+  let imageUrl = `${SITE_URL}/UGNoticias.png`;
   if (post.featured_media && post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
     imageUrl = forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim();
   } else if (firstContentImage) {
@@ -290,24 +290,17 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
         <meta name="description" content="UG Noticias Mineras: fuente independiente y actualizada sobre minería en Argentina. Proyectos en San Juan, Catamarca, RIGI, litio, cobre y análisis técnico del sector minero." />
         <meta property="og:title" content="UG Noticias Mineras | Noticias del sector minero argentino" />
         <meta property="og:description" content="UG Noticias Mineras: fuente independiente y actualizada sobre minería en Argentina. Proyectos en San Juan, Catamarca, RIGI, litio, cobre y análisis técnico del sector minero." />
-        <meta property="og:image" content={`${SITE_URL}/logo.png`} />
+        <meta property="og:image" content={`${SITE_URL}/UGNoticias.png`} />
         <meta property="og:url" content={SITE_URL} />
         <meta property="og:type" content="website" />
         <meta property="og:site_name" content="UG Noticias Mineras" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="UG Noticias Mineras | Noticias del sector minero argentino" />
         <meta name="twitter:description" content="UG Noticias Mineras: fuente independiente y actualizada sobre minería en Argentina." />
-        <meta name="twitter:image" content={`${SITE_URL}/logo.png`} />
+        <meta name="twitter:image" content={`${SITE_URL}/UGNoticias.png`} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={SITE_URL} />
       </Head>
-
-      {/* ✅ Slogan debajo del header, arriba del contenido */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
-        <p className="text-center text-gray-600 dark:text-gray-400 text-lg font-medium">
-          Información actualizada del sector minero Argentino
-        </p>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-4">
