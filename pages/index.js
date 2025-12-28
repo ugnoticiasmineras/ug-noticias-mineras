@@ -325,4 +325,138 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                 {paginatedNews.map(news => news.categoryKey && renderNewsCard({ news, basePath: '' }))}
               </div>
               {totalPages > 1 && (
-                <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex justify-center items-center space-x-1 sm:
+                <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex justify-center items-center space-x-1 sm:space-x-2 mt-6 overflow-x-auto">
+                  <button 
+                    onClick={() => handlePageChange(Math.max(1, page - 1))}
+                    disabled={page === 1}
+                    className={`px-3 py-1.5 text-sm rounded-lg whitespace-nowrap ${page === 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
+                  >
+                    Anterior
+                  </button>
+                  
+                  {getPageNumbers().map(pageNum => (
+                    <button 
+                      key={pageNum}
+                      onClick={() => handlePageChange(pageNum)}
+                      className={`px-3 py-1.5 text-sm rounded-lg whitespace-nowrap ${page === pageNum ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'} transition-colors`}
+                    >
+                      {pageNum}
+                    </button>
+                  ))}
+                  
+                  <button 
+                    onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
+                    disabled={page === totalPages}
+                    className={`px-3 py-1.5 text-sm rounded-lg whitespace-nowrap ${page === totalPages ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="lg:col-span-1">
+          <CotizacionesWidget />
+
+          {Object.entries(categories).map(([key, _]) => (
+            <div key={key} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
+              <Link href={`/noticia/${key}`} legacyBehavior>
+                <a className="block">
+                  <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-3 text-center">
+                    <h3 className="text-lg font-bold text-white">{getCategoryName(key)}</h3>
+                    <div className="w-16 h-1 bg-red-500 mx-auto mt-1"></div>
+                  </div>
+                  <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
+                    {sidebarNews[key] ? (
+                      <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1">
+                        {sidebarNews[key].title}
+                      </p>
+                    ) : (
+                      <p className="text-gray-500 dark:text-gray-400 text-center text-sm">Sin noticias</p>
+                    )}
+                  </div>
+                </a>
+              </Link>
+            </div>
+          ))}
+
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
+            <div className="p-3 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <img 
+                  key={i}
+                  src="/sponsors/aoma1.jpg" 
+                  alt="Colaborador"
+                  className="w-full h-16 object-contain rounded-lg"
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
+
+export async function getServerSideProps() {
+  try {
+    const response = await fetch(
+      `${WORDPRESS_API_URL}/posts?per_page=100&orderby=date&order=desc&_embed`,
+      {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
+          'Accept': 'application/json'
+        }
+      }
+    );
+
+    let allNews = [];
+    if (response.ok) {
+      const posts = await response.json();
+      allNews = posts
+        .filter(post => post.categories && post.categories.length > 0 && categoryIdToKey[post.categories[0]])
+        .map(processPost);
+    }
+
+    const sidebarNews = {};
+    for (const [key, id] of Object.entries(categories)) {
+      try {
+        const res = await fetch(
+          `${WORDPRESS_API_URL}/posts?categories=${id}&per_page=1&orderby=date&order=desc&_embed`,
+          {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
+              'Accept': 'application/json'
+            }
+          }
+        );
+        if (res.ok) {
+          const posts = await res.json();
+          if (posts.length > 0) {
+            sidebarNews[key] = { title: cleanText(posts[0].title?.rendered || 'Sin título') };
+          }
+        }
+      } catch (e) {
+        // Silently fail
+      }
+    }
+
+    return {
+      props: {
+        allNews,
+        sidebarNews,
+        currentDate: new Date().toISOString()
+      }
+    };
+  } catch (err) {
+    return {
+      props: {
+        allNews: [],
+        sidebarNews: {},
+        currentDate: new Date().toISOString()
+      }
+    };
+  }
+}
