@@ -5,7 +5,6 @@ import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import CotizacionesWidget from '../../components/CotizacionesWidget';
 
-// ✅ Dominio personalizado, sin espacios
 const SITE_URL = 'https://ugnoticiasmineras.com';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
 
@@ -34,7 +33,6 @@ const cleanText = (text) => {
     .trim();
 };
 
-// ✅ Aseguramos que la URL sea limpia y segura
 const forceHttps = (url) => {
   if (!url) return `${SITE_URL}/logo.png`;
   return url.trim().replace(/^http:/, 'https:');
@@ -256,7 +254,6 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
   const totalPages = Math.ceil(newsList.length / pageSize);
 
   const categoryName = getCategoryName(cat);
-  // ✅ Usamos una imagen fija para OG (por seguridad), pero si quieres usar la primera noticia, cambia esto
   const ogImageUrl = `${SITE_URL}/logo.png`;
 
   if (!newsList || newsList.length === 0) {
@@ -273,18 +270,18 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
   return (
     <>
       <Head>
-        <title>{categoryName} - UG Noticias Mineras</title>
+        <title>UG Noticias Mineras</title>
         <meta name="description" content={`Noticias de ${categoryName.toLowerCase()}.`} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/noticia/${cat}`} />
-        <meta property="og:title" content={`${categoryName} - UG Noticias Mineras`} />
+        <meta property="og:title" content="UG Noticias Mineras" />
         <meta property="og:description" content={`Noticias de ${categoryName.toLowerCase()}.`} />
         <meta property="og:image" content={ogImageUrl} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="UG Noticias Mineras" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={`${categoryName} - UG Noticias Mineras`} />
+        <meta name="twitter:title" content="UG Noticias Mineras" />
         <meta name="twitter:description" content={`Noticias de ${categoryName.toLowerCase()}.`} />
         <meta name="twitter:image" content={ogImageUrl} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
@@ -345,7 +342,6 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
             </div>
           </div>
           <div className="lg:col-span-1">
-            {/* ✅ WIDGET EN LA PARTE SUPERIOR */}
             <CotizacionesWidget />
             
             {Object.entries(categories).map(([key, _]) => {
