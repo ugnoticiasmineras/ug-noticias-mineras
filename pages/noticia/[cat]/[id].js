@@ -237,22 +237,27 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
   };
 
+  // ✅ Título SEO: título de la noticia + marca
+  const seoTitle = `${noticia.title} – UG Noticias Mineras`;
+  // ✅ Descripción: usamos el subtítulo (resumen)
+  const seoDescription = noticia.subtitle || 'Noticias del sector minero en Argentina y el mundo.';
+
   return (
     <>
       <Head>
-        <title>UG Noticias Mineras</title>
-        <meta name="description" content={noticia.subtitle} />
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`${SITE_URL}/noticia/${cat}/${id}`} />
-        <meta property="og:title" content="UG Noticias Mineras" />
-        <meta property="og:description" content={noticia.subtitle} />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
         <meta property="og:image" content={noticia.image} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="UG Noticias Mineras" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="UG Noticias Mineras" />
-        <meta name="twitter:description" content={noticia.subtitle} />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={seoDescription} />
         <meta name="twitter:image" content={noticia.image} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={`${SITE_URL}/noticia/${cat}/${id}`} />
