@@ -127,28 +127,6 @@ const getCategoryLabel = (categoryKey) => {
   }
 };
 
-const getCategorySeoTitle = (categoryKey) => {
-  switch(categoryKey) {
-    case 'nacionales': return 'Noticias Nacionales Mineras – Proyectos y actualidad | UG Noticias Mineras';
-    case 'sanjuan': return 'Noticias Mineras de San Juan – Proyectos, sindicato y minería | UG Noticias Mineras';
-    case 'sindicales': return 'Noticias Sindicales Mineras – AOMA y derechos laborales | UG Noticias Mineras';
-    case 'internacionales': return 'Noticias Mineras Internacionales – Tendencias globales | UG Noticias Mineras';
-    case 'opinion': return 'Opinión Minera – Análisis y columnas del sector | UG Noticias Mineras';
-    default: return 'Noticias del Sector Minero | UG Noticias Mineras';
-  }
-};
-
-const getCategorySeoDescription = (categoryKey) => {
-  switch(categoryKey) {
-    case 'nacionales': return 'Seguí los últimos anuncios, proyectos y novedades del sector minero en Argentina: litio, oro, cobre y más.';
-    case 'sanjuan': return 'Todas las noticias mineras de San Juan: Veladero, Pascua Lama, nuevos proyectos y el rol del sindicato AOMA.';
-    case 'sindicales': return 'Cobertura exclusiva de AOMA, negociaciones salariales, derechos laborales y lucha gremial en el sector minero argentino.';
-    case 'internacionales': return 'Noticias globales del sector minero: precios, innovación, medio ambiente y grandes compañías mineras.';
-    case 'opinion': return 'Artículos de opinión y análisis profundo sobre la minería en Argentina y el mundo.';
-    default: return 'Noticias actualizadas del sector minero en Argentina y el mundo.';
-  }
-};
-
 const shareOnWhatsApp = (news) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
   const title = encodeURIComponent(news.title);
@@ -241,13 +219,13 @@ const renderNewsCard = ({ news, basePath }) => {
   );
 };
 
-const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
+const renderSidebarCategoryCard = ({ categoryName, categoryKey, latestNews }) => {
   return (
     <div key={categoryKey} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
-      <Link href={`/noticia/${categoryKey}`} legacyBehavior>
+      <Link href={categoryKey.startsWith('/') ? categoryKey : `/noticia/${categoryKey}`} legacyBehavior>
         <a className="block">
           <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-3 text-center">
-            <h3 className="text-lg font-bold text-white">{getCategoryName(categoryKey)}</h3>
+            <h3 className="text-lg font-bold text-white">{categoryName}</h3>
             <div className="w-16 h-1 bg-red-500 mx-auto mt-1"></div>
           </div>
           <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
@@ -384,6 +362,23 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 
         <div className="lg:col-span-1">
           <CotizacionesWidget />
+
+          {/* ✅ ENLACE A "MAPA DE PROYECTOS MINEROS DE SAN JUAN" EN EL SIDEBAR */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
+            <Link href="/proyectos-mineros-san-juan" legacyBehavior>
+              <a className="block">
+                <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-3 text-center">
+                  <h3 className="text-lg font-bold text-white">Proyectos Mineros de San Juan</h3>
+                  <div className="w-16 h-1 bg-red-500 mx-auto mt-1"></div>
+                </div>
+                <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
+                  <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1">
+                    Guía técnica de proyectos
+                  </p>
+                </div>
+              </a>
+            </Link>
+          </div>
 
           {Object.entries(categories).map(([key, _]) => (
             <div key={key} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
