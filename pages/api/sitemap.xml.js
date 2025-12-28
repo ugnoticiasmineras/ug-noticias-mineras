@@ -1,7 +1,7 @@
 // pages/api/sitemap.xml.js
 export default function handler(req, res) {
   const baseUrl = 'https://ugnoticiasmineras.com';
-  const staticPaths = [
+  const paths = [
     '',
     'noticia/nacionales',
     'noticia/sanjuan',
@@ -10,12 +10,14 @@ export default function handler(req, res) {
     'noticia/internacionales'
   ];
 
-  const urls = staticPaths.map(path => {
+  const urls = paths.map(path => {
     const fullUrl = path ? `${baseUrl}/${path}` : baseUrl;
+    const changeFreq = path ? 'weekly' : 'daily';
+    const priority = path ? '0.8' : '1.0';
     return `  <url>
     <loc>${fullUrl}</loc>
-    <changefreq>${path ? 'weekly' : 'daily'}</changefreq>
-    <priority>${path ? '0.8' : '1.0'}</priority>
+    <changefreq>${changeFreq}</changefreq>
+    <priority>${priority}</priority>
   </url>`;
   }).join('\n');
 
