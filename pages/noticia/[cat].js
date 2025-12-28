@@ -127,6 +127,28 @@ const getCategoryLabel = (categoryKey) => {
   }
 };
 
+const getCategorySeoTitle = (categoryKey) => {
+  switch(categoryKey) {
+    case 'nacionales': return 'Noticias Nacionales Mineras – Proyectos y actualidad | UG Noticias Mineras';
+    case 'sanjuan': return 'Noticias Mineras de San Juan – Proyectos, sindicato y minería | UG Noticias Mineras';
+    case 'sindicales': return 'Noticias Sindicales Mineras – AOMA y derechos laborales | UG Noticias Mineras';
+    case 'internacionales': return 'Noticias Mineras Internacionales – Tendencias globales | UG Noticias Mineras';
+    case 'opinion': return 'Opinión Minera – Análisis y columnas del sector | UG Noticias Mineras';
+    default: return 'Noticias del Sector Minero | UG Noticias Mineras';
+  }
+};
+
+const getCategorySeoDescription = (categoryKey) => {
+  switch(categoryKey) {
+    case 'nacionales': return 'Seguí los últimos anuncios, proyectos y novedades del sector minero en Argentina: litio, oro, cobre y más.';
+    case 'sanjuan': return 'Todas las noticias mineras de San Juan: Veladero, Pascua Lama, nuevos proyectos y el rol del sindicato AOMA.';
+    case 'sindicales': return 'Cobertura exclusiva de AOMA, negociaciones salariales, derechos laborales y lucha gremial en el sector minero argentino.';
+    case 'internacionales': return 'Noticias globales del sector minero: precios, innovación, medio ambiente y grandes compañías mineras.';
+    case 'opinion': return 'Artículos de opinión y análisis profundo sobre la minería en Argentina y el mundo.';
+    default: return 'Noticias actualizadas del sector minero en Argentina y el mundo.';
+  }
+};
+
 const shareOnWhatsApp = (news, basePath) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
   const title = encodeURIComponent(news.title);
@@ -255,6 +277,8 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
 
   const categoryName = getCategoryName(cat);
   const ogImageUrl = `${SITE_URL}/logo.png`;
+  const seoTitle = getCategorySeoTitle(cat);
+  const seoDescription = getCategorySeoDescription(cat);
 
   if (!newsList || newsList.length === 0) {
     return (
@@ -270,21 +294,22 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
   return (
     <>
       <Head>
-        <title>UG Noticias Mineras</title>
-        <meta name="description" content={`Noticias de ${categoryName.toLowerCase()}.`} />
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
         <meta property="og:type" content="website" />
         <meta property="og:url" content={`${SITE_URL}/noticia/${cat}`} />
-        <meta property="og:title" content="UG Noticias Mineras" />
-        <meta property="og:description" content={`Noticias de ${categoryName.toLowerCase()}.`} />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
         <meta property="og:image" content={ogImageUrl} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="UG Noticias Mineras" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="UG Noticias Mineras" />
-        <meta name="twitter:description" content={`Noticias de ${categoryName.toLowerCase()}.`} />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={seoDescription} />
         <meta name="twitter:image" content={ogImageUrl} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
+        <link rel="canonical" href={`${SITE_URL}/noticia/${cat}`} />
       </Head>
 
       <Layout currentDate={currentDate}>
