@@ -427,6 +427,7 @@ export async function getServerSideProps({ params }) {
   }
 
   try {
+    // ✅ No necesita per_page alto: solo carga 1 noticia
     const response = await fetch(
       `${WORDPRESS_API_URL}/posts?slug=${id}&_embed`,
       {
