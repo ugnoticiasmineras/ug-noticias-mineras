@@ -237,10 +237,8 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
   };
 
-  // ✅ Título corto para redes (máx 90 caracteres)
-  const shortTitle = noticia.title.length > 90 
-    ? noticia.title.substring(0, 87) + "..." 
-    : noticia.title;
+  // ✅ Título corto para redes
+  const shortTitle = noticia.title.length > 90 ? noticia.title.substring(0, 87) + "..." : noticia.title;
 
   return (
     <>
