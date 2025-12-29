@@ -266,18 +266,52 @@ const renderSidebarCategoryCard = ({ categoryName, categoryKey, latestNews }) =>
   );
 };
 
+// ✅ Nueva lógica de paginación
+const getPaginationRange = (currentPage, totalPages, delta = 1) => {
+  const range = [];
+  const rangeWithDots = [];
+  let l;
+
+  range.push(1);
+  if (totalPages > 1) range.push(totalPages);
+
+  for (let i = currentPage - delta; i <= currentPage + delta; i++) {
+    if (i > 1 && i < totalPages) {
+      range.push(i);
+    }
+  }
+
+  range.sort((a, b) => a - b);
+
+  for (let i = 0; i < range.length; i++) {
+    if (range[i] !== 1 && range[i] - range[i - 1] > 1) {
+      rangeWithDots.push('...');
+    }
+    rangeWithDots.push(range[i]);
+  }
+
+  return rangeWithDots;
+};
+
 export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }) {
   const router = useRouter();
   const basePath = router.basePath || '';
   const page = parseInt(router.query.page) || 1;
-  const pageSize = 15;
+  const pageSize = 10;
   const startIndex = (page - 1) * pageSize;
   const paginatedNews = newsList.slice(startIndex, startIndex + pageSize);
   const totalPages = Math.ceil(newsList.length / pageSize);
-
   const categoryName = getCategoryName(cat);
   const seoTitle = getCategorySeoTitle(cat);
   const seoDescription = getCategorySeoDescription(cat);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      router.push(`/noticia/${cat}?page=${newPage}`);
+    }
+  };
+
+  const paginationRange = getPaginationRange(page, totalPages);
 
   if (!newsList || newsList.length === 0) {
     return (
@@ -325,40 +359,56 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
                 </div>
                 {totalPages > 1 && (
                   <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-center items-center space-x-2 mt-6">
+                    {/* Primera */}
                     <button 
-                      onClick={() => router.push(`/noticia/${cat}?page=${Math.max(1, page - 1)}`)}
+                      onClick={() => handlePageChange(1)}
                       disabled={page === 1}
-                      className={`px-4 py-2 rounded-lg ${page === 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
+                      className={`px-2 py-1 rounded ${page === 1 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
+                      aria-label="Primera página"
+                    >
+                      «
+                    </button>
+                    {/* Anterior */}
+                    <button 
+                      onClick={() => handlePageChange(page - 1)}
+                      disabled={page === 1}
+                      className={`px-3 py-1 rounded ${page === 1 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
                     >
                       Anterior
                     </button>
-                    {[...Array(Math.min(totalPages, 5))].map((_, i) => {
-                      const pageNum = i + 1;
-                      return (
-                        <button 
-                          key={pageNum}
-                          onClick={() => router.push(`/noticia/${cat}?page=${pageNum}`)}
-                          className={`px-4 py-2 rounded-lg ${page === pageNum ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'} transition-colors`}
-                        >
-                          {pageNum}
-                        </button>
-                      );
-                    })}
-                    {totalPages > 5 && <span>...</span>}
-                    {totalPages > 5 && (
-                      <button 
-                        onClick={() => router.push(`/noticia/${cat}?page=${totalPages}`)}
-                        className={`px-4 py-2 rounded-lg ${page === totalPages ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'} transition-colors`}
+                    {/* Páginas */}
+                    {paginationRange.map((pageNum, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => typeof pageNum === 'number' && handlePageChange(pageNum)}
+                        disabled={pageNum === '...'}
+                        className={`px-3 py-1 rounded ${
+                          pageNum === '...'
+                            ? 'text-gray-500 dark:text-gray-500 cursor-default'
+                            : page === pageNum
+                            ? 'bg-blue-600 text-white'
+                            : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'
+                        }`}
                       >
-                        {totalPages}
+                        {pageNum}
                       </button>
-                    )}
+                    ))}
+                    {/* Siguiente */}
                     <button 
-                      onClick={() => router.push(`/noticia/${cat}?page=${Math.min(totalPages, page + 1)}`)}
+                      onClick={() => handlePageChange(page + 1)}
                       disabled={page === totalPages}
-                      className={`px-4 py-2 rounded-lg ${page === totalPages ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
+                      className={`px-3 py-1 rounded ${page === totalPages ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
                     >
                       Siguiente
+                    </button>
+                    {/* Última */}
+                    <button 
+                      onClick={() => handlePageChange(totalPages)}
+                      disabled={page === totalPages}
+                      className={`px-2 py-1 rounded ${page === totalPages ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
+                      aria-label="Última página"
+                    >
+                      »
                     </button>
                   </div>
                 )}
@@ -406,7 +456,7 @@ export async function getServerSideProps({ params }) {
 
   try {
     const mainResponse = await fetch(
-      `${WORDPRESS_API_URL}/posts?categories=${categoryId}&per_page=100&orderby=date&order=desc&_embed`,
+      `${WORDPRESS_API_URL}/posts?categories=${categoryId}&per_page=1000&orderby=date&order=desc&_embed`,
       {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
