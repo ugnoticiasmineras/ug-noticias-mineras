@@ -1,4 +1,3 @@
-// pages/noticia/[cat].js
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -266,27 +265,8 @@ const renderSidebarCategoryCard = ({ categoryName, categoryKey, latestNews }) =>
   );
 };
 
-// ✅ Paginación mejorada
-const getPaginationRange = (currentPage, totalPages, delta = 1) => {
-  if (totalPages <= 5) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-
-  const range = [];
-  range.push(1);
-  if (currentPage > delta + 2) range.push('...');
-  for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
-    range.push(i);
-  }
-  if (currentPage < totalPages - delta - 1) range.push('...');
-  if (totalPages > 1) range.push(totalPages);
-
-  return range;
-};
-
 export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }) {
   const router = useRouter();
-  const basePath = router.basePath || '';
   const page = parseInt(router.query.page) || 1;
   const pageSize = 10;
   const startIndex = (page - 1) * pageSize;
@@ -301,8 +281,6 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
       router.push(`/noticia/${cat}?page=${newPage}`);
     }
   };
-
-  const paginationRange = getPaginationRange(page, totalPages);
 
   if (!newsList || newsList.length === 0) {
     return (
@@ -346,55 +324,32 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
               </div>
               <div className="p-6">
                 <div className="space-y-6">
-                  {paginatedNews.map(news => renderNewsCard({ news, basePath }))}
+                  {paginatedNews.map(news => renderNewsCard({ news, basePath: '' }))}
                 </div>
                 {totalPages > 1 && (
                   <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-center items-center space-x-2 mt-6">
                     <button 
-                      onClick={() => handlePageChange(1)}
-                      disabled={page === 1}
-                      className={`px-2 py-1 rounded ${page === 1 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
-                      aria-label="Primera página"
-                    >
-                      «
-                    </button>
-                    <button 
                       onClick={() => handlePageChange(page - 1)}
                       disabled={page === 1}
-                      className={`px-3 py-1 rounded ${page === 1 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
+                      className={`px-3 py-1 rounded ${
+                        page === 1 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'
+                      }`}
                     >
                       Anterior
                     </button>
-                    {paginationRange.map((pageNum, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => typeof pageNum === 'number' && handlePageChange(pageNum)}
-                        disabled={pageNum === '...'}
-                        className={`px-3 py-1 rounded ${
-                          pageNum === '...'
-                            ? 'text-gray-500 dark:text-gray-500 cursor-default'
-                            : page === pageNum
-                            ? 'bg-blue-600 text-white'
-                            : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'
-                        }`}
-                      >
-                        {pageNum}
-                      </button>
-                    ))}
+
+                    <span className="px-3 py-1 bg-blue-600 text-white rounded">
+                      {page}
+                    </span>
+
                     <button 
                       onClick={() => handlePageChange(page + 1)}
                       disabled={page === totalPages}
-                      className={`px-3 py-1 rounded ${page === totalPages ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
+                      className={`px-3 py-1 rounded ${
+                        page === totalPages ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'
+                      }`}
                     >
                       Siguiente
-                    </button>
-                    <button 
-                      onClick={() => handlePageChange(totalPages)}
-                      disabled={page === totalPages}
-                      className={`px-2 py-1 rounded ${page === totalPages ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
-                      aria-label="Última página"
-                    >
-                      »
                     </button>
                   </div>
                 )}
@@ -441,7 +396,6 @@ export async function getServerSideProps({ params }) {
   }
 
   try {
-    // ✅ per_page=100 (máximo permitido)
     const mainResponse = await fetch(
       `${WORDPRESS_API_URL}/posts?categories=${categoryId}&per_page=100&orderby=date&order=desc&_embed`,
       {
