@@ -243,31 +243,22 @@ const renderSidebarCategoryCard = ({ categoryName, categoryKey, latestNews }) =>
   );
 };
 
-// ✅ Nueva lógica de paginación
+// ✅ Paginación robusta
 const getPaginationRange = (currentPage, totalPages, delta = 1) => {
-  const range = [];
-  const rangeWithDots = [];
-  let l;
+  if (totalPages <= 5) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
 
+  const range = [];
   range.push(1);
+  if (currentPage > delta + 2) range.push('...');
+  for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+    range.push(i);
+  }
+  if (currentPage < totalPages - delta - 1) range.push('...');
   if (totalPages > 1) range.push(totalPages);
 
-  for (let i = currentPage - delta; i <= currentPage + delta; i++) {
-    if (i > 1 && i < totalPages) {
-      range.push(i);
-    }
-  }
-
-  range.sort((a, b) => a - b);
-
-  for (let i = 0; i < range.length; i++) {
-    if (range[i] !== 1 && range[i] - range[i - 1] > 1) {
-      rangeWithDots.push('...');
-    }
-    rangeWithDots.push(range[i]);
-  }
-
-  return rangeWithDots;
+  return range;
 };
 
 export default function Home({ allNews, sidebarNews, currentDate }) {
@@ -351,7 +342,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </div>
               {totalPages > 1 && (
                 <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex justify-center items-center space-x-1 sm:space-x-2 mt-6 overflow-x-auto">
-                  {/* Botón Primera */}
                   <button 
                     onClick={() => handlePageChange(1)}
                     disabled={page === 1}
@@ -360,7 +350,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                   >
                     «
                   </button>
-                  {/* Botón Anterior */}
                   <button 
                     onClick={() => handlePageChange(page - 1)}
                     disabled={page === 1}
@@ -368,7 +357,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                   >
                     Anterior
                   </button>
-                  {/* Números de página */}
                   {paginationRange.map((pageNum, idx) => (
                     <button
                       key={idx}
@@ -385,7 +373,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                       {pageNum}
                     </button>
                   ))}
-                  {/* Botón Siguiente */}
                   <button 
                     onClick={() => handlePageChange(page + 1)}
                     disabled={page === totalPages}
@@ -393,7 +380,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                   >
                     Siguiente
                   </button>
-                  {/* Botón Última */}
                   <button 
                     onClick={() => handlePageChange(totalPages)}
                     disabled={page === totalPages}
@@ -411,7 +397,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
         <div className="lg:col-span-1">
           <CotizacionesWidget />
 
-          {/* ✅ ENLACE A "MAPA DE PROYECTOS MINEROS DE SAN JUAN" EN EL SIDEBAR */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
             <Link href="/proyectos-mineros-san-juan" legacyBehavior>
               <a className="block">
@@ -470,8 +455,9 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 
 export async function getServerSideProps() {
   try {
+    // ✅ Usamos per_page=100 (máximo permitido por WordPress.com)
     const response = await fetch(
-      `${WORDPRESS_API_URL}/posts?per_page=1000&orderby=date&order=desc&_embed`,
+      `${WORDPRESS_API_URL}/posts?per_page=100&orderby=date&order=desc&_embed`,
       {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
