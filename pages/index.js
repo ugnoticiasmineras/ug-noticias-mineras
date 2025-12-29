@@ -243,6 +243,33 @@ const renderSidebarCategoryCard = ({ categoryName, categoryKey, latestNews }) =>
   );
 };
 
+// ✅ Nueva lógica de paginación
+const getPaginationRange = (currentPage, totalPages, delta = 1) => {
+  const range = [];
+  const rangeWithDots = [];
+  let l;
+
+  range.push(1);
+  if (totalPages > 1) range.push(totalPages);
+
+  for (let i = currentPage - delta; i <= currentPage + delta; i++) {
+    if (i > 1 && i < totalPages) {
+      range.push(i);
+    }
+  }
+
+  range.sort((a, b) => a - b);
+
+  for (let i = 0; i < range.length; i++) {
+    if (range[i] !== 1 && range[i] - range[i - 1] > 1) {
+      rangeWithDots.push('...');
+    }
+    rangeWithDots.push(range[i]);
+  }
+
+  return rangeWithDots;
+};
+
 export default function Home({ allNews, sidebarNews, currentDate }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredNews, setFilteredNews] = useState(allNews);
@@ -270,18 +297,13 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
   const totalPages = Math.ceil(otherNews.length / pageSize);
 
   const handlePageChange = (newPage) => {
-    setPage(newPage);
-    document.querySelector('main')?.scrollIntoView({ behavior: 'smooth' });
+    if (newPage >= 1 && newPage <= totalPages) {
+      setPage(newPage);
+      document.querySelector('main')?.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
-  const getPageNumbers = () => {
-    if (totalPages <= 1) return [];
-    const pages = [];
-    if (page > 1) pages.push(page - 1);
-    pages.push(page);
-    if (page < totalPages) pages.push(page + 1);
-    return pages;
-  };
+  const paginationRange = getPaginationRange(page, totalPages);
 
   return (
     <Layout currentDate={currentDate}>
@@ -329,30 +351,56 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </div>
               {totalPages > 1 && (
                 <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex justify-center items-center space-x-1 sm:space-x-2 mt-6 overflow-x-auto">
+                  {/* Botón Primera */}
                   <button 
-                    onClick={() => handlePageChange(Math.max(1, page - 1))}
+                    onClick={() => handlePageChange(1)}
                     disabled={page === 1}
-                    className={`px-3 py-1.5 text-sm rounded-lg whitespace-nowrap ${page === 1 ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
+                    className={`px-2 py-1 rounded ${page === 1 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
+                    aria-label="Primera página"
+                  >
+                    «
+                  </button>
+                  {/* Botón Anterior */}
+                  <button 
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
+                    className={`px-3 py-1 rounded ${page === 1 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
                   >
                     Anterior
                   </button>
-                  
-                  {getPageNumbers().map(pageNum => (
-                    <button 
-                      key={pageNum}
-                      onClick={() => handlePageChange(pageNum)}
-                      className={`px-3 py-1.5 text-sm rounded-lg whitespace-nowrap ${page === pageNum ? 'bg-blue-600 text-white' : 'bg-white dark:bg-gray-800 text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'} transition-colors`}
+                  {/* Números de página */}
+                  {paginationRange.map((pageNum, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => typeof pageNum === 'number' && handlePageChange(pageNum)}
+                      disabled={pageNum === '...'}
+                      className={`px-3 py-1 rounded ${
+                        pageNum === '...'
+                          ? 'text-gray-500 dark:text-gray-500 cursor-default'
+                          : page === pageNum
+                          ? 'bg-blue-600 text-white'
+                          : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'
+                      }`}
                     >
                       {pageNum}
                     </button>
                   ))}
-                  
+                  {/* Botón Siguiente */}
                   <button 
-                    onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
+                    onClick={() => handlePageChange(page + 1)}
                     disabled={page === totalPages}
-                    className={`px-3 py-1.5 text-sm rounded-lg whitespace-nowrap ${page === totalPages ? 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400' : 'bg-blue-600 text-white hover:bg-blue-700'} transition-colors`}
+                    className={`px-3 py-1 rounded ${page === totalPages ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
                   >
                     Siguiente
+                  </button>
+                  {/* Botón Última */}
+                  <button 
+                    onClick={() => handlePageChange(totalPages)}
+                    disabled={page === totalPages}
+                    className={`px-2 py-1 rounded ${page === totalPages ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
+                    aria-label="Última página"
+                  >
+                    »
                   </button>
                 </div>
               )}
@@ -423,7 +471,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 export async function getServerSideProps() {
   try {
     const response = await fetch(
-      `${WORDPRESS_API_URL}/posts?per_page=100&orderby=date&order=desc&_embed`,
+      `${WORDPRESS_API_URL}/posts?per_page=1000&orderby=date&order=desc&_embed`,
       {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
