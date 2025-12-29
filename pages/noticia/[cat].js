@@ -34,7 +34,7 @@ const cleanText = (text) => {
 };
 
 const forceHttps = (url) => {
-  if (!url) return `${SITE_URL}/logo.png`;
+  if (!url) return `${SITE_URL}/UGNoticias.png`;
   return url.trim().replace(/^http:/, 'https:');
 };
 
@@ -61,7 +61,7 @@ const processPosts = (posts, categoryKey) => {
       }
     }
 
-    let imageUrl = `${SITE_URL}/logo.png`;
+    let imageUrl = `${SITE_URL}/UGNoticias.png`;
     if (post.featured_media && post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
       imageUrl = forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim();
     } else if (firstContentImage) {
@@ -240,13 +240,13 @@ const renderNewsCard = ({ news, basePath }) => {
   );
 };
 
-const renderSidebarCategoryCard = ({ categoryKey, latestNews }) => {
+const renderSidebarCategoryCard = ({ categoryName, categoryKey, latestNews }) => {
   return (
     <div key={categoryKey} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
-      <Link href={`/noticia/${categoryKey}`} legacyBehavior>
+      <Link href={categoryKey.startsWith('/') ? categoryKey : `/noticia/${categoryKey}`} legacyBehavior>
         <a className="block">
           <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-3 text-center">
-            <h3 className="text-lg font-bold text-white">{getCategoryName(categoryKey)}</h3>
+            <h3 className="text-lg font-bold text-white">{categoryName}</h3>
             <div className="w-16 h-1 bg-red-500 mx-auto mt-1"></div>
           </div>
           <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
@@ -276,7 +276,6 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
   const totalPages = Math.ceil(newsList.length / pageSize);
 
   const categoryName = getCategoryName(cat);
-  const ogImageUrl = `${SITE_URL}/logo.png`;
   const seoTitle = getCategorySeoTitle(cat);
   const seoDescription = getCategorySeoDescription(cat);
 
@@ -296,18 +295,18 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
       <Head>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content={`${SITE_URL}/noticia/${cat}`} />
-        <meta property="og:title" content={seoTitle} />
-        <meta property="og:description" content={seoDescription} />
-        <meta property="og:image" content={ogImageUrl} />
+        <meta property="og:title" content={`Noticias de ${categoryName}`} />
+        <meta property="og:description" content="" />
+        <meta property="og:image" content={`${SITE_URL}/UGNoticias.png`} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
+        <meta property="og:url" content={`${SITE_URL}/noticia/${cat}`} />
+        <meta property="og:type" content="website" />
         <meta property="og:site_name" content="UG Noticias Mineras" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={seoTitle} />
-        <meta name="twitter:description" content={seoDescription} />
-        <meta name="twitter:image" content={ogImageUrl} />
+        <meta name="twitter:title" content={`Noticias de ${categoryName}`} />
+        <meta name="twitter:description" content="" />
+        <meta name="twitter:image" content={`${SITE_URL}/UGNoticias.png`} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={`${SITE_URL}/noticia/${cat}`} />
       </Head>
@@ -372,6 +371,7 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
             {Object.entries(categories).map(([key, _]) => {
               if (key === cat) return null;
               return renderSidebarCategoryCard({
+                categoryName: getCategoryName(key),
                 categoryKey: key,
                 latestNews: sidebarNews[key]
               });
