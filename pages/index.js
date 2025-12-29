@@ -1,4 +1,3 @@
-// pages/index.js
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -243,24 +242,6 @@ const renderSidebarCategoryCard = ({ categoryName, categoryKey, latestNews }) =>
   );
 };
 
-// ✅ Paginación robusta
-const getPaginationRange = (currentPage, totalPages, delta = 1) => {
-  if (totalPages <= 5) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-
-  const range = [];
-  range.push(1);
-  if (currentPage > delta + 2) range.push('...');
-  for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
-    range.push(i);
-  }
-  if (currentPage < totalPages - delta - 1) range.push('...');
-  if (totalPages > 1) range.push(totalPages);
-
-  return range;
-};
-
 export default function Home({ allNews, sidebarNews, currentDate }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredNews, setFilteredNews] = useState(allNews);
@@ -293,8 +274,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
       document.querySelector('main')?.scrollIntoView({ behavior: 'smooth' });
     }
   };
-
-  const paginationRange = getPaginationRange(page, totalPages);
 
   return (
     <Layout currentDate={currentDate}>
@@ -341,52 +320,33 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                 {paginatedNews.map(news => news.categoryKey && renderNewsCard({ news, basePath: '' }))}
               </div>
               {totalPages > 1 && (
-                <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex justify-center items-center space-x-1 sm:space-x-2 mt-6 overflow-x-auto">
-                  <button 
-                    onClick={() => handlePageChange(1)}
-                    disabled={page === 1}
-                    className={`px-2 py-1 rounded ${page === 1 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
-                    aria-label="Primera página"
-                  >
-                    «
-                  </button>
+                <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex justify-center items-center space-x-2 mt-6 flex-wrap">
                   <button 
                     onClick={() => handlePageChange(page - 1)}
                     disabled={page === 1}
-                    className={`px-3 py-1 rounded ${page === 1 ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
+                    className={`px-3 py-1 rounded text-sm font-medium ${
+                      page === 1 
+                        ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' 
+                        : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'
+                    }`}
                   >
                     Anterior
                   </button>
-                  {paginationRange.map((pageNum, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => typeof pageNum === 'number' && handlePageChange(pageNum)}
-                      disabled={pageNum === '...'}
-                      className={`px-3 py-1 rounded ${
-                        pageNum === '...'
-                          ? 'text-gray-500 dark:text-gray-500 cursor-default'
-                          : page === pageNum
-                          ? 'bg-blue-600 text-white'
-                          : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'
-                      }`}
-                    >
-                      {pageNum}
-                    </button>
-                  ))}
+
+                  <span className="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium">
+                    {page}
+                  </span>
+
                   <button 
                     onClick={() => handlePageChange(page + 1)}
                     disabled={page === totalPages}
-                    className={`px-3 py-1 rounded ${page === totalPages ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
+                    className={`px-3 py-1 rounded text-sm font-medium ${
+                      page === totalPages 
+                        ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' 
+                        : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'
+                    }`}
                   >
                     Siguiente
-                  </button>
-                  <button 
-                    onClick={() => handlePageChange(totalPages)}
-                    disabled={page === totalPages}
-                    className={`px-2 py-1 rounded ${page === totalPages ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'}`}
-                    aria-label="Última página"
-                  >
-                    »
                   </button>
                 </div>
               )}
@@ -455,7 +415,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 
 export async function getServerSideProps() {
   try {
-    // ✅ Usamos per_page=100 (máximo permitido por WordPress.com)
     const response = await fetch(
       `${WORDPRESS_API_URL}/posts?per_page=100&orderby=date&order=desc&_embed`,
       {
