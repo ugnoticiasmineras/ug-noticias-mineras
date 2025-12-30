@@ -292,6 +292,9 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
         <meta name="twitter:image" content={`${SITE_URL}/UGNoticias.png`} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={SITE_URL} />
+
+        {/* 👇 Metaetiqueta de verificación de dominio para Meta Business Suite */}
+        <meta name="facebook-domain-verification" content="wr93115y6b6xa1s1vi3ukgijy7wwcw" />
       </Head>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
