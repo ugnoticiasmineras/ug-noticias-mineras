@@ -1,5 +1,5 @@
 // components/Layout.js
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -9,13 +9,6 @@ export default function Layout({ children, currentDate }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [darkMode, setDarkMode] = useState(false);
-  const [showRadio, setShowRadio] = useState(false);
-  const audioRef = useRef(null);
-
-  // 🔴 CONFIGURACIÓN DE LA RADIO (REEMPLAZA ESTO CON TUS DATOS)
-  const RADIO_STREAM_URL = "https://stream.zeno.fm/ihgolncnt3ttv"; // ← ¡Cambia esta URL!
-  const RADIO_LOGO = "/images/radio-ug.png"; // Asegúrate de tener esta imagen
-  const STATION_NAME = "UG Streaming";
 
   const getActiveCategory = () => {
     const path = router.pathname;
@@ -87,30 +80,12 @@ export default function Layout({ children, currentDate }) {
     setIsSearchOpen(false);
   };
 
-  // Control del reproductor
-  const toggleRadio = () => {
-    setShowRadio(!showRadio);
-    if (!showRadio && audioRef.current) {
-      // Al abrir, intentar reproducir (sujeto a políticas del navegador)
-      audioRef.current.play().catch(err => {
-        console.warn("Auto-play bloqueado. El usuario debe interactuar primero.");
-      });
-    } else if (showRadio && audioRef.current) {
-      audioRef.current.pause();
-    }
-  };
-
   return (
     <>
-      {/* Audio oculto */}
-      <audio ref={audioRef} src={RADIO_STREAM_URL} />
-
-      {/* Overlay para menú móvil */}
+      {/* Overlay */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden" onClick={() => setMobileMenuOpen(false)} />
       )}
-
-      {/* Menú móvil */}
       {mobileMenuOpen && (
         <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-800 border-b-2 border-blue-800 shadow-lg">
           <div className="max-w-7xl mx-auto px-4 py-3">
@@ -130,20 +105,11 @@ export default function Layout({ children, currentDate }) {
                   </a>
                 </Link>
               ))}
-              {!showRadio && (
-                <button
-                  onClick={toggleRadio}
-                  className="block px-4 py-2 text-sm rounded-full text-white font-semibold bg-blue-600 hover:bg-blue-700"
-                >
-                  Estación de Radio
-                </button>
-              )}
             </nav>
           </div>
         </div>
       )}
 
-      {/* Header */}
       <header className="bg-white dark:bg-gray-900 border-b-4 border-blue-800 shadow-lg sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex justify-between items-center">
           <div className="flex items-center space-x-4">
@@ -189,7 +155,6 @@ export default function Layout({ children, currentDate }) {
         )}
       </header>
 
-      {/* Menú desktop */}
       <nav className="hidden lg:block bg-white dark:bg-gray-900 border-b border-blue-200 dark:border-blue-900 py-2">
         <div className="max-w-7xl mx-auto px-4 flex justify-between items-center">
           <div className="flex flex-wrap gap-2">
@@ -208,58 +173,16 @@ export default function Layout({ children, currentDate }) {
                 </a>
               </Link>
             ))}
-            {!showRadio && (
-              <button
-                onClick={toggleRadio}
-                className={`px-4 py-1.5 text-sm rounded-full text-white font-semibold bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900`}
-              >
-                Estación de Radio
-              </button>
-            )}
           </div>
           <div className="text-sm text-blue-900 dark:text-blue-200">{formatDate(currentDate)}</div>
         </div>
       </nav>
 
-      {/* Fecha móvil */}
       <div className="lg:hidden bg-white dark:bg-gray-900 py-1 border-b border-blue-200 dark:border-blue-900 text-center text-xs text-blue-900 dark:text-blue-200">
         {formatDate(currentDate)}
       </div>
 
-      {/* Reproductor de radio (visible solo si showRadio es true) */}
-      {showRadio && (
-        <div className="bg-white dark:bg-gray-800 border-b border-blue-100 dark:border-blue-900 py-4">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-white dark:from-gray-700 dark:to-gray-800 rounded-xl border border-blue-200 dark:border-blue-900">
-              {RADIO_LOGO && (
-                <img 
-                  src={RADIO_LOGO} 
-                  alt={STATION_NAME}
-                  className="w-16 h-16 rounded-full"
-                  onError={(e) => e.target.style.display = 'none'}
-                />
-              )}
-              <div className="flex-1 text-center sm:text-left">
-                <h3 className="text-lg font-bold text-blue-900 dark:text-blue-100">{STATION_NAME}</h3>
-                <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">Transmisión en vivo</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={toggleRadio}
-                  className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full"
-                  aria-label="Detener radio"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Barra de sponsors */}
+      {/* ✅ BARRA DE SPONSORS SUPERIOR (RESTAURADA) */}
       <div className="bg-blue-50 dark:bg-gray-800 border-b border-blue-100 dark:border-blue-900 overflow-hidden">
         <div className="flex items-center space-x-8 animate-marquee" style={{ minWidth: '200%' }}>
           {[...Array(4)].map((_, i) => (
@@ -279,7 +202,7 @@ export default function Layout({ children, currentDate }) {
 
       <div className="max-w-7xl mx-auto px-4 py-6">{children}</div>
 
-      {/* Footer */}
+      {/* ✅ FOOTER ORIGINAL RESTAURADO */}
       <footer className="bg-gradient-to-r from-blue-900 to-blue-800 text-white mt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row justify-between items-center">
