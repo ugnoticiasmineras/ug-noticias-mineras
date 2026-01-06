@@ -201,7 +201,7 @@ export default function Layout({ children, currentDate }) {
                 <img 
                   key={j}
                   src="/sponsors/aoma1.jpg" 
-                  alt="Colaborador AOMA" 
+                  alt="Colaborador" // 👈 Cambiado de "Colaborador AOMA" a "Colaborador"
                   className="h-16 object-contain"
                 />
               ))}
