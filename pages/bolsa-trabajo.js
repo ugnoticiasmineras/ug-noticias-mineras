@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Head from 'next/head';
-
-// 👇 Importamos el Layout para que el header y footer se muestren
 import Layout from '../components/Layout';
 
 const BolsaTrabajo = () => {
@@ -13,51 +11,92 @@ const BolsaTrabajo = () => {
     telefono: '',
     email: '',
     instruccion: '',
-    disponibilidad: [],
-    roster: [],
-    maquinaria: [],
-    certificaciones: [],
-    oficios: [],
     otros_oficios: '',
     tiene_carnet: false,
-    categorias_carnet: [],
-    foto_base64: '', // Solo para el PDF
     acepto_terminos: false,
   });
+
+  const [disponibilidad, setDisponibilidad] = useState([]);
+  const [roster, setRoster] = useState([]);
+  const [maquinaria, setMaquinaria] = useState([]);
+  const [certificaciones, setCertificaciones] = useState([]);
+  const [oficios, setOficios] = useState([]);
+  const [categoriasCarnet, setCategoriasCarnet] = useState([]);
+  const [experiencias, setExperiencias] = useState([]); // ← Experiencias dinámicas
+  const [fotoBase64, setFotoBase64] = useState('');
+  const fileInputRef = useRef(null);
+
+  // Manejo de checkboxes
+  const toggleArray = (array, setArray, value) => {
+    if (array.includes(value)) {
+      setArray(array.filter(v => v !== value));
+    } else {
+      setArray([...array, value]);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (type === 'checkbox') {
       if (name === 'acepto_terminos' || name === 'tiene_carnet') {
         setFormData(prev => ({ ...prev, [name]: checked }));
-      } else {
-        setFormData(prev => {
-          const current = prev[name] || [];
-          if (checked) {
-            return { ...prev, [name]: [...current, value] };
-          } else {
-            return { ...prev, [name]: current.filter(v => v !== value) };
-          }
-        });
+      } else if (name === 'disponibilidad') {
+        toggleArray(disponibilidad, setDisponibilidad, value);
+      } else if (name === 'roster') {
+        toggleArray(roster, setRoster, value);
+      } else if (name === 'maquinaria') {
+        toggleArray(maquinaria, setMaquinaria, value);
+      } else if (name === 'certificaciones') {
+        toggleArray(certificaciones, setCertificaciones, value);
+      } else if (name === 'oficios') {
+        toggleArray(oficios, setOficios, value);
+      } else if (name === 'categorias_carnet') {
+        toggleArray(categoriasCarnet, setCategoriasCarnet, value);
       }
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
+  // Agregar experiencia
+  const agregarExperiencia = () => {
+    setExperiencias(prev => [...prev, {
+      id: Date.now(),
+      empresa: '',
+      sector: 'minería',
+      cargo: '',
+      desde: '',
+      hasta: '',
+      ref_nombre: '',
+      ref_telefono: '',
+    }]);
+  };
+
+  // Actualizar experiencia
+  const actualizarExperiencia = (id, field, value) => {
+    setExperiencias(prev =>
+      prev.map(exp => exp.id === id ? { ...exp, [field]: value } : exp)
+    );
+  };
+
+  // Eliminar experiencia
+  const eliminarExperiencia = (id) => {
+    setExperiencias(prev => prev.filter(exp => exp.id !== id));
+  };
+
+  // Subir foto
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, foto_base64: reader.result }));
-        document.getElementById('foto-preview').src = reader.result;
-        document.getElementById('foto-preview').classList.remove('hidden');
+        setFotoBase64(reader.result);
       };
       reader.readAsDataURL(file);
     }
   };
 
+  // Generar PDF
   const generarPDF = () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -74,15 +113,16 @@ const BolsaTrabajo = () => {
     doc.text("Generado automáticamente por UG Noticias Mineras", pageWidth / 2, y, { align: 'center' });
     y += 15;
 
-    // ✅ Foto a la derecha, debajo del título
-    if (formData.foto_base64) {
+    // Foto
+    if (fotoBase64) {
       try {
-        doc.addImage(formData.foto_base64, 'JPEG', pageWidth - 50, 30, 40, 40);
+        doc.addImage(fotoBase64, 'JPEG', pageWidth - 50, 30, 40, 40);
       } catch (e) {
         console.warn("Foto no compatible con PDF");
       }
     }
 
+    // Datos personales
     doc.setFontSize(14);
     doc.setTextColor(0);
     doc.text("DATOS PERSONALES", margin, y);
@@ -96,37 +136,42 @@ const BolsaTrabajo = () => {
     doc.text(`Email: ${formData.email || 'No proporcionado'}`, margin, y); y += 5;
     doc.text(`Nivel de instrucción: ${formData.instruccion}`, margin, y); y += 10;
 
+    // Disponibilidad
     doc.setFontSize(14);
     doc.text("DISPONIBILIDAD", margin, y); y += 8;
     doc.setFontSize(11);
-    doc.text(`Roster: ${formData.roster.join(', ') || 'Ninguno'}`, margin, y); y += 5;
-    doc.text(`Condiciones: ${formData.disponibilidad.join(', ') || 'Ninguno'}`, margin, y); y += 10;
+    doc.text(`Roster: ${roster.join(', ') || 'Ninguno'}`, margin, y); y += 5;
+    doc.text(`Condiciones: ${disponibilidad.join(', ') || 'Ninguno'}`, margin, y); y += 10;
 
+    // Carnet
     if (formData.tiene_carnet) {
       doc.setFontSize(14);
       doc.text("CARNET DE CONDUCIR", margin, y); y += 8;
       doc.setFontSize(11);
-      doc.text(`Categorías: ${formData.categorias_carnet.join(', ') || 'Ninguna'}`, margin, y); y += 10;
+      doc.text(`Categorías: ${categoriasCarnet.join(', ') || 'Ninguna'}`, margin, y); y += 10;
     }
 
+    // Maquinaria
     doc.setFontSize(14);
     doc.text("MAQUINARIA OPERADA", margin, y); y += 8;
     doc.setFontSize(11);
-    const maq = formData.maquinaria.join(', ') || 'Ninguna';
+    const maq = maquinaria.join(', ') || 'Ninguna';
     const maqLines = doc.splitTextToSize(maq, 180);
     doc.text(maqLines, margin, y); y += 5 + maqLines.length * 5; y += 5;
 
+    // Certificaciones
     doc.setFontSize(14);
     doc.text("CERTIFICACIONES", margin, y); y += 8;
     doc.setFontSize(11);
-    const cert = formData.certificaciones.join(', ') || 'Ninguna';
+    const cert = certificaciones.join(', ') || 'Ninguna';
     const certLines = doc.splitTextToSize(cert, 180);
     doc.text(certLines, margin, y); y += 5 + certLines.length * 5; y += 5;
 
+    // Oficios
     doc.setFontSize(14);
     doc.text("OFICIOS TÉCNICOS", margin, y); y += 8;
     doc.setFontSize(11);
-    const ofi = formData.oficios.join(', ') || 'Ninguno';
+    const ofi = oficios.join(', ') || 'Ninguno';
     const ofiLines = doc.splitTextToSize(ofi, 180);
     doc.text(ofiLines, margin, y); y += 5 + ofiLines.length * 5;
 
@@ -134,6 +179,24 @@ const BolsaTrabajo = () => {
       y += 5;
       doc.text(`Otros: ${formData.otros_oficios.substring(0, 200)}`, margin, y);
       y += 10;
+    }
+
+    // Experiencia laboral
+    if (experiencias.length > 0) {
+      y += 5;
+      doc.setFontSize(14);
+      doc.text("EXPERIENCIA LABORAL", margin, y); y += 8;
+      doc.setFontSize(11);
+      experiencias.forEach(exp => {
+        doc.text(`${exp.empresa} – ${exp.sector}`, margin, y); y += 5;
+        doc.text(`• ${exp.cargo} (${exp.desde || '–'} – ${exp.hasta || 'Actualidad'})`, margin + 5, y); y += 5;
+        if (exp.ref_nombre || exp.ref_telefono) {
+          let refText = 'Referencia: ';
+          if (exp.ref_nombre) refText += exp.ref_nombre;
+          if (exp.ref_telefono) refText += (exp.ref_nombre ? ' – ' : '') + exp.ref_telefono;
+          doc.text(refText, margin + 10, y); y += 6;
+        }
+      });
     }
 
     y += 10;
@@ -145,27 +208,26 @@ const BolsaTrabajo = () => {
     doc.save(`CV-UG-${formData.nombre.replace(/\s+/g, '-')}.pdf`);
   };
 
+  // Enviar formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.acepto_terminos) return;
 
-    // Generar PDF primero
     generarPDF();
 
-    // Preparar datos para enviar (sin foto_base64)
+    // Preparar datos
     const dataToSend = {
       ...formData,
-      // Eliminar foto_base64 para no enviarla por email
-      foto_base64: undefined,
-      // Convertir arrays a strings
-      disponibilidad: formData.disponibilidad.join(', '),
-      roster: formData.roster.join(', '),
-      maquinaria: formData.maquinaria.join(', '),
-      certificaciones: formData.certificaciones.join(', '),
-      oficios: formData.oficios.join(', '),
+      foto_base64: undefined, // No enviar por email
+      disponibilidad: disponibilidad.join(', '),
+      roster: roster.join(', '),
+      maquinaria: maquinaria.join(', '),
+      certificaciones: certificaciones.join(', '),
+      oficios: oficios.join(', '),
+      categorias_carnet: formData.tiene_carnet ? categoriasCarnet.join(', ') : '',
+      experiencias: experiencias,
     };
 
-    // Enviar a Web3Forms
     const res = await fetch("https://api.web3forms.com/submit", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -177,16 +239,23 @@ const BolsaTrabajo = () => {
       })
     });
 
-    const result = await res.json();
-    if (result.success) {
+    if (res.ok) {
       alert("¡Gracias! Tus datos fueron enviados.");
+      // Resetear formulario
       setFormData({
         nombre: '', edad: '', provincia: 'San Juan', departamento: '', telefono: '',
-        email: '', instruccion: '', disponibilidad: [], roster: [], maquinaria: [],
-        certificaciones: [], oficios: [], otros_oficios: '', tiene_carnet: false,
-        categorias_carnet: [], foto_base64: '', acepto_terminos: false
+        email: '', instruccion: '', otros_oficios: '', tiene_carnet: false, acepto_terminos: false
       });
-      document.getElementById('foto-preview').classList.add('hidden');
+      setDisponibilidad([]);
+      setRoster([]);
+      setMaquinaria([]);
+      setCertificaciones([]);
+      setOficios([]);
+      setCategoriasCarnet([]);
+      setExperiencias([]);
+      setFotoBase64('');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      document.getElementById('foto-preview')?.classList.add('hidden');
     } else {
       alert("Error al enviar. Intente nuevamente.");
     }
@@ -217,15 +286,16 @@ const BolsaTrabajo = () => {
           __html: `
             .dark .legal-notice { background-color: #1e3a8a20; border-left-color: #3b82f6; color: #bfdbfe; }
             .legal-notice { background-color: #dbeafe; border-left: 4px solid #1e40af; color: #1e3a8a; }
+            .experience-item { background: #f9f9f9; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
+            .dark .experience-item { background: #1e293b; }
           `
         }} />
       </Head>
 
-      {/* ✅ El contenido va dentro del Layout */}
       <Layout currentDate={new Date().toISOString()}>
         <div className="bg-white dark:bg-gray-900 text-blue-900 dark:text-blue-200 min-h-screen p-4">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <h1 className="text-2xl font-bold text-blue-900 dark:text-white">Bolsa de Trabajo – Sector Minero</h1>
             </div>
 
@@ -239,7 +309,7 @@ const BolsaTrabajo = () => {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div><label className="block text-sm font-medium mb-1">Nivel de instrucción</label><select name="instruccion" value={formData.instruccion} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"><option value="">Selecciona</option><option value="Primaria">Primaria</option><option value="Secundaria">Secundaria</option><option value="Técnico">Técnico</option><option value="Universitario">Universitario</option><option value="Posgrado">Posgrado</option></select></div>
-                <div><label className="block text-sm font-medium mb-1">Provincia</label><select name="provincia" value={formData.provincia} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"><option value="Buenos Aires">Buenos Aires</option><option value="Catamarca">Catamarca</option><option value="Chaco">Chaco</option><option value="Chubut">Chubut</option><option value="Córdoba">Córdoba</option><option value="Corrientes">Corrientes</option><option value="Entre Ríos">Entre Ríos</option><option value="Formosa">Formosa</option><option value="Jujuy">Jujuy</option><option value="La Pampa">La Pampa</option><option value="La Rioja">La Rioja</option><option value="Mendoza">Mendoza</option><option value="Misiones">Misiones</option><option value="Neuquén">Neuquén</option><option value="Río Negro">Río Negro</option><option value="Salta">Salta</option><option value="San Juan">San Juan</option><option value="San Luis">San Luis</option><option value="Santa Cruz">Santa Cruz</option><option value="Santa Fe">Santa Fe</option><option value="Santiago del Estero">Santiago del Estero</option><option value="Tierra del Fuego">Tierra del Fuego</option><option value="Tucumán">Tucumán</option></select></div>
+                <div><label className="block text-sm font-medium mb-1">Provincia</label><select name="provincia" value={formData.provincia} onChange={handleChange} required className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600">{['Buenos Aires','Catamarca','Chaco','Chubut','Córdoba','Corrientes','Entre Ríos','Formosa','Jujuy','La Pampa','La Rioja','Mendoza','Misiones','Neuquén','Río Negro','Salta','San Juan','San Luis','Santa Cruz','Santa Fe','Santiago del Estero','Tierra del Fuego','Tucumán'].map(p => <option key={p} value={p}>{p}</option>)}</select></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div><label className="block text-sm font-medium mb-1">Departamento / Localidad</label><input type="text" name="departamento" value={formData.departamento} onChange={handleChange} placeholder="Ej: Iglesia, Rawson..." required className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600" /></div>
@@ -250,8 +320,135 @@ const BolsaTrabajo = () => {
               {/* FOTO */}
               <h2 className="text-lg font-semibold text-blue-900 dark:text-white mb-4 mt-6 border-b border-blue-200 dark:border-blue-900 pb-2">Foto de identificación (opcional)</h2>
               <div className="mb-4">
-                <input type="file" accept="image/jpeg,image/png" onChange={handleFileChange} className="block w-full text-sm text-blue-900 dark:text-blue-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700" />
-                <img id="foto-preview" className="mt-2 max-h-32 hidden rounded shadow" />
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png"
+                  onChange={handleFileChange}
+                  ref={fileInputRef}
+                  className="block w-full text-sm text-blue-900 dark:text-blue-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                />
+                {fotoBase64 && (
+                  <img
+                    id="foto-preview"
+                    src={fotoBase64}
+                    className="mt-2 max-h-32 rounded shadow"
+                  />
+                )}
+              </div>
+
+              {/* EXPERIENCIA LABORAL */}
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-semibold text-blue-900 dark:text-white mt-6 border-b border-blue-200 dark:border-blue-900 pb-2 inline-block">
+                  Experiencia laboral
+                </h2>
+                <button
+                  type="button"
+                  onClick={agregarExperiencia}
+                  className="px-4 py-1.5 text-sm rounded-full text-white font-semibold bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900"
+                >
+                  + Agregar experiencia
+                </button>
+              </div>
+
+              {/* Listado de experiencias */}
+              <div id="experiencia-container" className="mb-6">
+                {experiencias.map((exp) => (
+                  <div key={exp.id} className="experience-item">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+                      <div>
+                        <label className="block text-xs mb-1">Empresa</label>
+                        <input
+                          type="text"
+                          value={exp.empresa}
+                          onChange={(e) => actualizarExperiencia(exp.id, 'empresa', e.target.value)}
+                          required
+                          className="w-full px-2 py-1 text-sm border rounded dark:bg-gray-600 dark:border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Sector</label>
+                        <select
+                          value={exp.sector}
+                          onChange={(e) => actualizarExperiencia(exp.id, 'sector', e.target.value)}
+                          required
+                          className="w-full px-2 py-1 text-sm border rounded dark:bg-gray-600 dark:border-gray-500"
+                        >
+                          <option value="minería">Minería</option>
+                          <option value="construcción">Construcción</option>
+                          <option value="industria">Industria</option>
+                          <option value="otros">Otros</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Cargo</label>
+                        <input
+                          type="text"
+                          value={exp.cargo}
+                          onChange={(e) => actualizarExperiencia(exp.id, 'cargo', e.target.value)}
+                          required
+                          className="w-full px-2 py-1 text-sm border rounded dark:bg-gray-600 dark:border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Desde</label>
+                        <input
+                          type="month"
+                          value={exp.desde}
+                          onChange={(e) => actualizarExperiencia(exp.id, 'desde', e.target.value)}
+                          required
+                          className="w-full px-2 py-1 text-sm border rounded dark:bg-gray-600 dark:border-gray-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs mb-1">Hasta</label>
+                        <input
+                          type="month"
+                          value={exp.hasta}
+                          onChange={(e) => actualizarExperiencia(exp.id, 'hasta', e.target.value)}
+                          className="w-full px-2 py-1 text-sm border rounded dark:bg-gray-600 dark:border-gray-500"
+                        />
+                        <small className="text-xs text-gray-500 dark:text-gray-300">Deja en blanco si actualmente</small>
+                      </div>
+                    </div>
+
+                    {/* Referencias */}
+                    <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                      <h4 className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-2">
+                        Contacto para referencias (opcional)
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs mb-1">Nombre del contacto</label>
+                          <input
+                            type="text"
+                            value={exp.ref_nombre}
+                            onChange={(e) => actualizarExperiencia(exp.id, 'ref_nombre', e.target.value)}
+                            placeholder="Ej: Juan Pérez"
+                            className="w-full px-2 py-1 text-sm border rounded dark:bg-gray-600 dark:border-gray-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs mb-1">Teléfono del contacto</label>
+                          <input
+                            type="tel"
+                            value={exp.ref_telefono}
+                            onChange={(e) => actualizarExperiencia(exp.id, 'ref_telefono', e.target.value)}
+                            placeholder="Ej: 2645123456"
+                            className="w-full px-2 py-1 text-sm border rounded dark:bg-gray-600 dark:border-gray-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => eliminarExperiencia(exp.id)}
+                      className="mt-3 px-3 py-1 bg-red-600 text-white text-xs rounded"
+                    >
+                      Eliminar experiencia
+                    </button>
+                  </div>
+                ))}
               </div>
 
               {/* DISPONIBILIDAD */}
@@ -259,13 +456,28 @@ const BolsaTrabajo = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
                 {['altura', 'turnos', 'viajar'].map(opt => (
                   <label key={opt} className="flex items-center">
-                    <input type="checkbox" name="disponibilidad" value={opt} checked={formData.disponibilidad.includes(opt)} onChange={handleChange} className="mr-2 accent-blue-600" />
-                    {opt === 'altura' ? 'Trabajo en altura' : opt === 'turnos' ? 'Turnos rotativos' : 'Disponible para viajar'}
+                    <input
+                      type="checkbox"
+                      name="disponibilidad"
+                      value={opt}
+                      checked={disponibilidad.includes(opt)}
+                      onChange={handleChange}
+                      className="mr-2 accent-blue-600"
+                    />
+                    {opt === 'altura' ? 'Trabajo en altura' :
+                     opt === 'turnos' ? 'Turnos rotativos' : 'Disponible para viajar'}
                   </label>
                 ))}
                 {['7x7', '10x10', '14x14'].map(r => (
                   <label key={r} className="flex items-center">
-                    <input type="checkbox" name="roster" value={r} checked={formData.roster.includes(r)} onChange={handleChange} className="mr-2 accent-blue-600" />
+                    <input
+                      type="checkbox"
+                      name="roster"
+                      value={r}
+                      checked={roster.includes(r)}
+                      onChange={handleChange}
+                      className="mr-2 accent-blue-600"
+                    />
                     Roster {r}
                   </label>
                 ))}
@@ -275,7 +487,14 @@ const BolsaTrabajo = () => {
               <h2 className="text-lg font-semibold text-blue-900 dark:text-white mb-4 mt-6 border-b border-blue-200 dark:border-blue-900 pb-2">Operación de maquinaria</h2>
               {['camion_fuera_ruta', 'pala_cargadora', 'bulldozer', 'wheeldozer', 'motoniveladora', 'cargadora_frontal', 'retroexcavadora', 'perforadora'].map(maq => (
                 <label key={maq} className="flex items-center mr-4">
-                  <input type="checkbox" name="maquinaria" value={maq} checked={formData.maquinaria.includes(maq)} onChange={handleChange} className="mr-2 accent-blue-600" />
+                  <input
+                    type="checkbox"
+                    name="maquinaria"
+                    value={maq}
+                    checked={maquinaria.includes(maq)}
+                    onChange={handleChange}
+                    className="mr-2 accent-blue-600"
+                  />
                   {maq === 'camion_fuera_ruta' ? 'Camión fuera de ruta' :
                    maq === 'pala_cargadora' ? 'Pala cargadora' :
                    maq === 'wheeldozer' ? 'Wheeldozer' :
@@ -290,7 +509,14 @@ const BolsaTrabajo = () => {
               <h2 className="text-lg font-semibold text-blue-900 dark:text-white mb-4 mt-6 border-b border-blue-200 dark:border-blue-900 pb-2">Certificaciones vigentes</h2>
               {['cargas_peligrosas', 'auto_elevador', 'puente_grua', 'hidrogrua', 'explosivos', 'rescate', 'primeros_auxilios'].map(cert => (
                 <label key={cert} className="flex items-center mr-4">
-                  <input type="checkbox" name="certificaciones" value={cert} checked={formData.certificaciones.includes(cert)} onChange={handleChange} className="mr-2 accent-blue-600" />
+                  <input
+                    type="checkbox"
+                    name="certificaciones"
+                    value={cert}
+                    checked={certificaciones.includes(cert)}
+                    onChange={handleChange}
+                    className="mr-2 accent-blue-600"
+                  />
                   {cert === 'cargas_peligrosas' ? 'Cargas Peligrosas' :
                    cert === 'auto_elevador' ? 'Manejo Auto elevador' :
                    cert === 'puente_grua' ? 'Manejo Puente Grúa' :
@@ -299,12 +525,28 @@ const BolsaTrabajo = () => {
                    cert === 'rescate' ? 'Rescate subterráneo' : 'Primeros auxilios'}
                 </label>
               ))}
-              <label className="flex items-center mt-2"><input type="checkbox" name="tiene_carnet" checked={formData.tiene_carnet} onChange={handleChange} className="mr-2 accent-blue-600" />Tengo carnet de conducir</label>
+              <label className="flex items-center mt-2">
+                <input
+                  type="checkbox"
+                  name="tiene_carnet"
+                  checked={formData.tiene_carnet}
+                  onChange={handleChange}
+                  className="mr-2 accent-blue-600"
+                />
+                Tengo carnet de conducir
+              </label>
               {formData.tiene_carnet && (
                 <div className="ml-6 mt-2">
                   {['A', 'B', 'C', 'D', 'E'].map(cat => (
                     <label key={cat} className="flex items-center mr-4">
-                      <input type="checkbox" name="categorias_carnet" value={cat} checked={formData.categorias_carnet.includes(cat)} onChange={handleChange} className="mr-2 accent-blue-600" />
+                      <input
+                        type="checkbox"
+                        name="categorias_carnet"
+                        value={cat}
+                        checked={categoriasCarnet.includes(cat)}
+                        onChange={handleChange}
+                        className="mr-2 accent-blue-600"
+                      />
                       {cat} ({cat === 'A' ? 'Motocicletas' : cat === 'B' ? 'Automóviles' : cat === 'C' ? 'Camiones' : cat === 'D' ? 'Ómnibus' : 'Acoplados'})
                     </label>
                   ))}
@@ -315,7 +557,14 @@ const BolsaTrabajo = () => {
               <h2 className="text-lg font-semibold text-blue-900 dark:text-white mb-4 mt-6 border-b border-blue-200 dark:border-blue-900 pb-2">Oficios técnicos</h2>
               {['mecanico_flota', 'soldador', 'electricista', 'instrumentista', 'topografo', 'data_entry', 'sistemas', 'panol'].map(oficio => (
                 <label key={oficio} className="flex items-center mr-4">
-                  <input type="checkbox" name="oficios" value={oficio} checked={formData.oficios.includes(oficio)} onChange={handleChange} className="mr-2 accent-blue-600" />
+                  <input
+                    type="checkbox"
+                    name="oficios"
+                    value={oficio}
+                    checked={oficios.includes(oficio)}
+                    onChange={handleChange}
+                    className="mr-2 accent-blue-600"
+                  />
                   {oficio === 'mecanico_flota' ? 'Mecánico de flota' :
                    oficio === 'data_entry' ? 'Data Entry' :
                    oficio === 'sistemas' ? 'Sistemas' :
@@ -323,19 +572,45 @@ const BolsaTrabajo = () => {
                 </label>
               ))}
 
-              <div className="mb-6 mt-4"><label className="block text-sm font-medium mb-1">Otros oficios, cursos o capacidades no listadas</label><textarea name="otros_oficios" value={formData.otros_oficios} onChange={handleChange} rows="2" className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"></textarea></div>
+              <div className="mb-6 mt-4">
+                <label className="block text-sm font-medium mb-1">Otros oficios, cursos o capacidades no listadas</label>
+                <textarea
+                  name="otros_oficios"
+                  value={formData.otros_oficios}
+                  onChange={handleChange}
+                  rows="2"
+                  className="w-full px-3 py-2 border rounded-lg dark:bg-gray-700 dark:border-gray-600"
+                ></textarea>
+              </div>
 
               {/* AVISO LEGAL */}
               <div className="legal-notice p-4 rounded-lg mb-4 text-sm">
-                <p><strong>Protección de Datos Personales (Ley 25.326):</strong> Los datos personales que usted proporcione serán incorporados a un archivo bajo la responsabilidad de <strong>UG Noticias Mineras</strong>, con la finalidad de gestionar su inclusión en la bolsa de trabajo del sector minero. Sus datos podrán ser compartidos con empresas mineras interesadas en procesos de selección de personal. Usted tiene derecho a acceder, rectificar, actualizar y suprimir sus datos. Para más información, puede contactarnos a través de ugnoticiasmineras@gmail.com.</p>
+                <p>
+                  <strong>Protección de Datos Personales (Ley 25.326):</strong> 
+                  Los datos personales que usted proporcione serán incorporados a un archivo bajo la responsabilidad de <strong>UG Noticias Mineras</strong>, 
+                  con la finalidad de gestionar su inclusión en la bolsa de trabajo del sector minero. 
+                  Sus datos podrán ser compartidos con empresas mineras interesadas en procesos de selección de personal. 
+                  Usted tiene derecho a acceder, rectificar, actualizar y suprimir sus datos. 
+                  Para más información, puede contactarnos a través de ugnoticiasmineras@gmail.com.
+                </p>
               </div>
 
               <label className="flex items-start mb-6">
-                <input type="checkbox" name="acepto_terminos" checked={formData.acepto_terminos} onChange={handleChange} className="mr-2 mt-1 accent-blue-600" />
+                <input
+                  type="checkbox"
+                  name="acepto_terminos"
+                  checked={formData.acepto_terminos}
+                  onChange={handleChange}
+                  className="mr-2 mt-1 accent-blue-600"
+                />
                 <span>Acepto el tratamiento de mis datos personales según la Ley de Protección de Datos.</span>
               </label>
 
-              <button type="submit" disabled={!formData.acepto_terminos} className="w-full px-6 py-3 text-white font-semibold rounded-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 disabled:opacity-50">
+              <button
+                type="submit"
+                disabled={!formData.acepto_terminos}
+                className="w-full px-6 py-3 text-white font-semibold rounded-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 disabled:opacity-50"
+              >
                 Enviar mis datos
               </button>
             </form>
