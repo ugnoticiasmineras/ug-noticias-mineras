@@ -1,4 +1,3 @@
-// components/Layout.js
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -13,6 +12,7 @@ export default function Layout({ children, currentDate }) {
   const getActiveCategory = () => {
     const path = router.pathname;
     if (path === '/') return 'home';
+    if (path.startsWith('/bolsa-trabajo')) return 'bolsa';
     if (path.startsWith('/noticia/')) {
       const parts = router.asPath.split('/');
       if (parts.length >= 3) {
@@ -95,6 +95,11 @@ export default function Layout({ children, currentDate }) {
                   Inicio
                 </a>
               </Link>
+              <Link href="/bolsa-trabajo" legacyBehavior>
+                <a className={`block px-4 py-2 text-sm rounded-full text-white font-semibold ${activeCategory === 'bolsa' ? 'bg-red-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                  Bolsa de Trabajo
+                </a>
+              </Link>
               {['sanjuan', 'nacionales', 'internacionales', 'sindicales', 'opinion'].map(cat => (
                 <Link key={cat} href={`/noticia/${cat}`} legacyBehavior>
                   <a className={`block px-4 py-2 text-sm rounded-full text-white font-semibold ${activeCategory === cat ? 'bg-red-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
@@ -161,6 +166,11 @@ export default function Layout({ children, currentDate }) {
             <Link href="/" legacyBehavior>
               <a className={`px-4 py-1.5 text-sm rounded-full text-white font-semibold ${activeCategory === 'home' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900'}`}>
                 Inicio
+              </a>
+            </Link>
+            <Link href="/bolsa-trabajo" legacyBehavior>
+              <a className={`px-4 py-1.5 text-sm rounded-full text-white font-semibold ${activeCategory === 'bolsa' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900'}`}>
+                Bolsa de Trabajo
               </a>
             </Link>
             {['sanjuan', 'nacionales', 'internacionales', 'sindicales', 'opinion'].map(cat => (
