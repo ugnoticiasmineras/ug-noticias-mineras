@@ -95,21 +95,36 @@ export default function Layout({ children, currentDate }) {
                   Inicio
                 </a>
               </Link>
+              <Link href="/noticia/sanjuan" legacyBehavior>
+                <a className={`block px-4 py-2 text-sm rounded-full text-white font-semibold ${activeCategory === 'sanjuan' ? 'bg-red-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                  San Juan
+                </a>
+              </Link>
+              <Link href="/noticia/nacionales" legacyBehavior>
+                <a className={`block px-4 py-2 text-sm rounded-full text-white font-semibold ${activeCategory === 'nacionales' ? 'bg-red-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                  Nacionales
+                </a>
+              </Link>
+              <Link href="/noticia/internacionales" legacyBehavior>
+                <a className={`block px-4 py-2 text-sm rounded-full text-white font-semibold ${activeCategory === 'internacionales' ? 'bg-red-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                  Internacionales
+                </a>
+              </Link>
+              <Link href="/noticia/sindicales" legacyBehavior>
+                <a className={`block px-4 py-2 text-sm rounded-full text-white font-semibold ${activeCategory === 'sindicales' ? 'bg-red-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                  Sindicales
+                </a>
+              </Link>
+              <Link href="/noticia/opinion" legacyBehavior>
+                <a className={`block px-4 py-2 text-sm rounded-full text-white font-semibold ${activeCategory === 'opinion' ? 'bg-red-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                  Opinión
+                </a>
+              </Link>
               <Link href="/bolsa-trabajo" legacyBehavior>
                 <a className={`block px-4 py-2 text-sm rounded-full text-white font-semibold ${activeCategory === 'bolsa' ? 'bg-red-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
                   Bolsa de Trabajo
                 </a>
               </Link>
-              {['sanjuan', 'nacionales', 'internacionales', 'sindicales', 'opinion'].map(cat => (
-                <Link key={cat} href={`/noticia/${cat}`} legacyBehavior>
-                  <a className={`block px-4 py-2 text-sm rounded-full text-white font-semibold ${activeCategory === cat ? 'bg-red-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
-                    {cat === 'nacionales' ? 'Nacionales' :
-                     cat === 'sanjuan' ? 'San Juan' :
-                     cat === 'sindicales' ? 'Sindicales' :
-                     cat === 'internacionales' ? 'Internacionales' : 'Opinión'}
-                  </a>
-                </Link>
-              ))}
             </nav>
           </div>
         </div>
@@ -168,21 +183,36 @@ export default function Layout({ children, currentDate }) {
                 Inicio
               </a>
             </Link>
+            <Link href="/noticia/sanjuan" legacyBehavior>
+              <a className={`px-4 py-1.5 text-sm rounded-full text-white font-semibold ${activeCategory === 'sanjuan' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900'}`}>
+                San Juan
+              </a>
+            </Link>
+            <Link href="/noticia/nacionales" legacyBehavior>
+              <a className={`px-4 py-1.5 text-sm rounded-full text-white font-semibold ${activeCategory === 'nacionales' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900'}`}>
+                Nacionales
+              </a>
+            </Link>
+            <Link href="/noticia/internacionales" legacyBehavior>
+              <a className={`px-4 py-1.5 text-sm rounded-full text-white font-semibold ${activeCategory === 'internacionales' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900'}`}>
+                Internacionales
+              </a>
+            </Link>
+            <Link href="/noticia/sindicales" legacyBehavior>
+              <a className={`px-4 py-1.5 text-sm rounded-full text-white font-semibold ${activeCategory === 'sindicales' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900'}`}>
+                Sindicales
+              </a>
+            </Link>
+            <Link href="/noticia/opinion" legacyBehavior>
+              <a className={`px-4 py-1.5 text-sm rounded-full text-white font-semibold ${activeCategory === 'opinion' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900'}`}>
+                Opinión
+              </a>
+            </Link>
             <Link href="/bolsa-trabajo" legacyBehavior>
               <a className={`px-4 py-1.5 text-sm rounded-full text-white font-semibold ${activeCategory === 'bolsa' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900'}`}>
                 Bolsa de Trabajo
               </a>
             </Link>
-            {['sanjuan', 'nacionales', 'internacionales', 'sindicales', 'opinion'].map(cat => (
-              <Link key={cat} href={`/noticia/${cat}`} legacyBehavior>
-                <a className={`px-4 py-1.5 text-sm rounded-full text-white font-semibold ${activeCategory === cat ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900'}`}>
-                  {cat === 'nacionales' ? 'Nacionales' :
-                   cat === 'sanjuan' ? 'San Juan' :
-                   cat === 'sindicales' ? 'Sindicales' :
-                   cat === 'internacionales' ? 'Internacionales' : 'Opinión'}
-                </a>
-              </Link>
-            ))}
           </div>
           <div className="text-sm text-blue-900 dark:text-blue-200">{formatDate(currentDate)}</div>
         </div>
@@ -201,7 +231,7 @@ export default function Layout({ children, currentDate }) {
                 <img 
                   key={j}
                   src="/sponsors/aoma1.jpg" 
-                  alt="Colaborador" // 👈 Cambiado de "Colaborador AOMA" a "Colaborador"
+                  alt="Colaborador" // 👈 Cambiado a "Colaborador"
                   className="h-16 object-contain"
                 />
               ))}
