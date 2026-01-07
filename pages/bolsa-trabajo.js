@@ -1,6 +1,31 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import Layout from '../components/Layout';
+
+// Estilos globales (sin Tailwind inline)
+const BolsaTrabajoStyles = () => (
+  <style jsx global>{`
+    .experience-item {
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .dark .experience-item {
+      background: #1e293b;
+    }
+    .legal-notice {
+      background-color: #dbeafe;
+      border-left: 4px solid #1e40af;
+      color: #1e3a8a;
+    }
+    .dark .legal-notice {
+      background-color: #1e3a8a20;
+      border-left-color: #3b82f6;
+      color: #bfdbfe;
+    }
+  `}</style>
+);
 
 const BolsaTrabajo = () => {
   const [formData, setFormData] = useState({
@@ -22,11 +47,22 @@ const BolsaTrabajo = () => {
   const [certificaciones, setCertificaciones] = useState([]);
   const [oficios, setOficios] = useState([]);
   const [categoriasCarnet, setCategoriasCarnet] = useState([]);
-  const [experiencias, setExperiencias] = useState([]); // ← Experiencias dinámicas
+  const [experiencias, setExperiencias] = useState([]);
   const [fotoBase64, setFotoBase64] = useState('');
   const fileInputRef = useRef(null);
 
-  // Manejo de checkboxes
+  // Sincronizar modo oscuro con Layout
+  useEffect(() => {
+    const saved = localStorage.getItem('darkMode');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = saved === 'true' || (saved === null && prefersDark);
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, []);
+
   const toggleArray = (array, setArray, value) => {
     if (array.includes(value)) {
       setArray(array.filter(v => v !== value));
@@ -58,7 +94,6 @@ const BolsaTrabajo = () => {
     }
   };
 
-  // Agregar experiencia
   const agregarExperiencia = () => {
     setExperiencias(prev => [...prev, {
       id: Date.now(),
@@ -72,19 +107,16 @@ const BolsaTrabajo = () => {
     }]);
   };
 
-  // Actualizar experiencia
   const actualizarExperiencia = (id, field, value) => {
     setExperiencias(prev =>
       prev.map(exp => exp.id === id ? { ...exp, [field]: value } : exp)
     );
   };
 
-  // Eliminar experiencia
   const eliminarExperiencia = (id) => {
     setExperiencias(prev => prev.filter(exp => exp.id !== id));
   };
 
-  // Subir foto
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -96,7 +128,6 @@ const BolsaTrabajo = () => {
     }
   };
 
-  // Generar PDF
   const generarPDF = () => {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
@@ -113,7 +144,6 @@ const BolsaTrabajo = () => {
     doc.text("Generado automáticamente por UG Noticias Mineras", pageWidth / 2, y, { align: 'center' });
     y += 15;
 
-    // Foto
     if (fotoBase64) {
       try {
         doc.addImage(fotoBase64, 'JPEG', pageWidth - 50, 30, 40, 40);
@@ -122,7 +152,6 @@ const BolsaTrabajo = () => {
       }
     }
 
-    // Datos personales
     doc.setFontSize(14);
     doc.setTextColor(0);
     doc.text("DATOS PERSONALES", margin, y);
@@ -136,14 +165,12 @@ const BolsaTrabajo = () => {
     doc.text(`Email: ${formData.email || 'No proporcionado'}`, margin, y); y += 5;
     doc.text(`Nivel de instrucción: ${formData.instruccion}`, margin, y); y += 10;
 
-    // Disponibilidad
     doc.setFontSize(14);
     doc.text("DISPONIBILIDAD", margin, y); y += 8;
     doc.setFontSize(11);
     doc.text(`Roster: ${roster.join(', ') || 'Ninguno'}`, margin, y); y += 5;
     doc.text(`Condiciones: ${disponibilidad.join(', ') || 'Ninguno'}`, margin, y); y += 10;
 
-    // Carnet
     if (formData.tiene_carnet) {
       doc.setFontSize(14);
       doc.text("CARNET DE CONDUCIR", margin, y); y += 8;
@@ -151,7 +178,6 @@ const BolsaTrabajo = () => {
       doc.text(`Categorías: ${categoriasCarnet.join(', ') || 'Ninguna'}`, margin, y); y += 10;
     }
 
-    // Maquinaria
     doc.setFontSize(14);
     doc.text("MAQUINARIA OPERADA", margin, y); y += 8;
     doc.setFontSize(11);
@@ -159,7 +185,6 @@ const BolsaTrabajo = () => {
     const maqLines = doc.splitTextToSize(maq, 180);
     doc.text(maqLines, margin, y); y += 5 + maqLines.length * 5; y += 5;
 
-    // Certificaciones
     doc.setFontSize(14);
     doc.text("CERTIFICACIONES", margin, y); y += 8;
     doc.setFontSize(11);
@@ -167,7 +192,6 @@ const BolsaTrabajo = () => {
     const certLines = doc.splitTextToSize(cert, 180);
     doc.text(certLines, margin, y); y += 5 + certLines.length * 5; y += 5;
 
-    // Oficios
     doc.setFontSize(14);
     doc.text("OFICIOS TÉCNICOS", margin, y); y += 8;
     doc.setFontSize(11);
@@ -181,7 +205,6 @@ const BolsaTrabajo = () => {
       y += 10;
     }
 
-    // Experiencia laboral
     if (experiencias.length > 0) {
       y += 5;
       doc.setFontSize(14);
@@ -208,17 +231,16 @@ const BolsaTrabajo = () => {
     doc.save(`CV-UG-${formData.nombre.replace(/\s+/g, '-')}.pdf`);
   };
 
-  // Enviar formulario
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.acepto_terminos) return;
 
     generarPDF();
 
-    // Preparar datos
+    // Datos para Web3Forms
     const dataToSend = {
       ...formData,
-      foto_base64: undefined, // No enviar por email
+      foto_base64: undefined,
       disponibilidad: disponibilidad.join(', '),
       roster: roster.join(', '),
       maquinaria: maquinaria.join(', '),
@@ -241,7 +263,6 @@ const BolsaTrabajo = () => {
 
     if (res.ok) {
       alert("¡Gracias! Tus datos fueron enviados.");
-      // Resetear formulario
       setFormData({
         nombre: '', edad: '', provincia: 'San Juan', departamento: '', telefono: '',
         email: '', instruccion: '', otros_oficios: '', tiene_carnet: false, acepto_terminos: false
@@ -255,7 +276,6 @@ const BolsaTrabajo = () => {
       setExperiencias([]);
       setFotoBase64('');
       if (fileInputRef.current) fileInputRef.current.value = '';
-      document.getElementById('foto-preview')?.classList.add('hidden');
     } else {
       alert("Error al enviar. Intente nuevamente.");
     }
@@ -265,35 +285,12 @@ const BolsaTrabajo = () => {
     <>
       <Head>
         <title>Bolsa de Trabajo – UG Noticias Mineras</title>
-        <script src="https://cdn.tailwindcss.com"></script>
+        {/* ✅ Eliminamos Tailwind inline para respetar el modo del Layout */}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-        <script dangerouslySetInnerHTML={{
-          __html: `
-            tailwind.config = {
-              darkMode: 'class',
-              theme: {
-                extend: {
-                  colors: {
-                    primary: { 600: '#1E40AF', 800: '#1E3A8A' },
-                    gray: { 900: '#111827' }
-                  }
-                }
-              }
-            };
-          `
-        }} />
-        <style dangerouslySetInnerHTML={{
-          __html: `
-            .dark .legal-notice { background-color: #1e3a8a20; border-left-color: #3b82f6; color: #bfdbfe; }
-            .legal-notice { background-color: #dbeafe; border-left: 4px solid #1e40af; color: #1e3a8a; }
-            .experience-item { background: #f9f9f9; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
-            .dark .experience-item { background: #1e293b; }
-          `
-        }} />
       </Head>
-
+      <BolsaTrabajoStyles />
       <Layout currentDate={new Date().toISOString()}>
-        <div className="bg-white dark:bg-gray-900 text-blue-900 dark:text-blue-200 min-h-screen p-4">
+        <div className="min-h-screen p-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-6">
               <h1 className="text-2xl font-bold text-blue-900 dark:text-white">Bolsa de Trabajo – Sector Minero</h1>
@@ -350,7 +347,6 @@ const BolsaTrabajo = () => {
                 </button>
               </div>
 
-              {/* Listado de experiencias */}
               <div id="experiencia-container" className="mb-6">
                 {experiencias.map((exp) => (
                   <div key={exp.id} className="experience-item">
@@ -411,7 +407,6 @@ const BolsaTrabajo = () => {
                       </div>
                     </div>
 
-                    {/* Referencias */}
                     <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
                       <h4 className="text-xs font-medium text-blue-800 dark:text-blue-300 mb-2">
                         Contacto para referencias (opcional)
