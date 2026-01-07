@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import Layout from '@/components/Layout'; // Ajusta la ruta si tu Layout está en otro lado
+import Layout from '@/components/Layout';
 import Head from 'next/head';
 
 export default function RadioPage() {
@@ -107,9 +107,15 @@ export default function RadioPage() {
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                 ) : isPlaying ? (
-                  '⏸'
+                  // Icono de PAUSA: dos barras blancas
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                  </svg>
                 ) : (
-                  '▶'
+                  // Icono de PLAY: triángulo blanco
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7L8 5z"/>
+                  </svg>
                 )}
               </button>
 
