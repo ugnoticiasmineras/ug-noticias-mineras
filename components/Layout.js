@@ -13,6 +13,7 @@ export default function Layout({ children, currentDate }) {
   const getActiveCategory = () => {
     const path = router.pathname;
     if (path === '/') return 'home';
+    if (path.startsWith('/bolsa-trabajo')) return 'bolsa';
     if (path.startsWith('/noticia/')) {
       const parts = router.asPath.split('/');
       if (parts.length >= 3) {
@@ -105,6 +106,11 @@ export default function Layout({ children, currentDate }) {
                   </a>
                 </Link>
               ))}
+              <Link href="/bolsa-trabajo" legacyBehavior>
+                <a className={`block px-4 py-2 text-sm rounded-full text-white font-semibold ${activeCategory === 'bolsa' ? 'bg-red-600' : 'bg-blue-600 hover:bg-blue-700'}`}>
+                  Bolsa de Trabajo
+                </a>
+              </Link>
             </nav>
           </div>
         </div>
@@ -173,6 +179,11 @@ export default function Layout({ children, currentDate }) {
                 </a>
               </Link>
             ))}
+            <Link href="/bolsa-trabajo" legacyBehavior>
+              <a className={`px-4 py-1.5 text-sm rounded-full text-white font-semibold ${activeCategory === 'bolsa' ? 'bg-gradient-to-r from-red-500 to-red-600' : 'bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900'}`}>
+                Bolsa de Trabajo
+              </a>
+            </Link>
           </div>
           <div className="text-sm text-blue-900 dark:text-blue-200">{formatDate(currentDate)}</div>
         </div>
