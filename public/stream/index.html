@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UG Stream - Radio en Vivo 24/7</title>
+  <meta name="description" content="Escuchá en vivo las 24 horas UG Noticias Mineras. Radio sindical minera de San Juan." />
+  <link rel="icon" href="/logo.png" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    body {
+      background: #0f0f1b;
+      color: #e0e0ff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      text-align: center;
+    }
+    .container {
+      max-width: 500px;
+      width: 100%;
+    }
+    .logo {
+      width: 180px;
+      height: auto;
+      margin-bottom: 24px;
+      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+    }
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #4fc3f7;
+    }
+    .subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 32px;
+      color: #bb86fc;
+    }
+    .play-btn {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: none;
+      font-size: 2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+    .play-btn.playing {
+      background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    }
+    .play-btn.paused {
+      background: linear-gradient(135deg, #1976d2, #0d47a1);
+    }
+    .status {
+      margin-top: 20px;
+      font-size: 1rem;
+      min-height: 1.4em;
+    }
+    .tips {
+      margin-top: 32px;
+      font-size: 0.9rem;
+      color: #9aa5b1;
+      line-height: 1.5;
+    }
+    .ios-hint {
+      margin-top: 16px;
+      padding: 12px;
+      background: rgba(25, 118, 210, 0.15);
+      border-radius: 12px;
+      border: 1px solid rgba(79, 195, 247, 0.3);
+    }
+    .ios-hint strong {
+      color: #4fc3f7;
+    }
+    .loading {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+    @media (max-width: 480px) {
+      .logo { width: 150px; }
+      h1 { font-size: 1.5rem; }
+      .play-btn { width: 70px; height: 70px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="/logo.png" alt="UG Noticias Mineras" class="logo" />
+
+    <h1>UG STREAM</h1>
+    <div class="subtitle">📻 Radio en Vivo 24/7</div>
+
+    <button id="playBtn" class="play-btn paused" aria-label="Reproducir radio">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7L8 5z" fill="white"/>
+      </svg>
+    </button>
+
+    <div class="status" id="status">Toca ▶ para escuchar</div>
+
+    <div class="tips">
+      <p>✅ Audio en segundo plano (Android)</p>
+      <p>✅ Controles en la barra de notificaciones</p>
+      
+      <div class="ios-hint">
+        <strong>¿Usás iPhone?</strong><br />
+        Toca <strong>Compartir → Añadir a Inicio</strong> para escuchar con la pantalla apagada.
+      </div>
+    </div>
+
+    <footer>
+      UG Noticias Mineras • San Juan, Argentina
+    </footer>
+  </div>
+
+  <audio id="radioAudio" preload="metadata"></audio>
+
+  <script>
+    const audio = document.getElementById('radioAudio');
+    const playBtn = document.getElementById('playBtn');
+    const statusEl = document.getElementById('status');
+    const streamUrl = 'https://stream.zeno.fm/ihgolncnt3ttv';
+
+    audio.src = streamUrl;
+
+    let isPlaying = false;
+
+    function updateUI() {
+      const icon = playBtn.querySelector('.icon');
+      if (isPlaying) {
+        playBtn.className = 'play-btn playing';
+        icon.innerHTML = '<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" fill="white"/>';
+        statusEl.textContent = 'En vivo • UG Noticias Mineras';
+      } else {
+        playBtn.className = 'play-btn paused';
+        icon.innerHTML = '<path d="M8 5v14l11-7L8 5z" fill="white"/>';
+        statusEl.textContent = 'Toca ▶ para escuchar';
+      }
+    }
+
+    // Media Session API (notificaciones en Android)
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({
+        title: 'UG Stream',
+        artist: 'Noticias Mineras',
+        artwork: [{ src: '/logo.png', sizes: '192x192', type: 'image/png' }]
+      });
+      navigator.mediaSession.setActionHandler('play', playRadio);
+      navigator.mediaSession.setActionHandler('pause', pauseRadio);
+    }
+
+    function showLoading() {
+      statusEl.innerHTML = '<span class="loading"></span> Conectando...';
+    }
+
+    async function playRadio() {
+      if (isPlaying) return;
+      showLoading();
+
+      // Solución clave: mute temporal para evitar bloqueo
+      audio.muted = true;
+
+      try {
+        await audio.play();
+        audio.muted = false; // desmutear tras interacción
+        isPlaying = true;
+        updateUI();
+      } catch (err) {
+        console.error('Error:', err);
+        statusEl.textContent = 'Permita el audio para escuchar';
+        isPlaying = false;
+        updateUI();
+      }
+    }
+
+    function pauseRadio() {
+      if (!isPlaying) return;
+      audio.pause();
+      isPlaying = false;
+      updateUI();
+    }
+
+    playBtn.addEventListener('click', () => {
+      if (isPlaying) pauseRadio();
+      else playRadio();
+    });
+
+    updateUI();
+  </script>
+</body>
+</html>
