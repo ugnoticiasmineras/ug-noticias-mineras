@@ -3,10 +3,33 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>UG Stream - Radio en Vivo 24/7</title>
-  <meta name="description" content="Escuchá en vivo las 24 horas UG Noticias Mineras. Radio sindical minera de San Juan." />
-  <link rel="icon" href="/logo.png" />
+  <title>Radio en Vivo - UG Noticias Mineras</title>
   <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111827;
+      --card-bg: #ffffff;
+      --border-blue: #bfdbfe;
+      --blue-900: #1e3a8a;
+      --blue-800: #1e40af;
+      --red-600: #dc2626;
+      --blue-600: #2563eb;
+      --gray-300: #d1d5db;
+      --gray-600: #4b5563;
+    }
+    .dark {
+      --bg: #111827;
+      --text: #f9fafb;
+      --card-bg: #1f2937;
+      --border-blue: #334155;
+      --blue-900: #1e40af;
+      --blue-800: #3b82f6;
+      --red-600: #ef4444;
+      --blue-600: #60a5fa;
+      --gray-300: #4b5563;
+      --gray-600: #9ca3af;
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -14,205 +37,459 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     }
     body {
-      background: #0f0f1b;
-      color: #e0e0ff;
+      background-color: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      text-align: center;
     }
-    .container {
-      max-width: 500px;
-      width: 100%;
+    header {
+      background-color: var(--bg);
+      border-bottom: 4px solid #1e40af;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .header-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0.5rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
     .logo {
-      width: 180px;
-      height: auto;
-      margin-bottom: 24px;
-      filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
+      height: 3rem;
+    }
+    .controls-header {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .date-header {
+      font-size: 0.875rem;
+      color: var(--blue-800);
+      margin-right: 12px;
+    }
+    .dark .date-header {
+      color: #93c5fd;
+    }
+    .btn-icon {
+      background: none;
+      border: none;
+      color: var(--blue-800);
+      cursor: pointer;
+      font-size: 1.25rem;
+    }
+    .dark .btn-icon {
+      color: #93c5fd;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+      max-width: 500px;
+      width: 100%;
+      margin: 0 auto;
     }
     h1 {
-      font-size: 1.8rem;
+      font-size: 1.875rem;
       font-weight: 700;
-      margin-bottom: 8px;
-      color: #4fc3f7;
+      margin-bottom: 1.5rem;
+      color: var(--blue-800);
+      text-align: center;
     }
-    .subtitle {
-      font-size: 1.1rem;
-      margin-bottom: 32px;
-      color: #bb86fc;
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-blue);
+      border-radius: 12px;
+      padding: 1.5rem;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
-    .play-btn {
-      width: 80px;
-      height: 80px;
+    .logo-big {
+      width: 200px;
+      height: auto;
+      margin: 0 auto 1.5rem;
+      display: block;
+    }
+    .player-controls {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .btn-control {
+      width: 52px;
+      height: 52px;
       border-radius: 50%;
       border: none;
-      font-size: 2rem;
+      font-size: 1.25rem;
       font-weight: bold;
       cursor: pointer;
-      transition: all 0.3s ease;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
-    .play-btn.playing {
-      background: linear-gradient(135deg, #d32f2f, #b71c1c);
+    .btn-play {
+      background: linear-gradient(135deg, #2563eb, #1d4ed8);
     }
-    .play-btn.paused {
-      background: linear-gradient(135deg, #1976d2, #0d47a1);
+    .btn-pause {
+      background: linear-gradient(135deg, #dc2626, #b91c1c);
+    }
+    .btn-stop {
+      background: linear-gradient(135deg, #6b7280, #4b5563);
+    }
+    .btn-control svg {
+      fill: white;
+      width: 20px;
+      height: 20px;
+    }
+    .volume-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 1.2rem;
+    }
+    .volume-control label {
+      font-size: 0.9rem;
+      color: var(--gray-600);
+    }
+    .volume-slider {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      background: var(--gray-300);
+      border-radius: 3px;
+      outline: none;
+    }
+    .volume-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--blue-600);
+      cursor: pointer;
     }
     .status {
-      margin-top: 20px;
-      font-size: 1rem;
+      text-align: center;
+      font-size: 0.95rem;
+      color: var(--gray-600);
+      margin-bottom: 1rem;
       min-height: 1.4em;
     }
-    .tips {
-      margin-top: 32px;
-      font-size: 0.9rem;
-      color: #9aa5b1;
-      line-height: 1.5;
+    .signal {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
     }
-    .ios-hint {
-      margin-top: 16px;
-      padding: 12px;
-      background: rgba(25, 118, 210, 0.15);
-      border-radius: 12px;
-      border: 1px solid rgba(79, 195, 247, 0.3);
-    }
-    .ios-hint strong {
-      color: #4fc3f7;
-    }
-    .loading {
+    .signal-indicator {
       display: inline-block;
       width: 24px;
-      height: 24px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-radius: 50%;
-      border-top-color: white;
-      animation: spin 1s linear infinite;
+      height: 12px;
+      background: #ef4444;
+      border-radius: 2px;
+      transition: background 0.3s;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .signal-indicator.connected {
+      background: #10b981;
+    }
+    .tips {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: var(--gray-600);
+      line-height: 1.5;
     }
     footer {
-      margin-top: 40px;
-      font-size: 0.85rem;
-      color: #64748b;
+      background: linear-gradient(135deg, #1e3a8a, #1e40af);
+      color: white;
+      padding: 1.5rem 1rem;
+      margin-top: auto;
     }
-    @media (max-width: 480px) {
-      .logo { width: 150px; }
-      h1 { font-size: 1.5rem; }
-      .play-btn { width: 70px; height: 70px; }
+    .footer-content {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .footer-logo {
+      height: 3rem;
+      margin-bottom: 1rem;
+    }
+    .footer-text {
+      font-size: 0.875rem;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+    }
+    .footer-contact {
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+    .social-icons {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    .social-icon {
+      color: white;
+      font-size: 1.25rem;
+      opacity: 0.9;
+      transition: opacity 0.3s;
+    }
+    .social-icon:hover {
+      opacity: 1;
+    }
+    .back-to-site {
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      transition: background 0.3s;
+    }
+    .back-to-site:hover {
+      background: rgba(255,255,255,0.25);
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="/logo.png" alt="UG Noticias Mineras" class="logo" />
-
-    <h1>UG STREAM</h1>
-    <div class="subtitle">📻 Radio en Vivo 24/7</div>
-
-    <button id="playBtn" class="play-btn paused" aria-label="Reproducir radio">
-      <svg xmlns="http://www.w3.org/2000/svg" class="icon" viewBox="0 0 24 24">
-        <path d="M8 5v14l11-7L8 5z" fill="white"/>
-      </svg>
-    </button>
-
-    <div class="status" id="status">Toca ▶ para escuchar</div>
-
-    <div class="tips">
-      <p>✅ Audio en segundo plano (Android)</p>
-      <p>✅ Controles en la barra de notificaciones</p>
-      
-      <div class="ios-hint">
-        <strong>¿Usás iPhone?</strong><br />
-        Toca <strong>Compartir → Añadir a Inicio</strong> para escuchar con la pantalla apagada.
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <img src="https://ugnoticiasmineras.com/logo.png" alt="UG Noticias Mineras" class="logo" />
+      <div class="controls-header">
+        <div class="date-header" id="currentDate"></div>
+        <button id="darkModeBtn" class="btn-icon" aria-label="Alternar modo oscuro">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 2.163c0-5.373-4.336-9.78-9.68-9.78C.176-7.617 0-5.483 0 .001c0 4.42 2.865 8.166 6.839 9.488.5.09.682-.216.682-.48 0-.236-.008-.864-.013-1.7-2.782.602-3.369-1.337-3.369-1.337-.454-1.151-1.11-1.458-1.11-1.458-.908-.618.069-.606.069-.606 1.003.07 1.531 1.027 1.531 1.027.891 1.524 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.252-4.555-1.107-4.555-4.93 0-1.087.39-1.979 1.029-2.675-.103-.252-.446-1.266.098-2.638 0 0 .84-.268 2.75 1.022A9.578 9.578 0 0112 6.835c.85.004 1.705.114 2.504.336 1.909-1.29 2.747-1.022 2.747-1.022.546 1.372.202 2.386.1 2.638.639.696 1.029 1.588 1.029 2.675 0 3.833-2.337 4.675-4.566 4.921.359.307.678.915.678 1.846 0 1.332-.012 2.407-.012 2.734 0 .267.18.577.688.48C19.137 20.162 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+          </svg>
+        </button>
       </div>
     </div>
+  </header>
 
-    <footer>
-      UG Noticias Mineras • San Juan, Argentina
-    </footer>
-  </div>
+  <!-- Main -->
+  <main>
+    <h1>📻 Radio en Vivo</h1>
+
+    <div class="card">
+      <img src="https://ugnoticiasmineras.com/logo.png" alt="UG Noticias Mineras" class="logo-big" />
+
+      <div class="player-controls">
+        <button id="playBtn" class="btn-control btn-play" aria-label="Reproducir">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7L8 5z"/></svg>
+        </button>
+        <button id="pauseBtn" class="btn-control btn-pause" aria-label="Pausar" disabled>
+          <svg viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>
+        </button>
+        <button id="stopBtn" class="btn-control btn-stop" aria-label="Detener">
+          <svg viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
+        </button>
+      </div>
+
+      <div class="volume-control">
+        <label for="volume">Volumen:</label>
+        <input type="range" id="volume" class="volume-slider" min="0" max="1" step="0.01" value="1" />
+      </div>
+
+      <div class="status" id="status">Toca ▶ para escuchar en vivo</div>
+
+      <div class="signal">
+        <span>Señal:</span>
+        <div class="signal-indicator" id="signalIndicator"></div>
+        <span id="signalText">Desconectado</span>
+      </div>
+
+      <div class="tips">
+        <p>✅ Funciona en segundo plano en Android (Chrome).</p>
+        <p>📱 En iPhone, añade esta página a Inicio para escuchar con la pantalla apagada.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <img src="https://ugnoticiasmineras.com/logo.png" alt="UG Noticias Mineras" class="footer-logo" />
+      
+      <p class="footer-text">Comprometidos con la información veraz y el desarrollo sostenible de la minería argentina</p>
+      <p class="footer-contact">Contacto: ugnoticiasmineras@gmail.com</p>
+
+      <!-- Iconos de redes sociales -->
+      <div class="social-icons">
+        <a href="https://www.facebook.com/ugnoticiasmineras" target="_blank" rel="noopener" class="social-icon" aria-label="Facebook">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+          </svg>
+        </a>
+        <a href="https://www.instagram.com/ugnoticiasmineras" target="_blank" rel="noopener" class="social-icon" aria-label="Instagram">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.014-3.668.07-4.849.196-4.358 2.618-6.78 6.98-6.98C8.333.014 8.741 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+          </svg>
+        </a>
+        <a href="https://www.youtube.com/@ugnoticiasmineras" target="_blank" rel="noopener" class="social-icon" aria-label="YouTube">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
+          </svg>
+        </a>
+      </div>
+
+      <!-- Botón "Volver al sitio" -->
+      <a href="https://www.ugnoticiasmineras.com" class="back-to-site" target="_blank" rel="noopener">
+        ↩ Volver a UG Noticias Mineras
+      </a>
+    </div>
+  </footer>
 
   <audio id="radioAudio" preload="metadata"></audio>
 
   <script>
+    // DOM Elements
     const audio = document.getElementById('radioAudio');
     const playBtn = document.getElementById('playBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+    const stopBtn = document.getElementById('stopBtn');
+    const volumeSlider = document.getElementById('volume');
     const statusEl = document.getElementById('status');
-    const streamUrl = 'https://stream.zeno.fm/ihgolncnt3ttv';
+    const signalIndicator = document.getElementById('signalIndicator');
+    const signalText = document.getElementById('signalText');
+    const darkModeBtn = document.getElementById('darkModeBtn');
+    const currentDateEl = document.getElementById('currentDate');
 
+    const streamUrl = 'https://stream.zeno.fm/ihgolncnt3ttv';
     audio.src = streamUrl;
 
-    let isPlaying = false;
+    // Mostrar fecha actual
+    function formatDate(date) {
+      const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+      const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+      return `${days[date.getDay()]} ${date.getDate()} de ${months[date.getMonth()]} de ${date.getFullYear()}`;
+    }
+    currentDateEl.textContent = formatDate(new Date());
 
-    function updateUI() {
-      const icon = playBtn.querySelector('.icon');
-      if (isPlaying) {
-        playBtn.className = 'play-btn playing';
-        icon.innerHTML = '<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z" fill="white"/>';
-        statusEl.textContent = 'En vivo • UG Noticias Mineras';
-      } else {
-        playBtn.className = 'play-btn paused';
-        icon.innerHTML = '<path d="M8 5v14l11-7L8 5z" fill="white"/>';
-        statusEl.textContent = 'Toca ▶ para escuchar';
+    // Dark mode
+    function initDarkMode() {
+      const saved = localStorage.getItem('darkMode');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const isDark = saved === 'true' || (saved === null && prefersDark);
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+        updateDarkModeIcon(true);
       }
     }
 
-    // Media Session API (notificaciones en Android)
-    if ('mediaSession' in navigator) {
-      navigator.mediaSession.metadata = new MediaMetadata({
-        title: 'UG Stream',
-        artist: 'Noticias Mineras',
-        artwork: [{ src: '/logo.png', sizes: '192x192', type: 'image/png' }]
-      });
-      navigator.mediaSession.setActionHandler('play', playRadio);
-      navigator.mediaSession.setActionHandler('pause', pauseRadio);
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.contains('dark');
+      if (isDark) {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('darkMode', 'false');
+      } else {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('darkMode', 'true');
+      }
+      updateDarkModeIcon(!isDark);
+    }
+
+    function updateDarkModeIcon(isDark) {
+      darkModeBtn.innerHTML = isDark
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>';
+    }
+
+    // Audio functions
+    function updateSignal(connected) {
+      if (connected) {
+        signalIndicator.classList.add('connected');
+        signalText.textContent = 'Conectado';
+      } else {
+        signalIndicator.classList.remove('connected');
+        signalText.textContent = 'Desconectado';
+      }
+    }
+
+    function updateUI() {
+      const isPlaying = !audio.paused;
+      playBtn.disabled = isPlaying;
+      pauseBtn.disabled = !isPlaying;
+      stopBtn.disabled = !isPlaying;
+      statusEl.textContent = isPlaying
+        ? 'Transmisión en vivo • UG Noticias Mineras'
+        : 'Toca ▶ para escuchar en vivo';
     }
 
     function showLoading() {
-      statusEl.innerHTML = '<span class="loading"></span> Conectando...';
+      statusEl.innerHTML = '<span style="display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-radius:50%;border-top-color:currentColor;animation:spin 1s linear infinite;"></span> Conectando...';
+      updateSignal(false);
     }
 
     async function playRadio() {
-      if (isPlaying) return;
       showLoading();
-
-      // Solución clave: mute temporal para evitar bloqueo
       audio.muted = true;
-
       try {
         await audio.play();
-        audio.muted = false; // desmutear tras interacción
-        isPlaying = true;
+        audio.muted = false;
+        updateSignal(true);
         updateUI();
       } catch (err) {
-        console.error('Error:', err);
+        console.error('Error al reproducir:', err);
         statusEl.textContent = 'Permita el audio para escuchar';
-        isPlaying = false;
-        updateUI();
+        updateSignal(false);
       }
     }
 
     function pauseRadio() {
-      if (!isPlaying) return;
       audio.pause();
-      isPlaying = false;
       updateUI();
     }
 
-    playBtn.addEventListener('click', () => {
-      if (isPlaying) pauseRadio();
-      else playRadio();
+    function stopRadio() {
+      audio.pause();
+      audio.currentTime = 0;
+      updateUI();
+      updateSignal(false);
+    }
+
+    // Event listeners
+    playBtn.addEventListener('click', playRadio);
+    pauseBtn.addEventListener('click', pauseRadio);
+    stopBtn.addEventListener('click', stopRadio);
+    volumeSlider.addEventListener('input', () => {
+      audio.volume = volumeSlider.value;
     });
 
+    audio.addEventListener('play', () => {
+      updateSignal(true);
+      updateUI();
+    });
+    audio.addEventListener('pause', updateUI);
+    audio.addEventListener('ended', () => {
+      updateSignal(false);
+      updateUI();
+    });
+    audio.addEventListener('error', () => {
+      statusEl.textContent = 'Error de conexión';
+      updateSignal(false);
+      updateUI();
+    });
+
+    darkModeBtn.addEventListener('click', toggleDarkMode);
+
+    // Initialize
+    initDarkMode();
+    updateDarkModeIcon(document.documentElement.classList.contains('dark'));
     updateUI();
+    updateSignal(false);
   </script>
 </body>
 </html>
