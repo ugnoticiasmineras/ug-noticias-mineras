@@ -4,6 +4,21 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Radio en Vivo - UG Noticias Mineras</title>
+
+  <!-- Open Graph Meta Tags -->
+  <meta property="og:title" content="Radio en Vivo - UG Noticias Mineras" />
+  <meta property="og:description" content="Escuchá en vivo las 24 horas la radio sindical minera de San Juan. Audio en segundo plano y controles en notificaciones." />
+  <meta property="og:image" content="https://ugnoticiasmineras.com/logo.png" />
+  <meta property="og:url" content="https://ugnoticiasmineras.com/stream/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="UG Noticias Mineras" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Radio en Vivo - UG Noticias Mineras" />
+  <meta name="twitter:description" content="Escuchá en vivo las 24 horas la radio sindical minera de San Juan." />
+  <meta name="twitter:image" content="https://ugnoticiasmineras.com/logo.png" />
+
   <style>
     :root {
       --bg: #ffffff;
@@ -270,7 +285,7 @@
       color: white;
       font-size: 1.25rem;
       opacity: 0.9;
-      cursor: default; /* YouTube no es clickeable */
+      cursor: default;
     }
     .social-icon.clickable {
       cursor: pointer;
@@ -299,7 +314,7 @@
   <!-- Main -->
   <main>
     <div class="main-header">
-      <a href="https://www.ugnoticiasmineras.com" class="back-btn" aria-label="Volver a UG Noticias Mineras">
+      <a href="https://www.ugnoticiasmineras.com" class="back-btn" target="_blank" rel="noopener" aria-label="Ir a UG Noticias Mineras (nueva pestaña)">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
@@ -351,7 +366,6 @@
       <p class="footer-text">Comprometidos con la información veraz y el desarrollo sostenible de la minería argentina</p>
       <p class="footer-contact">Contacto: ugnoticiasmineras@gmail.com</p>
 
-      <!-- Iconos de redes sociales -->
       <div class="social-icons">
         <a href="https://www.facebook.com/ugnoticiasmineras" target="_blank" rel="noopener" class="social-icon clickable" aria-label="Facebook">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -376,7 +390,6 @@
   <audio id="radioAudio" preload="metadata"></audio>
 
   <script>
-    // DOM Elements
     const audio = document.getElementById('radioAudio');
     const playBtn = document.getElementById('playBtn');
     const pauseBtn = document.getElementById('pauseBtn');
@@ -391,7 +404,6 @@
     const streamUrl = 'https://stream.zeno.fm/ihgolncnt3ttv';
     audio.src = streamUrl;
 
-    // Mostrar fecha actual
     function formatDate(date) {
       const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
       const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -399,7 +411,6 @@
     }
     currentDateEl.textContent = formatDate(new Date());
 
-    // Dark mode
     function initDarkMode() {
       const saved = localStorage.getItem('darkMode');
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -428,7 +439,6 @@
         : '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>';
     }
 
-    // Audio functions
     function updateSignal(connected) {
       if (connected) {
         signalIndicator.classList.add('connected');
@@ -481,7 +491,6 @@
       updateSignal(false);
     }
 
-    // Event listeners
     playBtn.addEventListener('click', playRadio);
     pauseBtn.addEventListener('click', pauseRadio);
     stopBtn.addEventListener('click', stopRadio);
@@ -506,7 +515,6 @@
 
     darkModeBtn.addEventListener('click', toggleDarkMode);
 
-    // Initialize
     initDarkMode();
     updateDarkModeIcon(document.documentElement.classList.contains('dark'));
     updateUI();
