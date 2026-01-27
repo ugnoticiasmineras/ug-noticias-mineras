@@ -1,4 +1,4 @@
-// pages/pruebas.js
+/// pages/pruebas.js
 import Head from 'next/head';
 import Link from 'next/link';
 import Layout from '../components/Layout';
@@ -207,4 +207,4 @@ export async function getServerSideProps() {
       }
     };
   }
-                  }
+}
