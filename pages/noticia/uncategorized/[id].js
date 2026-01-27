@@ -8,6 +8,7 @@ import CotizacionesWidget from '../../../../components/CotizacionesWidget';
 
 const SITE_URL = 'https://ugnoticiasmineras.com';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
+const UNCATEGORIZED_ID = 1;
 
 const cleanText = (text) => {
   if (!text) return text;
@@ -46,8 +47,8 @@ const processPost = (post) => {
 
   let imageUrl = `${SITE_URL}/UGNoticias.png`;
   if (post.featured_media && post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
-    imageUrl = forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim();
-  } else if (firstContentImage) {    imageUrl = firstContentImage;
+    imageUrl = forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim();  } else if (firstContentImage) {
+    imageUrl = firstContentImage;
   }
 
   let source = 'Fuente: WordPress';
@@ -144,8 +145,8 @@ export default function NoticiaPruebaPage({ noticia, currentDate }) {
   }, [noticia.content]);
 
   useEffect(() => {
-    const handleEsc = (e) => {
-      if (e.key === 'Escape') setLightboxOpen(false);    };
+    const handleEsc = (e) => {      if (e.key === 'Escape') setLightboxOpen(false);
+    };
     if (lightboxOpen) {
       window.addEventListener('keydown', handleEsc);
       document.body.style.overflow = 'hidden';
@@ -193,8 +194,8 @@ export default function NoticiaPruebaPage({ noticia, currentDate }) {
         <meta name="robots" content="noindex, nofollow" />
         <meta property="og:type" content="article" />
         <meta property="og:url" content={`${SITE_URL}/noticia/uncategorized/${noticia.id}`} />
-        <meta property="og:title" content={shortTitle} />
-        <meta property="og:description" content="" />        <meta property="og:image" content={noticia.image} />
+        <meta property="og:title" content={shortTitle} />        <meta property="og:description" content="" />
+        <meta property="og:image" content={noticia.image} />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="UG Noticias Mineras" />
@@ -242,8 +243,8 @@ export default function NoticiaPruebaPage({ noticia, currentDate }) {
                   <div className="p-6">
                     <h3 className="font-bold text-2xl text-blue-900 dark:text-blue-100 mb-4">{noticia.title}</h3>
                     {noticia.subtitle && <p className="text-blue-700 dark:text-blue-300 font-medium mb-4">{noticia.subtitle}</p>}
-                    
-                    <div                       className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose"
+                                        <div 
+                      className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose"
                       dangerouslySetInnerHTML={{ __html: processedContent }}
                     />
 
@@ -291,8 +292,8 @@ export default function NoticiaPruebaPage({ noticia, currentDate }) {
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mt-4">
               <div className="p-3 space-y-3">
                 {[...Array(5)].map((_, i) => (
-                  <img 
-                    key={i}                    src="/sponsors/aoma1.jpg" 
+                  <img                     key={i}
+                    src="/sponsors/aoma1.jpg" 
                     alt="Colaborador"
                     className="w-full h-16 object-contain rounded-lg"
                   />
@@ -340,15 +341,15 @@ export async function getServerSideProps({ params }) {
         headers: {
           'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
           'Accept': 'application/json'
-        }
-      }    );
+        }      }
+    );
     if (!response.ok) return { notFound: true };
     const posts = await response.json();
     if (posts.length === 0) return { notFound: true };
 
-    // Verificar que la noticia tenga categoría "Uncategorized" (ID 1)
     const post = posts[0];
-    if (!post.categories || !post.categories.includes(1)) {
+    // Verificar que la noticia tenga categoría "Uncategorized" (ID 1)
+    if (!post.categories || !post.categories.includes(UNCATEGORIZED_ID)) {
       return { notFound: true };
     }
 
@@ -363,4 +364,4 @@ export async function getServerSideProps({ params }) {
   } catch (err) {
     return { notFound: true };
   }
-      }
+    }
