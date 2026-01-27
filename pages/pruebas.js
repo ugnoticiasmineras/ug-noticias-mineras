@@ -6,8 +6,6 @@ import CotizacionesWidget from '../components/CotizacionesWidget';
 
 const SITE_URL = 'https://ugnoticiasmineras.com';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
-
-// ID de "Uncategorized" en WordPress.com
 const UNCATEGORIZED_ID = 1;
 
 const cleanText = (text) => {
@@ -47,9 +45,9 @@ const processPost = (post) => {
 
   let imageUrl = `${SITE_URL}/UGNoticias.png`;
   if (post.featured_media && post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
-    imageUrl = forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim();  } else if (firstContentImage) {
-    imageUrl = firstContentImage;
-  }
+    imageUrl = forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim();
+  } else if (firstContentImage) {
+    imageUrl = firstContentImage;  }
 
   let source = 'Fuente: WordPress';
   const sourceMatch = processedContent.match(/Fuente:\s*([^<]+)/i);
@@ -96,9 +94,9 @@ const renderNewsCard = ({ news }) => {
               alt={news.title} 
               className="w-full h-full object-cover rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
               onError={(e) => {
-                e.target.style.display = 'none';                e.target.parentNode.innerHTML = `
-                  <div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                    <div class="text-blue-800 dark:text-blue-200 font-bold text-center p-4">${news.title}</div>
+                e.target.style.display = 'none';
+                e.target.parentNode.innerHTML = `
+                  <div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">                    <div class="text-blue-800 dark:text-blue-200 font-bold text-center p-4">${news.title}</div>
                   </div>
                 `;
               }}
@@ -145,9 +143,9 @@ export default function PruebasPage({ newsList, currentDate }) {
       <Layout currentDate={currentDate}>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-4">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">              <div className="bg-gradient-to-r from-gray-700 to-gray-900 p-6">
-                <h2 className="text-2xl font-bold text-white">Noticias de Prueba</h2>
-                <div className="w-24 h-1 bg-red-500 mt-2"></div>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
+              <div className="bg-gradient-to-r from-gray-700 to-gray-900 p-6">
+                <h2 className="text-2xl font-bold text-white">Noticias de Prueba</h2>                <div className="w-24 h-1 bg-red-500 mt-2"></div>
               </div>
               <div className="p-6">
                 <div className="space-y-6">
@@ -195,8 +193,8 @@ export async function getServerSideProps() {
       const posts = await response.json();
       newsList = posts.map(processPost);
     }
-    return {
-      props: {
+
+    return {      props: {
         newsList,
         currentDate: new Date().toISOString()
       }
@@ -209,4 +207,4 @@ export async function getServerSideProps() {
       }
     };
   }
-                  }
+  }
