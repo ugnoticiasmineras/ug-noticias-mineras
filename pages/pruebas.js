@@ -1,4 +1,4 @@
-/// pages/pruebas.js
+// pages/pruebas.js
 import Head from 'next/head';
 import Link from 'next/link';
 import Layout from '../components/Layout';
@@ -6,7 +6,7 @@ import CotizacionesWidget from '../components/CotizacionesWidget';
 
 const SITE_URL = 'https://ugnoticiasmineras.com';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
-const UNCATEGORIZED_ID = 1;
+const UNCATEGORIZED_ID = 1; // ← Cambia si tu ID es diferente
 
 const cleanText = (text) => {
   if (!text) return text;
@@ -207,4 +207,4 @@ export async function getServerSideProps() {
       }
     };
   }
-}
+                }
