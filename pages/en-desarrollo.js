@@ -220,6 +220,10 @@ export default function EnDesarrollo({ allNews, currentDate }) {
   return (
     <Layout currentDate={currentDate}>
       <Head>
+        {/* 👇 META TAGS PARA EVITAR INDEXACIÓN EN GOOGLE Y OTROS BUSCADORES */}
+        <meta name="robots" content="noindex, nofollow" />
+        <meta name="googlebot" content="noindex, nofollow" />
+        
         <title>UG Noticias Mineras | Noticias en Desarrollo</title>
         <meta name="description" content="Noticias en desarrollo y revisión de UG Noticias Mineras - Sector minero argentino" />
         <meta property="og:title" content="UG Noticias Mineras - En Desarrollo" />
