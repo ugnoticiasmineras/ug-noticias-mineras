@@ -255,7 +255,7 @@ export default function Layout({ children, currentDate }) {
                 </svg>
               </a>
 
-              {/* YouTube — vinculado */}
+              {/* YouTube — ya vinculado */}
               <a 
                 href="https://www.youtube.com/@UGNoticiasMineras" 
                 target="_blank" 
@@ -289,5 +289,4 @@ export default function Layout({ children, currentDate }) {
       </footer>
     </>
   );
-
 }
