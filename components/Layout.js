@@ -268,7 +268,7 @@ export default function Layout({ children, currentDate }) {
                 </svg>
               </a>
 
-              {/* TikTok — sin enlace, solo ícono */}
+              {/* TikTok — solo ícono */}
               <span 
                 className="text-blue-200 hover:text-white transition-colors cursor-default"
                 aria-label="TikTok"
