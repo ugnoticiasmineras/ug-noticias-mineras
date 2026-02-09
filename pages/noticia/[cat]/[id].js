@@ -418,7 +418,18 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
   );
 }
 
-export async function getServerSideProps({ params }) {
+// 👇 NUEVA FUNCIÓN: Genera rutas estáticas dinámicamente
+export async function getStaticPaths() {
+  // No podemos saber de antemano qué slugs existen
+  // Usamos fallback: 'blocking' para generar páginas nuevas al vuelo
+  return {
+    paths: [],
+    fallback: 'blocking'
+  };
+}
+
+// 👇 getServerSideProps → getStaticProps
+export async function getStaticProps({ params }) {
   const { cat, id } = params;
   const categoryId = categories[cat];
 
@@ -471,7 +482,8 @@ export async function getServerSideProps({ params }) {
         noticia,
         sidebarNews,
         currentDate: new Date().toISOString()
-      }
+      },
+      revalidate: 60 // 👈 Regenera cada 60 segundos
     };
   } catch (err) {
     return { notFound: true };
