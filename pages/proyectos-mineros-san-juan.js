@@ -53,7 +53,7 @@ const ProyectosSanJuan = () => {
       mineral: "Cobre, oro y plata",
       empresa: "Vicuña Corp (Lundin Mining y BHP, 50/50)",
       estado: "Desarrollo avanzado",
-      descripcion: Parte de un "super proyecto" integrado con Josemaría. Se ubica en el Distrito Vicuña, con economías de escala compartidas y enfoque en sostenibilidad."
+      descripcion: 'Parte de un "super proyecto" integrado con Josemaría. Se ubica en el Distrito Vicuña, con economías de escala compartidas y enfoque en sostenibilidad.',
     },
     {
       nombre: "Josemaría",
@@ -273,3 +273,4 @@ const ProyectosSanJuan = () => {
 
 
 export default ProyectosSanJuan;
+
