@@ -3,12 +3,11 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import Image from 'next/image'; // ✅ Importamos Image de Next.js
 import Layout from '../../../components/Layout';
 import CotizacionesWidget from '../../../components/CotizacionesWidget';
 
-const SITE_URL = 'https://ugnoticiasmineras.com';
-const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
+const SITE_URL = 'https://ugnoticiasmineras.com  ';
+const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com  ';
 
 const categories = {
   nacionales: 170094,
@@ -19,11 +18,11 @@ const categories = {
 };
 
 const sponsors = [
-  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com  ' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com  ' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com  ' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com  ' },
+  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com  ' },
 ];
 
 const cleanText = (text) => {
@@ -225,17 +224,17 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
   const shareOnWhatsApp = () => {
     const url = encodeURIComponent(`${SITE_URL}/noticia/${cat}/${id}`);
     const title = encodeURIComponent(noticia.title);
-    window.open(`https://wa.me/?text=${title}%20${url}`, '_blank');
+    window.open(`https://wa.me/?text=  ${title}%20${url}`, '_blank');
   };
 
   const shareOnFacebook = () => {
     const url = encodeURIComponent(`${SITE_URL}/noticia/${cat}/${id}`);
-    window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
+    window.open(`https://www.facebook.com/sharer/sharer.php?u=  ${url}`, '_blank', 'width=600,height=400');
   };
 
   const shareOnLinkedIn = () => {
     const url = encodeURIComponent(`${SITE_URL}/noticia/${cat}/${id}`);
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=  ${url}`, '_blank', 'width=600,height=400');
   };
 
   // ✅ Título corto para redes
@@ -279,13 +278,10 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                       className="h-80 bg-gradient-to-br from-blue-200 to-blue-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center relative overflow-hidden cursor-pointer"
                       onClick={() => openLightbox(noticia.image)}
                     >
-                      {/* ✅ Imagen optimizada con Next.js Image */}
-                      <Image 
+                      <img 
                         src={noticia.image} 
                         alt={noticia.title} 
-                        fill
-                        className="object-cover object-center"
-                        priority={true} // 👈 Imagen principal con carga prioritaria
+                        className="w-full h-full object-cover object-center"
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.parentNode.innerHTML = `
@@ -381,12 +377,9 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                 {sponsors.map((sponsor, i) => (
                   <Link key={i} href={sponsor.url} legacyBehavior>
                     <a target="_blank" rel="noopener noreferrer">
-                      {/* ✅ Imagen optimizada con Next.js Image */}
-                      <Image 
+                      <img 
                         src={sponsor.image} 
-                        alt="Colaborador"
-                        width={200}
-                        height={64}
+                        alt={`Colaborador ${i + 1}`}
                         className="w-full h-16 object-contain rounded-lg"
                       />
                     </a>
@@ -450,7 +443,7 @@ export async function getStaticProps({ params }) {
       `${WORDPRESS_API_URL}/posts?slug=${id}&_embed`,
       {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
+          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com  )',
           'Accept': 'application/json'
         }
       }
@@ -468,7 +461,7 @@ export async function getStaticProps({ params }) {
           `${WORDPRESS_API_URL}/posts?categories=${catId}&per_page=1&orderby=date&order=desc&_embed`,
           {
             headers: {
-              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
+              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com  )',
               'Accept': 'application/json'
             }
           }
