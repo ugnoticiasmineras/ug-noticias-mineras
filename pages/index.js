@@ -139,7 +139,7 @@ const shareOnFacebook = (news) => {
 
 const shareOnLinkedIn = (news) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
-  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
+  window.open(`https://www.linkedin.com/sharing/share-offside/?url=${url}`, '_blank', 'width=600,height=400');
 };
 
 const renderFeaturedCard = ({ news }) => {
@@ -416,7 +416,8 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
   );
 }
 
-export async function getServerSideProps() {
+// 👇 SOLO ESTO CAMBIA: getServerSideProps → getStaticProps
+export async function getStaticProps() {
   try {
     const response = await fetch(
       `${WORDPRESS_API_URL}/posts?per_page=100&orderby=date&order=desc&_embed`,
@@ -464,7 +465,8 @@ export async function getServerSideProps() {
         allNews,
         sidebarNews,
         currentDate: new Date().toISOString()
-      }
+      },
+      revalidate: 60 // 👈 Regenera la página cada 60 segundos
     };
   } catch (err) {
     return {
@@ -472,7 +474,8 @@ export async function getServerSideProps() {
         allNews: [],
         sidebarNews: {},
         currentDate: new Date().toISOString()
-      }
+      },
+      revalidate: 60 // 👈 También en el catch
     };
   }
 }
