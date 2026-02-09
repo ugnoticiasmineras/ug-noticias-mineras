@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import Image from 'next/image'; // ✅ Importamos Image de Next.js
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import CotizacionesWidget from '../components/CotizacionesWidget';
@@ -16,7 +17,7 @@ const categories = {
 };
 
 const categoryIdToKey = Object.fromEntries(
-  Object.entries(categories).map(([key, id]) => [id, key])
+  Object.entries(categories).map(([key, id]) => [id.toString(), key])
 );
 
 const cleanText = (text) => {
@@ -139,20 +140,23 @@ const shareOnFacebook = (news) => {
 
 const shareOnLinkedIn = (news) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
-  window.open(`https://www.linkedin.com/sharing/share-offside/?url=${url}`, '_blank', 'width=600,height=400');
+  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
 };
 
-const renderFeaturedCard = ({ news }) => {
+const renderFeaturedCard = ({ news, index }) => {
   if (!news.categoryKey) return null;
   
   return (
     <Link key={news.id} href={`/noticia/${news.categoryKey}/${news.id}`} legacyBehavior>
       <a className="block bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-blue-100 dark:border-blue-900 overflow-hidden">
         <div className="h-48 w-full relative">
-          <img 
+          {/* ✅ Imagen optimizada con Next.js Image */}
+          <Image 
             src={news.image} 
             alt={news.title} 
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            priority={index < 2} // 👈 Solo las primeras 2 imágenes con priority
             onError={(e) => {
               e.target.style.display = 'none';
               e.target.parentNode.innerHTML = `
@@ -179,7 +183,7 @@ const renderFeaturedCard = ({ news }) => {
   );
 };
 
-const renderNewsCard = ({ news, basePath }) => {
+const renderNewsCard = ({ news, basePath, index }) => {
   if (!news.categoryKey) return null;
   
   return (
@@ -187,10 +191,13 @@ const renderNewsCard = ({ news, basePath }) => {
       <a className="block bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100 dark:border-blue-900 overflow-hidden">
         <div className="flex flex-col md:flex-row">
           <div className="md:w-1/3 h-48 md:h-full relative">
-            <img 
+            {/* ✅ Imagen optimizada con Next.js Image */}
+            <Image 
               src={news.image} 
               alt={news.title} 
-              className="w-full h-full object-cover rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
+              fill
+              className="object-cover rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
+              priority={index < 3} // 👈 Solo las primeras 3 imágenes con priority
               onError={(e) => {
                 e.target.style.display = 'none';
                 e.target.parentNode.innerHTML = `
@@ -307,7 +314,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {featuredNews.map(news => news.categoryKey && renderFeaturedCard({ news }))}
+                  {featuredNews.map((news, index) => news.categoryKey && renderFeaturedCard({ news, index }))}
                 </div>
               </div>
             </div>
@@ -320,7 +327,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
             </div>
             <div className="p-6">
               <div className="space-y-6">
-                {paginatedNews.map(news => news.categoryKey && renderNewsCard({ news, basePath: '' }))}
+                {paginatedNews.map((news, index) => news.categoryKey && renderNewsCard({ news, basePath: '', index }))}
               </div>
               {totalPages > 1 && (
                 <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex justify-center items-center space-x-2 mt-6 flex-wrap">
@@ -401,10 +408,12 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
             <div className="p-3 space-y-3">
               {[...Array(5)].map((_, i) => (
-                <img 
+                <Image 
                   key={i}
                   src="/sponsors/aoma1.jpg" 
                   alt="Colaborador"
+                  width={200}
+                  height={64}
                   className="w-full h-16 object-contain rounded-lg"
                 />
               ))}

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
+import Image from 'next/image'; // ✅ Importamos Image de Next.js
 import Layout from '../../../components/Layout';
 import CotizacionesWidget from '../../../components/CotizacionesWidget';
 
@@ -278,10 +279,13 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                       className="h-80 bg-gradient-to-br from-blue-200 to-blue-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center relative overflow-hidden cursor-pointer"
                       onClick={() => openLightbox(noticia.image)}
                     >
-                      <img 
+                      {/* ✅ Imagen optimizada con Next.js Image */}
+                      <Image 
                         src={noticia.image} 
                         alt={noticia.title} 
-                        className="w-full h-full object-cover object-center"
+                        fill
+                        className="object-cover object-center"
+                        priority={true} // 👈 Imagen principal con carga prioritaria
                         onError={(e) => {
                           e.target.style.display = 'none';
                           e.target.parentNode.innerHTML = `
@@ -377,9 +381,12 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                 {sponsors.map((sponsor, i) => (
                   <Link key={i} href={sponsor.url} legacyBehavior>
                     <a target="_blank" rel="noopener noreferrer">
-                      <img 
+                      {/* ✅ Imagen optimizada con Next.js Image */}
+                      <Image 
                         src={sponsor.image} 
-                        alt={`Colaborador ${i + 1}`}
+                        alt="Colaborador"
+                        width={200}
+                        height={64}
                         className="w-full h-16 object-contain rounded-lg"
                       />
                     </a>
