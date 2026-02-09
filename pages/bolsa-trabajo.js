@@ -1,31 +1,9 @@
+// pages/bolsa-trabajo.js
 import React, { useState, useRef, useEffect } from 'react';
 import Head from 'next/head';
 import Layout from '../components/Layout';
 
-// Estilos globales (sin Tailwind inline)
-const BolsaTrabajoStyles = () => (
-  <style jsx global>{`
-    .experience-item {
-      background: #f9f9f9;
-      padding: 1rem;
-      border-radius: 0.5rem;
-      margin-bottom: 1rem;
-    }
-    .dark .experience-item {
-      background: #1e293b;
-    }
-    .legal-notice {
-      background-color: #dbeafe;
-      border-left: 4px solid #1e40af;
-      color: #1e3a8a;
-    }
-    .dark .legal-notice {
-      background-color: #1e3a8a20;
-      border-left-color: #3b82f6;
-      color: #bfdbfe;
-    }
-  `}</style>
-);
+const SITE_URL = 'https://ugnoticiasmineras.com';
 
 const BolsaTrabajo = () => {
   const [formData, setFormData] = useState({
@@ -288,7 +266,6 @@ const BolsaTrabajo = () => {
         {/* ✅ Eliminamos Tailwind inline para respetar el modo del Layout */}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
       </Head>
-      <BolsaTrabajoStyles />
       <Layout currentDate={new Date().toISOString()}>
         <div className="min-h-screen p-4">
           <div className="max-w-4xl mx-auto">
@@ -326,8 +303,8 @@ const BolsaTrabajo = () => {
                 />
                 {fotoBase64 && (
                   <img
-                    id="foto-preview"
                     src={fotoBase64}
+                    alt="Foto de identificación"
                     className="mt-2 max-h-32 rounded shadow"
                   />
                 )}

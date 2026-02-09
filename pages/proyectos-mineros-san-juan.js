@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Layout from '../components/Layout';
 
-const SITE_URL = 'https://ugnoticiasmineras.com  ';
+const SITE_URL = 'https://ugnoticiasmineras.com';
 
 const ProyectosSanJuan = () => {
   const proyectos = [

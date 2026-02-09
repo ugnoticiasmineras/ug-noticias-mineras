@@ -1,3 +1,4 @@
+// pages/en-desarrollo.js
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -337,7 +338,6 @@ export default function EnDesarrollo({ allNews, currentDate }) {
   );
 }
 
-// 👇 getServerSideProps → getStaticProps
 export async function getStaticProps() {
   try {
     const response = await fetch(
@@ -361,7 +361,7 @@ export async function getStaticProps() {
         allNews,
         currentDate: new Date().toISOString()
       },
-      revalidate: 60 // 👈 Regenera cada 60 segundos
+      revalidate: 60
     };
   } catch (err) {
     return {
@@ -369,7 +369,7 @@ export async function getStaticProps() {
         allNews: [],
         currentDate: new Date().toISOString()
       },
-      revalidate: 60 // 👈 También en el catch
+      revalidate: 60
     };
   }
 }
