@@ -1,19 +1,15 @@
 module.exports = {
   // 👇 CONFIGURACIÓN DE IMÁGENES (MÁXIMO IMPACTO)
   images: {
-    // Dominios permitidos para optimización
     domains: [
-      'public-api.wordpress.com',  // WordPress API
-      'ugnoticiasmineras.com',      // Tu dominio
-      'i0.wp.com',                  // WordPress.com CDN
-      'i1.wp.com',                  // WordPress.com CDN
-      'i2.wp.com',                  // WordPress.com CDN
+      'public-api.wordpress.com',
+      'ugnoticiasmineras.com',
+      'i0.wp.com',
+      'i1.wp.com',
+      'i2.wp.com',
     ],
-    // Caché de 24 horas para imágenes
     minimumCacheTTL: 60 * 60 * 24, // 24 horas
-    // Formatos modernos para mejor compresión
     formats: ['image/webp', 'image/avif'],
-    // Tamaño máximo de imagen (en bytes)
     remotePatterns: [
       {
         protocol: 'https',
@@ -33,7 +29,7 @@ module.exports = {
   // 👇 COMPRESIÓN GZIP/BROTLI
   compress: true,
 
-  // 👇 CABECERAS PARA CACHÉ (mejora TTFB)
+  // 👇 CABECERAS PARA CACHÉ
   async headers() {
     return [
       {
@@ -78,7 +74,7 @@ module.exports = {
     return config;
   },
 
-  // 👇 MEJORAR PERFORMANCE EN Vercel/Netlify
+  // 👇 MEJORAR PERFORMANCE
   experimental: {
     optimizeCss: true,
     scrollRestoration: true,
