@@ -263,7 +263,6 @@ const BolsaTrabajo = () => {
     <>
       <Head>
         <title>Bolsa de Trabajo – UG Noticias Mineras</title>
-        {/* ✅ Eliminamos Tailwind inline para respetar el modo del Layout */}
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
       </Head>
       <Layout currentDate={new Date().toISOString()}>
