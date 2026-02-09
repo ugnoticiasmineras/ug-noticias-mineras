@@ -1,31 +1,4 @@
 module.exports = {
-  // 👇 CONFIGURACIÓN DE IMÁGENES (MÁXIMO IMPACTO)
-  images: {
-    domains: [
-      'public-api.wordpress.com',
-      'ugnoticiasmineras.com',
-      'i0.wp.com',
-      'i1.wp.com',
-      'i2.wp.com',
-    ],
-    minimumCacheTTL: 60 * 60 * 24, // 24 horas
-    formats: ['image/webp', 'image/avif'],
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'public-api.wordpress.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'ugnoticiasmineras.com',
-        port: '',
-        pathname: '/**',
-      },
-    ],
-  },
-
   // 👇 COMPRESIÓN GZIP/BROTLI
   compress: true,
 
