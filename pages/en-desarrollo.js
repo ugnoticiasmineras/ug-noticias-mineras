@@ -337,7 +337,8 @@ export default function EnDesarrollo({ allNews, currentDate }) {
   );
 }
 
-export async function getServerSideProps() {
+// 👇 getServerSideProps → getStaticProps
+export async function getStaticProps() {
   try {
     const response = await fetch(
       `${WORDPRESS_API_URL}/posts?categories=${UNCATEGORIZED_ID}&per_page=100&orderby=date&order=desc&_embed`,
@@ -359,14 +360,16 @@ export async function getServerSideProps() {
       props: {
         allNews,
         currentDate: new Date().toISOString()
-      }
+      },
+      revalidate: 60 // 👈 Regenera cada 60 segundos
     };
   } catch (err) {
     return {
       props: {
         allNews: [],
         currentDate: new Date().toISOString()
-      }
+      },
+      revalidate: 60 // 👈 También en el catch
     };
   }
 }
