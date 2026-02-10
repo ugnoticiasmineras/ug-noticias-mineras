@@ -142,7 +142,7 @@ const shareOnLinkedIn = (news) => {
   window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
 };
 
-const renderFeaturedCard = ({ news, isLcp }) => {
+const renderFeaturedCard = ({ news, isLcp = false }) => {
   if (!news.categoryKey) return null;
   
   return (
@@ -319,60 +319,87 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
             </div>
           )}
 
-          {/* 👇 6 IMÁGENES ESTÁTICAS (2x2x2) */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+          {/* 👇 9 SPONSORS EN 3x3 (MÁS DISCRETOS) */}
+          <div className="grid grid-cols-3 gap-2 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
               <img 
                 src="/sponsors/sponsor1.webp" 
                 alt="Colaborador 1" 
-                width={600} 
-                height={250}
-                className="w-full h-auto object-cover"
+                width={120} 
+                height={48}
+                className="w-full h-full object-contain p-1"
               />
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
               <img 
                 src="/sponsors/sponsor2.webp" 
                 alt="Colaborador 2" 
-                width={600} 
-                height={250}
-                className="w-full h-auto object-cover"
+                width={120} 
+                height={48}
+                className="w-full h-full object-contain p-1"
               />
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
               <img 
                 src="/sponsors/sponsor3.webp" 
                 alt="Colaborador 3" 
-                width={600} 
-                height={250}
-                className="w-full h-auto object-cover"
+                width={120} 
+                height={48}
+                className="w-full h-full object-contain p-1"
               />
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
               <img 
                 src="/sponsors/sponsor4.webp" 
                 alt="Colaborador 4" 
-                width={600} 
-                height={250}
-                className="w-full h-auto object-cover"
+                width={120} 
+                height={48}
+                className="w-full h-full object-contain p-1"
               />
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
               <img 
                 src="/sponsors/sponsor5.webp" 
                 alt="Colaborador 5" 
-                width={600} 
-                height={250}
-                className="w-full h-auto object-cover"
+                width={120} 
+                height={48}
+                className="w-full h-full object-contain p-1"
               />
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
               <img 
                 src="/sponsors/sponsor6.webp" 
                 alt="Colaborador 6" 
-                width={600} 
-                height={250}
-                className="w-full h-auto object-cover"
+                width={120} 
+                height={48}
+                className="w-full h-full object-contain p-1"
+              />
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+              <img 
+                src="/sponsors/sponsor7.webp" 
+                alt="Colaborador 7" 
+                width={120} 
+                height={48}
+                className="w-full h-full object-contain p-1"
+              />
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+              <img 
+                src="/sponsors/sponsor8.webp" 
+                alt="Colaborador 8" 
+                width={120} 
+                height={48}
+                className="w-full h-full object-contain p-1"
+              />
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+              <img 
+                src="/sponsors/sponsor9.webp" 
+                alt="Colaborador 9" 
+                width={120} 
+                height={48}
+                className="w-full h-full object-contain p-1"
               />
             </div>
           </div>
@@ -461,13 +488,14 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </Link>
             </div>
           ))}
+          
+          {/* 👇 EL CARRUSEL ANTIGUO HA SIDO ELIMINADO (ya no existe en el sidebar) */}
         </div>
       </div>
     </Layout>
   );
 }
 
-// 👇 SOLO ESTO CAMBIA: getServerSideProps → getStaticProps
 export async function getStaticProps() {
   try {
     const response = await fetch(
@@ -517,7 +545,7 @@ export async function getStaticProps() {
         sidebarNews,
         currentDate: new Date().toISOString()
       },
-      revalidate: 60 // 👈 Regenera la página cada 60 segundos
+      revalidate: 60
     };
   } catch (err) {
     return {
@@ -526,7 +554,7 @@ export async function getStaticProps() {
         sidebarNews: {},
         currentDate: new Date().toISOString()
       },
-      revalidate: 60 // 👈 También en el catch
+      revalidate: 60
     };
   }
 }
