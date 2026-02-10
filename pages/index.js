@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import CotizacionesWidget from '../components/CotizacionesWidget';
 
-const SITE_URL = 'https://ugnoticiasmineras.com  ';
-const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com  ';
+const SITE_URL = 'https://ugnoticiasmineras.com';
+const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
 
 const categories = {
   nacionales: 170094,
@@ -129,17 +129,17 @@ const getCategoryLabel = (categoryKey) => {
 const shareOnWhatsApp = (news) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
   const title = encodeURIComponent(news.title);
-  window.open(`https://wa.me/?text=  ${title}%20${url}`, '_blank');
+  window.open(`https://wa.me/?text=${title}%20${url}`, '_blank');
 };
 
 const shareOnFacebook = (news) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
-  window.open(`https://www.facebook.com/sharer/sharer.php?u=  ${url}`, '_blank', 'width=600,height=400');
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
 };
 
 const shareOnLinkedIn = (news) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
-  window.open(`https://www.linkedin.com/sharing/share-offside/?url=  ${url}`, '_blank', 'width=600,height=400');
+  window.open(`https://www.linkedin.com/sharing/share-offside/?url=${url}`, '_blank', 'width=600,height=400');
 };
 
 const renderFeaturedCard = ({ news }) => {
@@ -423,7 +423,7 @@ export async function getStaticProps() {
       `${WORDPRESS_API_URL}/posts?per_page=100&orderby=date&order=desc&_embed`,
       {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com  )',
+          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
           'Accept': 'application/json'
         }
       }
@@ -444,7 +444,7 @@ export async function getStaticProps() {
           `${WORDPRESS_API_URL}/posts?categories=${id}&per_page=1&orderby=date&order=desc&_embed`,
           {
             headers: {
-              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com  )',
+              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
               'Accept': 'application/json'
             }
           }
