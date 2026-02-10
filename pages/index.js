@@ -317,64 +317,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
             </div>
           )}
 
-          {/* 👇 6 SPONSORS EN 3x2 (CORREGIDO - IMÁGENES COMPLETAS SIN OVERFLOW) */}
-          <div className="grid grid-cols-3 gap-2 mb-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor1.webp" 
-                  alt="Colaborador 1" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor2.webp" 
-                  alt="Colaborador 2" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor3.webp" 
-                  alt="Colaborador 3" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor4.webp" 
-                  alt="Colaborador 4" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor5.webp" 
-                  alt="Colaborador 5" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor6.webp" 
-                  alt="Colaborador 6" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-          </div>
-
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-6">
               <h2 className="text-2xl font-bold text-white">Últimas Noticias</h2>
@@ -413,6 +355,67 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                   </button>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* 👇 6 SPONSORS MOVIDOS A LA PARTE INFERIOR (arriba del footer) */}
+          <div className="mt-8">
+            <h3 className="text-lg font-bold text-blue-900 dark:text-white mb-4 text-center">Nuestros Colaboradores</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor1.webp" 
+                    alt="Colaborador 1" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor2.webp" 
+                    alt="Colaborador 2" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor3.webp" 
+                    alt="Colaborador 3" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor4.webp" 
+                    alt="Colaborador 4" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor5.webp" 
+                    alt="Colaborador 5" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor6.webp" 
+                    alt="Colaborador 6" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
