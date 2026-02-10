@@ -1,4 +1,3 @@
-import React from 'react'; // ✅ Importamos React para usar Fragment
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -325,16 +324,15 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
               </div>
               <div className="p-6">
                 <div className="space-y-6">
-                  {/* 👇 RENDERIZADO DE NOTICIAS CON SPONSORS INTERCALADOS */}
+                  {/* 👇 RENDERIZADO DE NOTICIAS CON SPONSORS INTERCALADOS (SIN REACT.FRAGMENT) */}
                   {paginatedNews.map((news, index) => {
                     if (!news.categoryKey) return null;
                     
-                    return (
-                      <React.Fragment key={news.id}>
-                        {renderNewsCard({ news, basePath: '' })}
-                        
-                        {/* 👇 2 SPONSORS DESPUÉS DE LA 2DA NOTICIA (índice 1) */}
-                        {index === 1 && (
+                    // 👇 2 SPONSORS DESPUÉS DE LA 2DA NOTICIA (índice 1)
+                    if (index === 1) {
+                      return (
+                        <div key={news.id}>
+                          {renderNewsCard({ news, basePath: '' })}
                           <div className="grid grid-cols-2 gap-2 mb-6 mt-4">
                             <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
                               <div className="h-16 flex items-center justify-center p-1">
@@ -355,10 +353,15 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
                               </div>
                             </div>
                           </div>
-                        )}
-                        
-                        {/* 👇 2 SPONSORS DESPUÉS DE LA 4TA NOTICIA (índice 3) */}
-                        {index === 3 && (
+                        </div>
+                      );
+                    }
+                    
+                    // 👇 2 SPONSORS DESPUÉS DE LA 4TA NOTICIA (índice 3)
+                    if (index === 3) {
+                      return (
+                        <div key={news.id}>
+                          {renderNewsCard({ news, basePath: '' })}
                           <div className="grid grid-cols-2 gap-2 mb-6 mt-4">
                             <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
                               <div className="h-16 flex items-center justify-center p-1">
@@ -379,10 +382,15 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
                               </div>
                             </div>
                           </div>
-                        )}
-                        
-                        {/* 👇 2 SPONSORS DESPUÉS DE LA 6TA NOTICIA (índice 5) */}
-                        {index === 5 && (
+                        </div>
+                      );
+                    }
+                    
+                    // 👇 2 SPONSORS DESPUÉS DE LA 6TA NOTICIA (índice 5)
+                    if (index === 5) {
+                      return (
+                        <div key={news.id}>
+                          {renderNewsCard({ news, basePath: '' })}
                           <div className="grid grid-cols-2 gap-2 mb-6 mt-4">
                             <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
                               <div className="h-16 flex items-center justify-center p-1">
@@ -403,8 +411,15 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
                               </div>
                             </div>
                           </div>
-                        )}
-                      </React.Fragment>
+                        </div>
+                      );
+                    }
+                    
+                    // 👇 Noticias normales (sin sponsors)
+                    return (
+                      <div key={news.id}>
+                        {renderNewsCard({ news, basePath: '' })}
+                      </div>
                     );
                   })}
                 </div>

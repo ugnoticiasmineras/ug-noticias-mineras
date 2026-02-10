@@ -1,4 +1,3 @@
-// pages/noticia/[cat]/[id].js
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -17,12 +16,14 @@ const categories = {
   internacionales: 17119
 };
 
+// ✅ SPONSORS CORREGIDOS (6 items, URLs sin espacios, .webp)
 const sponsors = [
-  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
-  { image: '/sponsors/aoma1.jpg', url: 'https://ugnoticiasmineras.com' },
+  { image: '/sponsors/sponsor1.webp', url: 'https://ugnoticiasmineras.com' },
+  { image: '/sponsors/sponsor2.webp', url: 'https://ugnoticiasmineras.com' },
+  { image: '/sponsors/sponsor3.webp', url: 'https://ugnoticiasmineras.com' },
+  { image: '/sponsors/sponsor4.webp', url: 'https://ugnoticiasmineras.com' },
+  { image: '/sponsors/sponsor5.webp', url: 'https://ugnoticiasmineras.com' },
+  { image: '/sponsors/sponsor6.webp', url: 'https://ugnoticiasmineras.com' },
 ];
 
 const cleanText = (text) => {
@@ -171,6 +172,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
 
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState('');
+  const [contentParts, setContentParts] = useState([]); // ✅ Nuevo estado para partes con sponsors
 
   if (!noticia) {
     return (
@@ -183,16 +185,20 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     );
   }
 
-  const [processedContent, setProcessedContent] = useState('');
+  // ✅ PROCESAMOS EL CONTENIDO PARA INSERTAR SPONSORS EN <!-- SPONSOR -->
   useEffect(() => {
     try {
+      // Procesamos el contenido completo con lightbox
       const safeHtml = ContentWithLightbox({
         htmlContent: noticia.content,
         onImageClick: openLightbox
       });
-      setProcessedContent(safeHtml);
+      
+      // ✅ DIVIDIMOS EL CONTENIDO POR EL MARCADOR <!-- SPONSOR -->
+      const parts = safeHtml.split('<!-- SPONSOR -->');
+      setContentParts(parts);
     } catch (e) {
-      setProcessedContent(noticia.content);
+      setContentParts([noticia.content]);
     }
   }, [noticia.content]);
 
@@ -237,7 +243,6 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
   };
 
-  // ✅ Título corto para redes
   const shortTitle = noticia.title.length > 90 ? noticia.title.substring(0, 87) + "..." : noticia.title;
 
   return (
@@ -300,10 +305,38 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                     <h3 className="font-bold text-2xl text-blue-900 dark:text-blue-100 mb-4">{noticia.title}</h3>
                     {noticia.subtitle && <p className="text-blue-700 dark:text-blue-300 font-medium mb-4">{noticia.subtitle}</p>}
                     
-                    <div 
-                      className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose"
-                      dangerouslySetInnerHTML={{ __html: processedContent }}
-                    />
+                    {/* ✅ RENDERIZAMOS EL CONTENIDO CON SPONSORS INSERTADOS (SIN REACT.FRAGMENT) */}
+                    <div className="content-html text-gray-700 dark:text-gray-300 leading-relaxed max-w-none prose">
+                      {contentParts.map((part, index) => (
+                        <div key={index}>
+                          <div dangerouslySetInnerHTML={{ __html: part }} />
+                          
+                          {/* ✅ INSERTAMOS 2 SPONSORS DESPUÉS DE CADA MARCADOR (excepto el último) */}
+                          {index < contentParts.length - 1 && (
+                            <div className="grid grid-cols-2 gap-2 my-6">
+                              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                                <div className="h-16 flex items-center justify-center p-1">
+                                  <img 
+                                    src="/sponsors/sponsor1.webp" 
+                                    alt="Colaborador 1" 
+                                    className="max-h-full max-w-full object-contain"
+                                  />
+                                </div>
+                              </div>
+                              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                                <div className="h-16 flex items-center justify-center p-1">
+                                  <img 
+                                    src="/sponsors/sponsor2.webp" 
+                                    alt="Colaborador 2" 
+                                    className="max-h-full max-w-full object-contain"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
 
                     <div className="mt-6 pt-4 border-t border-blue-100 dark:border-blue-900">
                       <p className="text-blue-800 dark:text-blue-200 font-medium">{noticia.source}</p>
@@ -372,16 +405,21 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
               );
             })}
             
+            {/* ✅ SIDEBAR CON 6 SPONSORS ESTÁTICOS (SIN CARRUSEL) */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mt-4">
               <div className="p-3 space-y-3">
                 {sponsors.map((sponsor, i) => (
                   <Link key={i} href={sponsor.url} legacyBehavior>
-                    <a target="_blank" rel="noopener noreferrer">
-                      <img 
-                        src={sponsor.image} 
-                        alt={`Colaborador ${i + 1}`}
-                        className="w-full h-16 object-contain rounded-lg"
-                      />
+                    <a target="_blank" rel="noopener noreferrer" className="block">
+                      <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                        <div className="h-16 flex items-center justify-center p-1">
+                          <img 
+                            src={sponsor.image} 
+                            alt={`Colaborador ${i + 1}`}
+                            className="max-h-full max-w-full object-contain"
+                          />
+                        </div>
+                      </div>
                     </a>
                   </Link>
                 ))}
@@ -418,17 +456,13 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
   );
 }
 
-// 👇 NUEVA FUNCIÓN: Genera rutas estáticas dinámicamente
 export async function getStaticPaths() {
-  // No podemos saber de antemano qué slugs existen
-  // Usamos fallback: 'blocking' para generar páginas nuevas al vuelo
   return {
     paths: [],
     fallback: 'blocking'
   };
 }
 
-// 👇 getServerSideProps → getStaticProps
 export async function getStaticProps({ params }) {
   const { cat, id } = params;
   const categoryId = categories[cat];
@@ -438,7 +472,6 @@ export async function getStaticProps({ params }) {
   }
 
   try {
-    // ✅ No necesita per_page alto: solo carga 1 noticia
     const response = await fetch(
       `${WORDPRESS_API_URL}/posts?slug=${id}&_embed`,
       {
@@ -483,7 +516,7 @@ export async function getStaticProps({ params }) {
         sidebarNews,
         currentDate: new Date().toISOString()
       },
-      revalidate: 60 // 👈 Regenera cada 60 segundos
+      revalidate: 60
     };
   } catch (err) {
     return { notFound: true };
