@@ -455,7 +455,66 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </Link>
             </div>
           ))}
-          {/* ✅ CARRUSEL ANTIGUO ELIMINADO - NO HAY SPONSORS EN EL SIDEBAR */}
+          
+          {/* 👇 CARRUSEL DE SPONSORS EN EL SIDEBAR (MANTENIDO) */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
+            <div className="p-3 space-y-3">
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor1.webp" 
+                    alt="Colaborador 1" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor2.webp" 
+                    alt="Colaborador 2" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor3.webp" 
+                    alt="Colaborador 3" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor4.webp" 
+                    alt="Colaborador 4" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor5.webp" 
+                    alt="Colaborador 5" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                <div className="h-16 flex items-center justify-center p-1">
+                  <img 
+                    src="/sponsors/sponsor6.webp" 
+                    alt="Colaborador 6" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Layout>
