@@ -324,103 +324,10 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
               </div>
               <div className="p-6">
                 <div className="space-y-6">
-                  {/* 👇 RENDERIZADO DE NOTICIAS CON SPONSORS INTERCALADOS (SIN REACT.FRAGMENT) */}
-                  {paginatedNews.map((news, index) => {
+                  {/* ✅ NOTICIAS SIN SPONSORS INTERCALADOS (versión rápida y estable) */}
+                  {paginatedNews.map(news => {
                     if (!news.categoryKey) return null;
-                    
-                    // 👇 2 SPONSORS DESPUÉS DE LA 2DA NOTICIA (índice 1)
-                    if (index === 1) {
-                      return (
-                        <div key={news.id}>
-                          {renderNewsCard({ news, basePath: '' })}
-                          <div className="grid grid-cols-2 gap-2 mb-6 mt-4">
-                            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                              <div className="h-16 flex items-center justify-center p-1">
-                                <img 
-                                  src="/sponsors/sponsor1.webp" 
-                                  alt="Colaborador 1" 
-                                  className="max-h-full max-w-full object-contain"
-                                />
-                              </div>
-                            </div>
-                            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                              <div className="h-16 flex items-center justify-center p-1">
-                                <img 
-                                  src="/sponsors/sponsor2.webp" 
-                                  alt="Colaborador 2" 
-                                  className="max-h-full max-w-full object-contain"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-                    
-                    // 👇 2 SPONSORS DESPUÉS DE LA 4TA NOTICIA (índice 3)
-                    if (index === 3) {
-                      return (
-                        <div key={news.id}>
-                          {renderNewsCard({ news, basePath: '' })}
-                          <div className="grid grid-cols-2 gap-2 mb-6 mt-4">
-                            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                              <div className="h-16 flex items-center justify-center p-1">
-                                <img 
-                                  src="/sponsors/sponsor3.webp" 
-                                  alt="Colaborador 3" 
-                                  className="max-h-full max-w-full object-contain"
-                                />
-                              </div>
-                            </div>
-                            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                              <div className="h-16 flex items-center justify-center p-1">
-                                <img 
-                                  src="/sponsors/sponsor4.webp" 
-                                  alt="Colaborador 4" 
-                                  className="max-h-full max-w-full object-contain"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-                    
-                    // 👇 2 SPONSORS DESPUÉS DE LA 6TA NOTICIA (índice 5)
-                    if (index === 5) {
-                      return (
-                        <div key={news.id}>
-                          {renderNewsCard({ news, basePath: '' })}
-                          <div className="grid grid-cols-2 gap-2 mb-6 mt-4">
-                            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                              <div className="h-16 flex items-center justify-center p-1">
-                                <img 
-                                  src="/sponsors/sponsor5.webp" 
-                                  alt="Colaborador 5" 
-                                  className="max-h-full max-w-full object-contain"
-                                />
-                              </div>
-                            </div>
-                            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                              <div className="h-16 flex items-center justify-center p-1">
-                                <img 
-                                  src="/sponsors/sponsor6.webp" 
-                                  alt="Colaborador 6" 
-                                  className="max-h-full max-w-full object-contain"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    }
-                    
-                    // 👇 Noticias normales (sin sponsors)
-                    return (
-                      <div key={news.id}>
-                        {renderNewsCard({ news, basePath: '' })}
-                      </div>
-                    );
+                    return renderNewsCard({ news, basePath: '' });
                   })}
                 </div>
                 {totalPages > 1 && (
@@ -465,6 +372,7 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
               });
             })}
             
+            {/* ✅ SIDEBAR CON 6 SPONSORS ESTÁTICOS (SIN CARRUSEL) - MANTIENE RENDIMIENTO */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
               <div className="p-3 space-y-3">
                 <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
