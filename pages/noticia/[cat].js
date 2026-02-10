@@ -4,8 +4,9 @@ import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import CotizacionesWidget from '../../components/CotizacionesWidget';
 
-const SITE_URL = 'https://ugnoticiasmineras.com  ';
-const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com  ';
+// ✅ CORREGIDO: URLs SIN ESPACIOS AL FINAL
+const SITE_URL = 'https://ugnoticiasmineras.com';
+const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
 
 const categories = {
   nacionales: 170094,
@@ -151,17 +152,20 @@ const getCategorySeoDescription = (categoryKey) => {
 const shareOnWhatsApp = (news, basePath) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
   const title = encodeURIComponent(news.title);
-  window.open(`https://wa.me/?text=  ${title}%20${url}`, '_blank');
+  // ✅ CORREGIDO: Sin espacios extra en la URL
+  window.open(`https://wa.me/?text=${title}%20${url}`, '_blank');
 };
 
 const shareOnFacebook = (news, basePath) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
-  window.open(`https://www.facebook.com/sharer/sharer.php?u=  ${url}`, '_blank', 'width=600,height=400');
+  // ✅ CORREGIDO: Sin espacios extra en la URL
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
 };
 
 const shareOnLinkedIn = (news, basePath) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
-  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=  ${url}`, '_blank', 'width=600,height=400');
+  // ✅ CORREGIDO: Sin espacios extra en la URL
+  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
 };
 
 const renderNewsCard = ({ news, basePath }) => {
@@ -368,6 +372,7 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
               });
             })}
             
+            {/* ✅ MANTIENE EL CARRUSEL ANTIGUO (SIN CAMBIOS) */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
               <div className="p-3 space-y-3">
                 {[...Array(5)].map((_, i) => (
@@ -387,7 +392,7 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
   );
 }
 
-// 👇 NUEVA FUNCIÓN: Genera las rutas estáticas para las 5 categorías
+// ✅ MANTIENE getStaticPaths (correcto para categorías estáticas)
 export async function getStaticPaths() {
   return {
     paths: [
@@ -397,11 +402,11 @@ export async function getStaticPaths() {
       { params: { cat: 'opinion' } },
       { params: { cat: 'internacionales' } }
     ],
-    fallback: false // 404 si no es una de las 5 categorías
+    fallback: false
   };
 }
 
-// 👇 getServerSideProps → getStaticProps
+// ✅ CORREGIDO: URLs SIN ESPACIOS EN User-Agent
 export async function getStaticProps({ params }) {
   const { cat } = params;
   const categoryId = categories[cat];
@@ -415,7 +420,8 @@ export async function getStaticProps({ params }) {
       `${WORDPRESS_API_URL}/posts?categories=${categoryId}&per_page=100&orderby=date&order=desc&_embed`,
       {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com  )',
+          // ✅ CORREGIDO: Sin espacios al final de la URL
+          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
           'Accept': 'application/json'
         }
       }
@@ -435,7 +441,8 @@ export async function getStaticProps({ params }) {
           `${WORDPRESS_API_URL}/posts?categories=${id}&per_page=1&orderby=date&order=desc&_embed`,
           {
             headers: {
-              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com  )',
+              // ✅ CORREGIDO: Sin espacios al final de la URL
+              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
               'Accept': 'application/json'
             }
           }
@@ -458,7 +465,7 @@ export async function getStaticProps({ params }) {
         sidebarNews,
         currentDate: new Date().toISOString()
       },
-      revalidate: 60 // 👈 Regenera cada 60 segundos
+      revalidate: 60
     };
   } catch (err) {
     return {
@@ -468,7 +475,7 @@ export async function getStaticProps({ params }) {
         sidebarNews: {},
         currentDate: new Date().toISOString()
       },
-      revalidate: 60 // 👈 También en el catch
+      revalidate: 60
     };
   }
 }
