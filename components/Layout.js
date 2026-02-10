@@ -1,4 +1,3 @@
-// components/Layout.js
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -193,23 +192,7 @@ export default function Layout({ children, currentDate }) {
         {formatDate(currentDate)}
       </div>
 
-      {/* ✅ BARRA DE SPONSORS SUPERIOR (RESTAURADA) */}
-      <div className="bg-blue-50 dark:bg-gray-800 border-b border-blue-100 dark:border-blue-900 overflow-hidden">
-        <div className="flex items-center space-x-8 animate-marquee" style={{ minWidth: '200%' }}>
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="flex-shrink-0 flex items-center space-x-8">
-              {[...Array(5)].map((_, j) => (
-                <img 
-                  key={j}
-                  src="/sponsors/aoma1.jpg" 
-                  alt="Colaborador AOMA" 
-                  className="h-16 object-contain"
-                />
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* ✅ CARRUSEL SUPERIOR ELIMINADO - NO HAY SPONSORS EN EL HEADER */}
 
       <div className="max-w-7xl mx-auto px-4 py-6">{children}</div>
 
@@ -267,6 +250,16 @@ export default function Layout({ children, currentDate }) {
                   <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z" />
                 </svg>
               </a>
+
+              {/* TikTok — sin enlace, solo ícono */}
+              <span 
+                className="text-blue-200 hover:text-white transition-colors cursor-default"
+                aria-label="TikTok"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19.589 7.547a4.533 4.533 0 0 1-4.042 4.042v4.589a2.27 2.27 0 0 1-2.27 2.27c-1.254 0-2.27-1.017-2.27-2.27v-2.27a4.533 4.533 0 0 1-4.042-4.042 4.533 4.533 0 0 1 4.042-4.042 4.533 4.533 0 0 1 4.042 4.042v2.727h2.27v-2.727a6.8 6.8 0 0 0-6.8-6.8 6.8 6.8 0 0 0-6.8 6.8 6.8 6.8 0 0 0 6.8 6.8h4.589a2.27 2.27 0 0 1 2.27 2.27v2.27a2.27 2.27 0 0 1-2.27 2.27H9.067a4.533 4.533 0 0 1-4.533-4.533V7.547a2.27 2.27 0 0 1 2.27-2.27h4.533a4.533 4.533 0 0 1 4.042 4.042 4.533 4.533 0 0 1-4.042 4.042v-2.27a2.27 2.27 0 0 0-2.27-2.27 2.27 2.27 0 0 0-2.27 2.27v4.533a2.27 2.27 0 0 0 2.27 2.27h6.8a4.533 4.533 0 0 0 4.533-4.533v-4.533a2.27 2.27 0 0 0-2.27-2.27z"/>
+                </svg>
+              </span>
             </div>
           </div>
           <div className="mt-6 pt-4 border-t border-blue-700 text-center">
@@ -280,4 +273,3 @@ export default function Layout({ children, currentDate }) {
     </>
   );
 }
-
