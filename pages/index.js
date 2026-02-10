@@ -298,8 +298,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
         <meta name="twitter:image" content={`${SITE_URL}/UGNoticias.png`} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={SITE_URL} />
-
-        {/* 👇 Metaetiqueta de verificación de dominio para Meta Business Suite */}
         <meta name="facebook-domain-verification" content="wr93115y6b6xa1s1vi3ukgijy7wwcw" />
       </Head>
 
@@ -319,88 +317,61 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
             </div>
           )}
 
-          {/* 👇 9 SPONSORS EN 3x3 (MÁS DISCRETOS) */}
+          {/* 👇 6 SPONSORS EN 3x2 (CORREGIDO - IMÁGENES COMPLETAS SIN OVERFLOW) */}
           <div className="grid grid-cols-3 gap-2 mb-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img 
-                src="/sponsors/sponsor1.webp" 
-                alt="Colaborador 1" 
-                width={120} 
-                height={48}
-                className="w-full h-full object-contain p-1"
-              />
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+              <div className="h-16 flex items-center justify-center p-1">
+                <img 
+                  src="/sponsors/sponsor1.webp" 
+                  alt="Colaborador 1" 
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img 
-                src="/sponsors/sponsor2.webp" 
-                alt="Colaborador 2" 
-                width={120} 
-                height={48}
-                className="w-full h-full object-contain p-1"
-              />
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+              <div className="h-16 flex items-center justify-center p-1">
+                <img 
+                  src="/sponsors/sponsor2.webp" 
+                  alt="Colaborador 2" 
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img 
-                src="/sponsors/sponsor3.webp" 
-                alt="Colaborador 3" 
-                width={120} 
-                height={48}
-                className="w-full h-full object-contain p-1"
-              />
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+              <div className="h-16 flex items-center justify-center p-1">
+                <img 
+                  src="/sponsors/sponsor3.webp" 
+                  alt="Colaborador 3" 
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img 
-                src="/sponsors/sponsor4.webp" 
-                alt="Colaborador 4" 
-                width={120} 
-                height={48}
-                className="w-full h-full object-contain p-1"
-              />
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+              <div className="h-16 flex items-center justify-center p-1">
+                <img 
+                  src="/sponsors/sponsor4.webp" 
+                  alt="Colaborador 4" 
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img 
-                src="/sponsors/sponsor5.webp" 
-                alt="Colaborador 5" 
-                width={120} 
-                height={48}
-                className="w-full h-full object-contain p-1"
-              />
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+              <div className="h-16 flex items-center justify-center p-1">
+                <img 
+                  src="/sponsors/sponsor5.webp" 
+                  alt="Colaborador 5" 
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img 
-                src="/sponsors/sponsor6.webp" 
-                alt="Colaborador 6" 
-                width={120} 
-                height={48}
-                className="w-full h-full object-contain p-1"
-              />
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img 
-                src="/sponsors/sponsor7.webp" 
-                alt="Colaborador 7" 
-                width={120} 
-                height={48}
-                className="w-full h-full object-contain p-1"
-              />
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img 
-                src="/sponsors/sponsor8.webp" 
-                alt="Colaborador 8" 
-                width={120} 
-                height={48}
-                className="w-full h-full object-contain p-1"
-              />
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-              <img 
-                src="/sponsors/sponsor9.webp" 
-                alt="Colaborador 9" 
-                width={120} 
-                height={48}
-                className="w-full h-full object-contain p-1"
-              />
+            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+              <div className="h-16 flex items-center justify-center p-1">
+                <img 
+                  src="/sponsors/sponsor6.webp" 
+                  alt="Colaborador 6" 
+                  className="max-h-full max-w-full object-contain"
+                />
+              </div>
             </div>
           </div>
 
@@ -426,11 +397,9 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                   >
                     Anterior
                   </button>
-
                   <span className="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium">
                     {page}
                   </span>
-
                   <button 
                     onClick={() => handlePageChange(page + 1)}
                     disabled={page === totalPages}
@@ -450,7 +419,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 
         <div className="lg:col-span-1">
           <CotizacionesWidget />
-
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
             <Link href="/proyectos-mineros-san-juan" legacyBehavior>
               <a className="block">
@@ -466,7 +434,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </a>
             </Link>
           </div>
-
           {Object.entries(categories).map(([key, _]) => (
             <div key={key} className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden mb-4">
               <Link href={`/noticia/${key}`} legacyBehavior>
@@ -488,8 +455,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </Link>
             </div>
           ))}
-          
-          {/* 👇 EL CARRUSEL ANTIGUO HA SIDO ELIMINADO (ya no existe en el sidebar) */}
+          {/* ✅ CARRUSEL ANTIGUO ELIMINADO - NO HAY SPONSORS EN EL SIDEBAR */}
         </div>
       </div>
     </Layout>
