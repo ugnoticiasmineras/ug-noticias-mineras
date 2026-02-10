@@ -139,10 +139,10 @@ const shareOnFacebook = (news) => {
 
 const shareOnLinkedIn = (news) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
-  window.open(`https://www.linkedin.com/sharing/share-offside/?url=${url}`, '_blank', 'width=600,height=400');
+  window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
 };
 
-const renderFeaturedCard = ({ news }) => {
+const renderFeaturedCard = ({ news, isLcp }) => {
   if (!news.categoryKey) return null;
   
   return (
@@ -153,6 +153,12 @@ const renderFeaturedCard = ({ news }) => {
             src={news.image} 
             alt={news.title} 
             className="w-full h-full object-cover"
+            {...(isLcp && {
+              fetchpriority: "high",
+              loading: "eager",
+              width: 600,
+              height: 315
+            })}
             onError={(e) => {
               e.target.style.display = 'none';
               e.target.parentNode.innerHTML = `
@@ -307,11 +313,69 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </div>
               <div className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {featuredNews.map(news => news.categoryKey && renderFeaturedCard({ news }))}
+                  {featuredNews.map((news, index) => news.categoryKey && renderFeaturedCard({ news, isLcp: index === 0 }))}
                 </div>
               </div>
             </div>
           )}
+
+          {/* 👇 6 IMÁGENES ESTÁTICAS (2x2x2) */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+              <img 
+                src="/sponsors/sponsor1.webp" 
+                alt="Colaborador 1" 
+                width={600} 
+                height={250}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+              <img 
+                src="/sponsors/sponsor2.webp" 
+                alt="Colaborador 2" 
+                width={600} 
+                height={250}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+              <img 
+                src="/sponsors/sponsor3.webp" 
+                alt="Colaborador 3" 
+                width={600} 
+                height={250}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+              <img 
+                src="/sponsors/sponsor4.webp" 
+                alt="Colaborador 4" 
+                width={600} 
+                height={250}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+              <img 
+                src="/sponsors/sponsor5.webp" 
+                alt="Colaborador 5" 
+                width={600} 
+                height={250}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+            <div className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md">
+              <img 
+                src="/sponsors/sponsor6.webp" 
+                alt="Colaborador 6" 
+                width={600} 
+                height={250}
+                className="w-full h-auto object-cover"
+              />
+            </div>
+          </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-6">
@@ -397,19 +461,6 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </Link>
             </div>
           ))}
-
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
-            <div className="p-3 space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <img 
-                  key={i}
-                  src="/sponsors/aoma1.jpg" 
-                  alt="Colaborador"
-                  className="w-full h-16 object-contain rounded-lg"
-                />
-              ))}
-            </div>
-          </div>
         </div>
       </div>
     </Layout>
