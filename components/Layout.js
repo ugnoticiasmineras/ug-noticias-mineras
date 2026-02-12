@@ -196,7 +196,7 @@ export default function Layout({ children, currentDate }) {
 
       <div className="max-w-7xl mx-auto px-4 py-6">{children}</div>
 
-      {/* ✅ FOOTER CON 4 REDES SOCIALES (TikTok con LOGO OFICIAL) */}
+      {/* ✅ FOOTER CON 4 REDES SOCIALES (TikTok CORREGIDO) */}
       <footer className="bg-gradient-to-r from-blue-900 to-blue-800 text-white mt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row justify-between items-center">
@@ -251,7 +251,7 @@ export default function Layout({ children, currentDate }) {
                 </svg>
               </a>
 
-              {/* TikTok - LOGO OFICIAL DE ICONSCOUT (nota musical limpia) */}
+              {/* TikTok - CORREGIDO (mismo estilo que los demás) */}
               <a 
                 href="https://www.tiktok.com/@UGNoticiasMineras" 
                 target="_blank" 
