@@ -196,7 +196,7 @@ export default function Layout({ children, currentDate }) {
 
       <div className="max-w-7xl mx-auto px-4 py-6">{children}</div>
 
-      {/* ✅ FOOTER CON REDES SOCIALES ACTUALIZADO */}
+      {/* ✅ FOOTER CON 4 REDES SOCIALES (Facebook, Instagram, YouTube, TikTok con TU LOGO) */}
       <footer className="bg-gradient-to-r from-blue-900 to-blue-800 text-white mt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row justify-between items-center">
@@ -212,7 +212,7 @@ export default function Layout({ children, currentDate }) {
               </Link>
             </div>
             <div className="flex space-x-4">
-              {/* Facebook */}
+              {/* Facebook - URL CORREGIDA (sin espacios) */}
               <a 
                 href="https://facebook.com/ugnoticiasmineras" 
                 target="_blank" 
@@ -225,7 +225,7 @@ export default function Layout({ children, currentDate }) {
                 </svg>
               </a>
 
-              {/* Instagram */}
+              {/* Instagram - URL CORREGIDA (sin espacios) */}
               <a 
                 href="https://instagram.com/ugnoticiasmineras" 
                 target="_blank" 
@@ -238,7 +238,7 @@ export default function Layout({ children, currentDate }) {
                 </svg>
               </a>
 
-              {/* YouTube — ya vinculado */}
+              {/* YouTube - URL CORREGIDA (sin espacios) */}
               <a 
                 href="https://www.youtube.com/@UGNoticiasMineras" 
                 target="_blank" 
@@ -251,15 +251,20 @@ export default function Layout({ children, currentDate }) {
                 </svg>
               </a>
 
-              {/* TikTok — sin enlace, solo ícono */}
-              <span 
-                className="text-blue-200 hover:text-white transition-colors cursor-default"
+              {/* TikTok - CON TU LOGO EXACTO (la nota musical limpia) */}
+              <a 
+                href="https://www.tiktok.com/@UGNoticiasMineras" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-200 hover:text-white transition-colors"
                 aria-label="TikTok"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19.589 7.547a4.533 4.533 0 0 1-4.042 4.042v4.589a2.27 2.27 0 0 1-2.27 2.27c-1.254 0-2.27-1.017-2.27-2.27v-2.27a4.533 4.533 0 0 1-4.042-4.042 4.533 4.533 0 0 1 4.042-4.042 4.533 4.533 0 0 1 4.042 4.042v2.727h2.27v-2.727a6.8 6.8 0 0 0-6.8-6.8 6.8 6.8 0 0 0-6.8 6.8 6.8 6.8 0 0 0 6.8 6.8h4.589a2.27 2.27 0 0 1 2.27 2.27v2.27a2.27 2.27 0 0 1-2.27 2.27H9.067a4.533 4.533 0 0 1-4.533-4.533V7.547a2.27 2.27 0 0 1 2.27-2.27h4.533a4.533 4.533 0 0 1 4.042 4.042 4.533 4.533 0 0 1-4.042 4.042v-2.27a2.27 2.27 0 0 0-2.27-2.27 2.27 2.27 0 0 0-2.27 2.27v4.533a2.27 2.27 0 0 0 2.27 2.27h6.8a4.533 4.533 0 0 0 4.533-4.533v-4.533a2.27 2.27 0 0 0-2.27-2.27z"/>
-                </svg>
-              </span>
+                <img 
+                  src="/tiktok-logo.png" 
+                  alt="TikTok" 
+                  className="h-5 w-5"
+                />
+              </a>
             </div>
           </div>
           <div className="mt-6 pt-4 border-t border-blue-700 text-center">
