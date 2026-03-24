@@ -1,14 +1,12 @@
-// pages/en-desarrollo.js
+// pages/en-desarrollo/index.js
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
-import CotizacionesWidget from '../components/CotizacionesWidget';
+import Layout from '../../components/Layout';
+import CotizacionesWidget from '../../components/CotizacionesWidget';
 
 const SITE_URL = 'https://ugnoticiasmineras.com';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
-
-// ID de la categoría "uncategorized" en WordPress (por defecto es 1)
 const UNCATEGORIZED_ID = 1;
 
 const cleanText = (text) => {
@@ -221,7 +219,6 @@ export default function EnDesarrollo({ allNews, currentDate }) {
   return (
     <Layout currentDate={currentDate}>
       <Head>
-        {/* 👇 META TAGS PARA EVITAR INDEXACIÓN EN GOOGLE Y OTROS BUSCADORES */}
         <meta name="robots" content="noindex, nofollow" />
         <meta name="googlebot" content="noindex, nofollow" />
         
