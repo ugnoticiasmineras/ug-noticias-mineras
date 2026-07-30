@@ -124,9 +124,16 @@ export default function Layout({ children, currentDate }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </button>
-            <Link href="/" legacyBehavior>
-              <a><img src="/logo.png" alt="UG Noticias Mineras" className="h-12" /></a>
-            </Link>
+            <Link href="/" className="flex items-center">
+  <Image
+    src="/logo.png"
+    alt="UG Noticias Mineras"
+    width={160}
+    height={48}
+    priority
+    className="h-12 w-auto"
+  />
+</Link>
           </div>
           <div className="flex items-center space-x-3">
             <button onClick={toggleDarkMode} className="text-blue-900 dark:text-blue-200 hover:text-blue-700 dark:hover:text-blue-300">
