@@ -209,15 +209,16 @@ export default function Layout({ children, currentDate }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row justify-between items-center">
             <div className="mb-4 lg:mb-0">
-              <Link href="/" legacyBehavior>
-                <a className="flex items-center space-x-2">
-                  <img 
-                    src="/logo.png" 
-                    alt="UG Noticias Mineras Logo" 
-                    className="h-12 w-auto object-contain"
-                  />
-                </a>
-              </Link>
+              <Link href="/" className="flex items-center space-x-2">
+  <Image
+    src="/logo.png"
+    alt="UG Noticias Mineras Logo"
+    width={160}
+    height={48}
+    loading="lazy"
+    className="h-12 w-auto object-contain"
+  />
+</Link>
             </div>
             <div className="flex space-x-4">
               {/* Facebook */}
