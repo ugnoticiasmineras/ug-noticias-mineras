@@ -47,6 +47,15 @@ const forceHttps = (url) => {
   return url.trim().replace(/^http:/, 'https:');
 };
 
+// ✅ FASE 2: imagen redimensionada de WordPress (más liviana)
+const optimizedImage = (url, w = 720) => {
+  if (!url) return url;
+  if (!/(wordpress\.com|wp\.com)/.test(url)) return url;
+  if (/[?&]w=/.test(url)) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}w=${w}`;
+};
+
 const processPostForSidebar = (post, categoryKey) => {
   let title = cleanText(post.title?.rendered || 'Sin título');
   return {
@@ -72,9 +81,9 @@ const processPosts = (posts, categoryKey) => {
 
     let imageUrl = `${SITE_URL}/UGNoticias.png`;
     if (post.featured_media && post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
-      imageUrl = forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim();
+      imageUrl = optimizedImage(forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim(), 720);
     } else if (firstContentImage) {
-      imageUrl = firstContentImage;
+      imageUrl = optimizedImage(firstContentImage, 720);
     }
 
     let source = 'Fuente: WordPress';
@@ -103,9 +112,9 @@ const processPosts = (posts, categoryKey) => {
       image: imageUrl,
       categoryKey,
       categoryColor: categoryKey === 'nacionales' ? 'bg-blue-600' :
-                    categoryKey === 'sanjuan' ? 'bg-red-500' :
-                    categoryKey === 'sindicales' ? 'bg-green-600' :
-                    categoryKey === 'internacionales' ? 'bg-yellow-600' : 'bg-purple-600',
+        categoryKey === 'sanjuan' ? 'bg-red-500' :
+        categoryKey === 'sindicales' ? 'bg-green-600' :
+        categoryKey === 'internacionales' ? 'bg-yellow-600' : 'bg-purple-600',
       source,
       date: formattedDate,
       originalDate: post.date
