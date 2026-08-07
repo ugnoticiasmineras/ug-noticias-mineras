@@ -57,6 +57,15 @@ const forceHttps = (url) => {
   return url.trim().replace(/^http:/, 'https:');
 };
 
+// ✅ FASE 2: imagen redimensionada de WordPress (1024 para la foto grande + lightbox)
+const optimizedImage = (url, w = 1024) => {
+  if (!url) return url;
+  if (!/(wordpress\.com|wp\.com)/.test(url)) return url;
+  if (/[?&]w=/.test(url)) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}w=${w}`;
+};
+
 const processPost = (post, categoryKey) => {
   let processedContent = post.content?.rendered || '';
   processedContent = cleanText(processedContent);
@@ -72,9 +81,9 @@ const processPost = (post, categoryKey) => {
 
   let imageUrl = `${SITE_URL}/UGNoticias.png`;
   if (post.featured_media && post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
-    imageUrl = forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim();
+    imageUrl = optimizedImage(forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim(), 1024);
   } else if (firstContentImage) {
-    imageUrl = firstContentImage;
+    imageUrl = optimizedImage(firstContentImage, 1024);
   }
 
   let source = 'Fuente: WordPress';
