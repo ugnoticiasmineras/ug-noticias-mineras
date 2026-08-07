@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import CotizacionesWidget from '../components/CotizacionesWidget';
+import { SponsorVideoDuo } from '../components/SponsorVideoBanner';
 
 const SITE_URL = 'https://ugnoticiasmineras.com';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
@@ -19,19 +20,22 @@ const categoryIdToKey = Object.fromEntries(
   Object.entries(categories).map(([key, id]) => [id, key])
 );
 
+// ✅ Logos placeholder (se mantienen solo al final de la home y en el sidebar)
+const placeholderSponsors = [1, 2, 3, 4, 5, 6];
+
 const cleanText = (text) => {
   if (!text) return text;
   return text
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
+    .replace(/\u00A0/g, ' ')
+    .replace(/&/g, '&')
     .replace(/</g, '<')
     .replace(/>/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#8217;/g, "'")
-    .replace(/&#8220;/g, '"')
-    .replace(/&#8221;/g, '"')
-    .replace(/&#8211;/g, '-')
-    .replace(/&#8212;/g, '--')
+    .replace(/"/g, '"')
+    .replace(/’/g, "'")
+    .replace(/“/g, '"')
+    .replace(/”/g, '"')
+    .replace(/–/g, '-')
+    .replace(/—/g, '--')
     .replace(/\s+/g, ' ')
     .trim();
 };
@@ -80,7 +84,6 @@ const processPost = (post) => {
   }
 
   let title = cleanText(post.title?.rendered || 'Sin título');
-
   const catId = post.categories?.[0];
   let categoryKey = null;
   if (catId && categoryIdToKey[catId]) {
@@ -93,10 +96,10 @@ const processPost = (post) => {
     subtitle: excerpt,
     image: imageUrl,
     categoryKey,
-    categoryColor: categoryKey === 'nacionales' ? 'bg-blue-600' : 
-                  categoryKey === 'sanjuan' ? 'bg-red-500' : 
-                  categoryKey === 'sindicales' ? 'bg-green-600' : 
-                  categoryKey === 'internacionales' ? 'bg-yellow-600' : 'bg-purple-600',
+    categoryColor: categoryKey === 'nacionales' ? 'bg-blue-600' :
+      categoryKey === 'sanjuan' ? 'bg-red-500' :
+      categoryKey === 'sindicales' ? 'bg-green-600' :
+      categoryKey === 'internacionales' ? 'bg-yellow-600' : 'bg-purple-600',
     source,
     date: formattedDate,
     originalDate: post.date,
@@ -105,7 +108,7 @@ const processPost = (post) => {
 };
 
 const getCategoryName = (categoryKey) => {
-  switch(categoryKey) {
+  switch (categoryKey) {
     case 'nacionales': return 'Noticias Nacionales';
     case 'sanjuan': return 'Noticias de San Juan';
     case 'sindicales': return 'Noticias Sindicales';
@@ -116,7 +119,7 @@ const getCategoryName = (categoryKey) => {
 };
 
 const getCategoryLabel = (categoryKey) => {
-  switch(categoryKey) {
+  switch (categoryKey) {
     case 'nacionales': return 'NACIONAL';
     case 'sanjuan': return 'SAN JUAN';
     case 'sindicales': return 'SINDICAL';
@@ -144,14 +147,13 @@ const shareOnLinkedIn = (news) => {
 
 const renderFeaturedCard = ({ news, isLcp = false }) => {
   if (!news.categoryKey) return null;
-  
   return (
     <Link key={news.id} href={`/noticia/${news.categoryKey}/${news.id}`} legacyBehavior>
       <a className="block bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-blue-100 dark:border-blue-900 overflow-hidden">
         <div className="h-48 w-full relative">
-          <img 
-            src={news.image} 
-            alt={news.title} 
+          <img
+            src={news.image}
+            alt={news.title}
             className="w-full h-full object-cover"
             {...(isLcp && {
               fetchpriority: "high",
@@ -161,11 +163,7 @@ const renderFeaturedCard = ({ news, isLcp = false }) => {
             })}
             onError={(e) => {
               e.target.style.display = 'none';
-              e.target.parentNode.innerHTML = `
-                <div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                  <div class="text-blue-800 dark:text-blue-200 font-bold text-center p-2">${news.title}</div>
-                </div>
-              `;
+              e.target.parentNode.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center"><div class="text-blue-800 dark:text-blue-200 font-bold text-center p-2">${news.title}</div></div>`;
             }}
           />
           <div className={`absolute top-2 left-2 ${news.categoryColor} text-white px-2 py-1 rounded text-xs font-semibold`}>
@@ -187,23 +185,18 @@ const renderFeaturedCard = ({ news, isLcp = false }) => {
 
 const renderNewsCard = ({ news, basePath }) => {
   if (!news.categoryKey) return null;
-  
   return (
     <Link key={news.id} href={`/noticia/${news.categoryKey}/${news.id}`} legacyBehavior>
       <a className="block bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100 dark:border-blue-900 overflow-hidden">
         <div className="flex flex-col md:flex-row">
           <div className="md:w-1/3 h-48 md:h-full relative">
-            <img 
-              src={news.image} 
-              alt={news.title} 
+            <img
+              src={news.image}
+              alt={news.title}
               className="w-full h-full object-cover rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
               onError={(e) => {
                 e.target.style.display = 'none';
-                e.target.parentNode.innerHTML = `
-                  <div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                    <div class="text-blue-800 dark:text-blue-200 font-bold text-center p-4">${news.title}</div>
-                  </div>
-                `;
+                e.target.parentNode.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center"><div class="text-blue-800 dark:text-blue-200 font-bold text-center p-4">${news.title}</div></div>`;
               }}
             />
             <div className={`absolute top-2 left-2 ${news.categoryColor} text-white px-2 py-1 rounded text-xs font-semibold`}>
@@ -258,7 +251,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
       setFilteredNews(allNews);
     } else {
       const query = searchQuery.toLowerCase();
-      const results = allNews.filter(news => 
+      const results = allNews.filter(news =>
         news.title.toLowerCase().includes(query) ||
         news.subtitle.toLowerCase().includes(query) ||
         news.content.toLowerCase().includes(query)
@@ -317,63 +310,8 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
             </div>
           )}
 
-          {/* 👇 6 SPONSORS ENTRE NOTICIAS DESTACADAS Y ÚLTIMAS NOTICIAS (CORREGIDO) */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor1.webp" 
-                  alt="Colaborador 1" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor2.webp" 
-                  alt="Colaborador 2" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor3.webp" 
-                  alt="Colaborador 3" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor4.webp" 
-                  alt="Colaborador 4" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor5.webp" 
-                  alt="Colaborador 5" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-              <div className="h-16 flex items-center justify-center p-1">
-                <img 
-                  src="/sponsors/sponsor6.webp" 
-                  alt="Colaborador 6" 
-                  className="max-h-full max-w-full object-contain"
-                />
-              </div>
-            </div>
-          </div>
+          {/* 👇 SPONSORS EN VIDEO: reemplazan los logos placeholder, con carga diferida */}
+          <SponsorVideoDuo />
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
             <div className="bg-gradient-to-r from-blue-900 to-blue-700 p-6">
@@ -386,12 +324,12 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </div>
               {totalPages > 1 && (
                 <div className="bg-gray-50 dark:bg-gray-900 px-4 py-3 flex justify-center items-center space-x-2 mt-6 flex-wrap">
-                  <button 
+                  <button
                     onClick={() => handlePageChange(page - 1)}
                     disabled={page === 1}
                     className={`px-3 py-1 rounded text-sm font-medium ${
-                      page === 1 
-                        ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' 
+                      page === 1
+                        ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
                         : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'
                     }`}
                   >
@@ -400,12 +338,12 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                   <span className="px-3 py-1 bg-blue-600 text-white rounded text-sm font-medium">
                     {page}
                   </span>
-                  <button 
+                  <button
                     onClick={() => handlePageChange(page + 1)}
                     disabled={page === totalPages}
                     className={`px-3 py-1 rounded text-sm font-medium ${
-                      page === totalPages 
-                        ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed' 
+                      page === totalPages
+                        ? 'text-gray-400 dark:text-gray-600 cursor-not-allowed'
                         : 'text-blue-600 hover:bg-blue-100 dark:hover:bg-gray-700'
                     }`}
                   >
@@ -419,60 +357,17 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
           {/* 👇 6 SPONSORS AL FINAL (antes del footer) */}
           <div className="mt-8">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor1.webp" 
-                    alt="Colaborador 1" 
-                    className="max-h-full max-w-full object-contain"
-                  />
+              {placeholderSponsors.map((n) => (
+                <div key={n} className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                  <div className="h-16 flex items-center justify-center p-1">
+                    <img
+                      src={`/sponsors/sponsor${n}.webp`}
+                      alt={`Colaborador ${n}`}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor2.webp" 
-                    alt="Colaborador 2" 
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor3.webp" 
-                    alt="Colaborador 3" 
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor4.webp" 
-                    alt="Colaborador 4" 
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor5.webp" 
-                    alt="Colaborador 5" 
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor6.webp" 
-                    alt="Colaborador 6" 
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -515,64 +410,20 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
               </Link>
             </div>
           ))}
-          
           {/* 👇 CARRUSEL DE SPONSORS EN EL SIDEBAR (MANTENIDO) */}
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
             <div className="p-3 space-y-3">
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor1.webp" 
-                    alt="Colaborador 1" 
-                    className="max-h-full max-w-full object-contain"
-                  />
+              {placeholderSponsors.map((n) => (
+                <div key={n} className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
+                  <div className="h-16 flex items-center justify-center p-1">
+                    <img
+                      src={`/sponsors/sponsor${n}.webp`}
+                      alt={`Colaborador ${n}`}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor2.webp" 
-                    alt="Colaborador 2" 
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor3.webp" 
-                    alt="Colaborador 3" 
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor4.webp" 
-                    alt="Colaborador 4" 
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor5.webp" 
-                    alt="Colaborador 5" 
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-              </div>
-              <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-blue-100 dark:border-blue-900">
-                <div className="h-16 flex items-center justify-center p-1">
-                  <img 
-                    src="/sponsors/sponsor6.webp" 
-                    alt="Colaborador 6" 
-                    className="max-h-full max-w-full object-contain"
-                  />
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -592,7 +443,6 @@ export async function getStaticProps() {
         }
       }
     );
-
     let allNews = [];
     if (response.ok) {
       const posts = await response.json();

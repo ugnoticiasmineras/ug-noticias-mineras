@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import CotizacionesWidget from '../../components/CotizacionesWidget';
+import { SponsorVideoDuo } from '../../components/SponsorVideoBanner';
 
 // ✅ CORREGIDO: URLs SIN ESPACIOS AL FINAL
 const SITE_URL = 'https://ugnoticiasmineras.com';
@@ -319,6 +320,9 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
       </Head>
 
       <Layout currentDate={currentDate}>
+        {/* ✅ SPONSORS EN VIDEO (NUEVO) - AOMA + Sponsor 2, siempre juntos */}
+        <SponsorVideoDuo />
+
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-4">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
