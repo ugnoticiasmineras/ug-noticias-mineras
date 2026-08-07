@@ -321,10 +321,9 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
         <meta name="twitter:description" content="" />
         <meta name="twitter:image" content={`${SITE_URL}/UGNoticias.png`} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
-        <link rel="canonical" href={SITE_URL} />
-        <meta name="facebook-domain-verification" content="wr93115y6b6xa1s1vi3ukgijy7wwcw" />
-        {lcpOrigin && <link rel="preconnect" href={lcpOrigin} />}
-        {lcpImage && <link rel="preload" as="image" href={lcpImage} fetchpriority="high" />}
+                <link rel="canonical" href={`${SITE_URL}/noticia/${cat}/${id}`} />
+        {/* ✅ Precarga de la foto principal de la nota: el navegador la pide de inmediato */}
+        {noticia.image && <link rel="preload" as="image" href={noticia.image} fetchpriority="high" />}
       </Head>
 
       {/* ✅ H1 oculto para accesibilidad/SEO (no cambia el diseño) */}
