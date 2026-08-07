@@ -208,7 +208,7 @@ export default function Layout({ children, currentDate }) {
       <div className="lg:hidden bg-white dark:bg-gray-900 py-1 border-b border-blue-200 dark:border-blue-900 text-center text-xs text-blue-900 dark:text-blue-200">
         {formatDate(currentDate)}
       </div>
-      <div className="max-w-7xl mx-auto px-4 py-6">{children}</div>
+         <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
       <footer className="bg-gradient-to-r from-blue-900 to-blue-800 text-white mt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex flex-col lg:flex-row justify-between items-center">
