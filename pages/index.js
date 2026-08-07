@@ -20,9 +20,10 @@ const categoryIdToKey = Object.fromEntries(
   Object.entries(categories).map(([key, id]) => [id, key])
 );
 
-// ✅ Logos placeholder (se mantienen solo al final de la home y en el sidebar)
+// ✅ Logos placeholder (solo al final de la home y en el sidebar)
 const placeholderSponsors = [1, 2, 3, 4, 5, 6];
 
+// ✅ cleanText CORREGIDA: limpia &nbsp; y todas las entidades HTML
 const cleanText = (text) => {
   if (!text) return text;
   return text
@@ -53,6 +54,16 @@ const forceHttps = (url) => {
   return url.trim().replace(/^http:/, 'https:');
 };
 
+// ✅ FASE 2: pide a WordPress la imagen ya redimensionada (pesa mucho menos)
+// Solo aplica a imágenes de WordPress.com / wp.com; cualquier otra URL queda intacta.
+const optimizedImage = (url, w = 720) => {
+  if (!url) return url;
+  if (!/(wordpress\.com|wp\.com)/.test(url)) return url;
+  if (/[?&]w=/.test(url)) return url;
+  const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}w=${w}`;
+};
+
 const processPost = (post) => {
   let processedContent = post.content?.rendered || '';
   processedContent = cleanText(processedContent);
@@ -68,9 +79,9 @@ const processPost = (post) => {
 
   let imageUrl = `${SITE_URL}/UGNoticias.png`;
   if (post.featured_media && post._embedded?.['wp:featuredmedia']?.[0]?.source_url) {
-    imageUrl = forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim();
+    imageUrl = optimizedImage(forceHttps(post._embedded['wp:featuredmedia'][0].source_url).trim(), 720);
   } else if (firstContentImage) {
-    imageUrl = firstContentImage;
+    imageUrl = optimizedImage(firstContentImage, 720);
   }
 
   let source = 'Fuente: WordPress';
