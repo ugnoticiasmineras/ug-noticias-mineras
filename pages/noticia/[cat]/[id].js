@@ -111,10 +111,10 @@ const processPost = (post, categoryKey) => {
     subtitle: excerpt,
     image: imageUrl,
     categoryKey,
-    categoryColor: categoryKey === 'nacionales' ? 'bg-blue-600' :
-      categoryKey === 'sanjuan' ? 'bg-red-500' :
-      categoryKey === 'sindicales' ? 'bg-green-600' :
-      categoryKey === 'internacionales' ? 'bg-yellow-600' : 'bg-purple-600',
+        categoryColor: categoryKey === 'nacionales' ? 'bg-blue-600' :
+      categoryKey === 'sanjuan' ? 'bg-red-700' :
+      categoryKey === 'sindicales' ? 'bg-green-700' :
+      categoryKey === 'internacionales' ? 'bg-yellow-700' : 'bg-purple-600',
     content: processedContent,
     source,
     date: formattedDate,
