@@ -57,12 +57,12 @@ const forceHttps = (url) => {
   return url.trim().replace(/^http:/, 'https:');
 };
 
-// ✅ FASE 2: imagen redimensionada de WordPress (1024 para la foto grande + lightbox)
+// ✅ FASE 2: foto redimensionada y comprimida del CDN de WordPress
 const optimizedImage = (url, w = 1024) => {
   if (!url) return url;
   if (!/(wordpress\.com|wp\.com)/.test(url)) return url;
   if (/[?&]w=/.test(url)) return url;
-    const sep = url.includes('?') ? '&' : '?';
+  const sep = url.includes('?') ? '&' : '?';
   return `${url}${sep}w=${w}&quality=70`;
 };
 
@@ -111,7 +111,7 @@ const processPost = (post, categoryKey) => {
     subtitle: excerpt,
     image: imageUrl,
     categoryKey,
-        categoryColor: categoryKey === 'nacionales' ? 'bg-blue-600' :
+    categoryColor: categoryKey === 'nacionales' ? 'bg-blue-600' :
       categoryKey === 'sanjuan' ? 'bg-red-700' :
       categoryKey === 'sindicales' ? 'bg-green-700' :
       categoryKey === 'internacionales' ? 'bg-yellow-700' : 'bg-purple-600',
@@ -272,6 +272,8 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
         <meta name="twitter:image" content={noticia.image} />
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={`${SITE_URL}/noticia/${cat}/${id}`} />
+        {/* ✅ PRECARGA: la foto principal se pide antes que cualquier otra cosa */}
+        {noticia.image && <link rel="preload" as="image" href={noticia.image} fetchpriority="high" />}
       </Head>
       <Layout currentDate={currentDate}>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -293,6 +295,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                       <img
                         src={noticia.image}
                         alt={noticia.title}
+                        loading="eager"
                         fetchpriority="high"
                         decoding="async"
                         className="w-full h-full object-cover object-center"
@@ -351,7 +354,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                         </div>
                       ))}
                     </div>
-                    {/* ✅ SPONSOR EN VIDEO (ROTATIVO) - al pie de la nota, desfasado respecto del de arriba */}
+                    {/* ✅ SPONSOR EN VIDEO (ROTATIVO) - al pie, desfasado respecto del de arriba */}
                     <SponsorVideoSingle seed={id} offset={1} />
                     <div className="mt-6 pt-4 border-t border-blue-100 dark:border-blue-900">
                       <p className="text-blue-800 dark:text-blue-200 font-medium">{noticia.source}</p>
