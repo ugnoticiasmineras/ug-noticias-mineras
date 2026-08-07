@@ -53,8 +53,23 @@ function SponsorVideo({ sponsor, heightClass, loop = true, onEnded }) {
   const containerRef = useRef(null);
   const videoRef = useRef(null);
   const inView = useInView(containerRef);
+  const [pageLoaded, setPageLoaded] = useState(false);
 
-  // (Re)intenta reproducir cuando el video entra en pantalla o cambia de src
+  // ✅ Los videos esperan a que la página termine de cargar:
+  // así la foto principal (LCP) gana siempre la carrera de ancho de banda.
+  useEffect(() => {
+    if (document.readyState === 'complete') {
+      setPageLoaded(true);
+      return;
+    }
+    const onLoad = () => setPageLoaded(true);
+    window.addEventListener('load', onLoad, { once: true });
+    return () => window.removeEventListener('load', onLoad);
+  }, []);
+
+  const ready = inView && pageLoaded;
+
+  // (Re)intenta reproducir cuando el video está listo o cambia de src
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
@@ -65,9 +80,9 @@ function SponsorVideo({ sponsor, heightClass, loop = true, onEnded }) {
         /* Autoplay bloqueado: queda el poster visible */
       });
     }
-  }, [inView, sponsor.src]);
+  }, [ready, sponsor.src]);
 
-  const videoEl = inView ? (
+  const videoEl = ready ? (
     <video
       ref={videoRef}
       className={`w-full ${heightClass} object-contain bg-white dark:bg-gray-900`}
@@ -84,11 +99,12 @@ function SponsorVideo({ sponsor, heightClass, loop = true, onEnded }) {
       Tu navegador no soporta la reproducción de video.
     </video>
   ) : (
-    // Carga diferida: hasta acercarse al viewport se muestra solo el poster (liviano)
+    // Carga diferida: hasta estar listo se muestra solo el poster (liviano)
     <img
       src={sponsor.poster}
       alt={sponsor.label}
       loading="lazy"
+      decoding="async"
       className={`w-full ${heightClass} object-contain bg-white dark:bg-gray-900`}
     />
   );
@@ -128,9 +144,7 @@ export function SponsorVideoDuo({ className = '' }) {
 /**
  * Muestra UN sponsor en video con ROTACIÓN SECUENCIAL (bucle).
  * - seed (id de la nota) define por cuál empieza.
- * - offset desfasa una segunda instancia: arriba empieza por un sponsor
- *   y abajo por el siguiente, para que no se vea el mismo a la vez.
- * - Ocupa TODO el ancho disponible (se estira en PC).
+ * - offset desfasa una segunda instancia para que no se repita el mismo video a la vez.
  * Funciona con cualquier cantidad de sponsors en SPONSOR_VIDEOS.
  */
 export function SponsorVideoSingle({ seed, offset = 0, className = '' }) {
