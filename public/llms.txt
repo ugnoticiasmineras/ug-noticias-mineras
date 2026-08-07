@@ -2,14 +2,24 @@
 
 > Información del sector minero argentino: San Juan, nacionales, internacionales, sindicales y opinión.
 
-## Secciones
-- /noticia/sanjuan: Noticias mineras de San Juan
-- /noticia/nacionales: Noticias nacionales mineras
-- /noticia/internacionales: Noticias mineras internacionales
-- /noticia/sindicales: Noticias sindicales mineras
-- /noticia/opinion: Columnas de opinión
-- /bolsa-trabajo: Bolsa de trabajo del sector minero
-- /proyectos-mineros-san-juan: Guía técnica de proyectos mineros de San Juan
+Este archivo indica a los agentes de IA cómo navegar y usar el contenido de ugnoticiasmineras.com.
+
+## Secciones principales
+
+- [Inicio](https://ugnoticiasmineras.com/): Portada con las últimas noticias del sector minero argentino.
+- [Noticias de San Juan](https://ugnoticiasmineras.com/noticia/sanjuan): Proyectos y actualidad minera de la provincia de San Juan.
+- [Noticias Nacionales](https://ugnoticiasmineras.com/noticia/nacionales): Actualidad minera de Argentina.
+- [Noticias Internacionales](https://ugnoticiasmineras.com/noticia/internacionales): Tendencias mineras globales.
+- [Noticias Sindicales](https://ugnoticiasmineras.com/noticia/sindicales): AOMA, empleo y derechos laborales del sector minero.
+- [Columna de Opinión](https://ugnoticiasmineras.com/noticia/opinion): Análisis y columnas sobre minería.
+- [Bolsa de Trabajo](https://ugnoticiasmineras.com/bolsa-trabajo): Inscripción y generación de CV para el sector minero.
+- [Proyectos Mineros de San Juan](https://ugnoticiasmineras.com/proyectos-mineros-san-juan): Guía técnica de proyectos mineros de San Juan.
+
+## Recursos
+
+- [Mapa del sitio XML](https://ugnoticiasmineras.com/api/sitemap.xml): Sitemap para rastreo del sitio.
+- [Radio en Vivo](https://ugnoticiasmineras.com/stream/): Reproductor de radio en vivo de UG Noticias Mineras.
 
 ## Contacto
-- Email: ugnoticiasmineras@gmail.com
+
+- [Email de contacto](mailto:ugnoticiasmineras@gmail.com): UG Noticias Mineras.
