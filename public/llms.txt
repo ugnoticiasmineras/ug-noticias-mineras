@@ -1,0 +1,15 @@
+# UG Noticias Mineras
+
+> Información del sector minero argentino: San Juan, nacionales, internacionales, sindicales y opinión.
+
+## Secciones
+- /noticia/sanjuan: Noticias mineras de San Juan
+- /noticia/nacionales: Noticias nacionales mineras
+- /noticia/internacionales: Noticias mineras internacionales
+- /noticia/sindicales: Noticias sindicales mineras
+- /noticia/opinion: Columnas de opinión
+- /bolsa-trabajo: Bolsa de trabajo del sector minero
+- /proyectos-mineros-san-juan: Guía técnica de proyectos mineros de San Juan
+
+## Contacto
+- Email: ugnoticiasmineras@gmail.com
