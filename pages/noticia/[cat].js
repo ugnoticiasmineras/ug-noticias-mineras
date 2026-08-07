@@ -5,7 +5,6 @@ import Layout from '../../components/Layout';
 import CotizacionesWidget from '../../components/CotizacionesWidget';
 import { SponsorVideoDuo } from '../../components/SponsorVideoBanner';
 
-// ✅ CORREGIDO: URLs SIN ESPACIOS AL FINAL
 const SITE_URL = 'https://ugnoticiasmineras.com';
 const WORDPRESS_API_URL = 'https://public-api.wordpress.com/wp/v2/sites/xtianaguilar79-hbsty.wordpress.com';
 
@@ -17,19 +16,28 @@ const categories = {
   internacionales: 17119
 };
 
+// ✅ cleanText CORREGIDA: limpia &nbsp; y todas las entidades HTML
 const cleanText = (text) => {
   if (!text) return text;
   return text
-    .replace(/&nbsp;/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#160;/gi, ' ')
+    .replace(/\u00A0/g, ' ')
     .replace(/&amp;/g, '&')
-    .replace(/</g, '<')
-    .replace(/>/g, '>')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
     .replace(/&#8217;/g, "'")
     .replace(/&#8220;/g, '"')
     .replace(/&#8221;/g, '"')
     .replace(/&#8211;/g, '-')
     .replace(/&#8212;/g, '--')
+    .replace(/’/g, "'")
+    .replace(/“/g, '"')
+    .replace(/”/g, '"')
+    .replace(/–/g, '-')
+    .replace(/—/g, '--')
     .replace(/\s+/g, ' ')
     .trim();
 };
@@ -88,16 +96,15 @@ const processPosts = (posts, categoryKey) => {
     }
 
     let title = cleanText(post.title?.rendered || 'Sin título');
-
     return {
       id: post.slug,
       title,
       subtitle: excerpt,
       image: imageUrl,
       categoryKey,
-      categoryColor: categoryKey === 'nacionales' ? 'bg-blue-600' : 
-                    categoryKey === 'sanjuan' ? 'bg-red-500' : 
-                    categoryKey === 'sindicales' ? 'bg-green-600' : 
+      categoryColor: categoryKey === 'nacionales' ? 'bg-blue-600' :
+                    categoryKey === 'sanjuan' ? 'bg-red-500' :
+                    categoryKey === 'sindicales' ? 'bg-green-600' :
                     categoryKey === 'internacionales' ? 'bg-yellow-600' : 'bg-purple-600',
       source,
       date: formattedDate,
@@ -107,7 +114,7 @@ const processPosts = (posts, categoryKey) => {
 };
 
 const getCategoryName = (categoryKey) => {
-  switch(categoryKey) {
+  switch (categoryKey) {
     case 'nacionales': return 'Noticias Nacionales';
     case 'sanjuan': return 'Noticias de San Juan';
     case 'sindicales': return 'Noticias Sindicales';
@@ -118,7 +125,7 @@ const getCategoryName = (categoryKey) => {
 };
 
 const getCategoryLabel = (categoryKey) => {
-  switch(categoryKey) {
+  switch (categoryKey) {
     case 'nacionales': return 'NACIONAL';
     case 'sanjuan': return 'SAN JUAN';
     case 'sindicales': return 'SINDICAL';
@@ -129,7 +136,7 @@ const getCategoryLabel = (categoryKey) => {
 };
 
 const getCategorySeoTitle = (categoryKey) => {
-  switch(categoryKey) {
+  switch (categoryKey) {
     case 'nacionales': return 'Noticias Nacionales Mineras – Proyectos y actualidad | UG Noticias Mineras';
     case 'sanjuan': return 'Noticias Mineras de San Juan – Proyectos, sindicato y minería | UG Noticias Mineras';
     case 'sindicales': return 'Noticias Sindicales Mineras – AOMA y derechos laborales | UG Noticias Mineras';
@@ -140,7 +147,7 @@ const getCategorySeoTitle = (categoryKey) => {
 };
 
 const getCategorySeoDescription = (categoryKey) => {
-  switch(categoryKey) {
+  switch (categoryKey) {
     case 'nacionales': return 'Seguí los últimos anuncios, proyectos y novedades del sector minero en Argentina: litio, oro, cobre y más.';
     case 'sanjuan': return 'Todas las noticias mineras de San Juan: Veladero, Pascua Lama, nuevos proyectos y el rol del sindicato AOMA.';
     case 'sindicales': return 'Cobertura exclusiva de AOMA, negociaciones salariales, derechos laborales y lucha gremial en el sector minero argentino.';
@@ -153,19 +160,16 @@ const getCategorySeoDescription = (categoryKey) => {
 const shareOnWhatsApp = (news, basePath) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
   const title = encodeURIComponent(news.title);
-  // ✅ CORREGIDO: Sin espacios extra en la URL
   window.open(`https://wa.me/?text=${title}%20${url}`, '_blank');
 };
 
 const shareOnFacebook = (news, basePath) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
-  // ✅ CORREGIDO: Sin espacios extra en la URL
   window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`, '_blank', 'width=600,height=400');
 };
 
 const shareOnLinkedIn = (news, basePath) => {
   const url = encodeURIComponent(`${SITE_URL}/noticia/${news.categoryKey}/${news.id}`);
-  // ✅ CORREGIDO: Sin espacios extra en la URL
   window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank', 'width=600,height=400');
 };
 
@@ -175,17 +179,15 @@ const renderNewsCard = ({ news, basePath }) => {
       <a className="block bg-gradient-to-br from-blue-50 to-white dark:from-gray-800 dark:to-gray-900 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-blue-100 dark:border-blue-900 overflow-hidden">
         <div className="flex flex-col md:flex-row">
           <div className="md:w-1/3 h-48 md:h-full relative">
-            <img 
-              src={news.image} 
-              alt={news.title} 
+            <img
+              src={news.image}
+              alt={news.title}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
               onError={(e) => {
                 e.target.style.display = 'none';
-                e.target.parentNode.innerHTML = `
-                  <div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                    <div class="text-blue-800 dark:text-blue-200 font-bold text-center p-4">${news.title}</div>
-                  </div>
-                `;
+                e.target.parentNode.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center"><div class="text-blue-800 dark:text-blue-200 font-bold text-center p-4">${news.title}</div></div>`;
               }}
             />
             <div className={`absolute top-2 left-2 ${news.categoryColor} text-white px-2 py-1 rounded text-xs font-semibold`}>
@@ -200,40 +202,43 @@ const renderNewsCard = ({ news, basePath }) => {
               <p className="text-gray-500 dark:text-gray-400 text-sm">{news.date}</p>
             </div>
             <div className="mt-4 flex space-x-2">
-              <button 
+              <button
                 onClick={(e) => {
                   e.preventDefault();
                   shareOnWhatsApp(news, basePath);
                 }}
                 className="bg-green-500 hover:bg-green-600 text-white p-1 rounded-full transition-colors"
                 title="Compartir en WhatsApp"
+                aria-label="Compartir en WhatsApp"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
                 </svg>
               </button>
-              <button 
+              <button
                 onClick={(e) => {
                   e.preventDefault();
                   shareOnFacebook(news, basePath);
                 }}
                 className="bg-blue-600 hover:bg-blue-700 text-white p-1 rounded-full transition-colors"
                 title="Compartir en Facebook"
+                aria-label="Compartir en Facebook"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                 </svg>
               </button>
-              <button 
+              <button
                 onClick={(e) => {
                   e.preventDefault();
                   shareOnLinkedIn(news, basePath);
                 }}
                 className="bg-blue-700 hover:bg-blue-800 text-white p-1 rounded-full transition-colors"
                 title="Compartir en LinkedIn"
+                aria-label="Compartir en LinkedIn"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+                  <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                 </svg>
               </button>
             </div>
@@ -255,13 +260,11 @@ const renderSidebarCategoryCard = ({ categoryName, categoryKey, latestNews }) =>
           </div>
           <div className="p-2 h-24 bg-white dark:bg-gray-800 flex items-center justify-center">
             {latestNews ? (
-              <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1 text-balance">
+              <p className="text-gray-800 dark:text-gray-200 text-center text-sm font-medium px-1">
                 {latestNews.title}
               </p>
             ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center text-sm">
-                Sin noticias aún
-              </p>
+              <p className="text-gray-500 dark:text-gray-400 text-center text-sm">Sin noticias aún</p>
             )}
           </div>
         </a>
@@ -318,11 +321,11 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={`${SITE_URL}/noticia/${cat}`} />
       </Head>
-
       <Layout currentDate={currentDate}>
-        {/* ✅ SPONSORS EN VIDEO (NUEVO) - AOMA + Sponsor 2, siempre juntos */}
+        {/* ✅ H1 oculto para accesibilidad/SEO (no cambia el diseño) */}
+        <h1 className="sr-only">{`Noticias de ${categoryName} – UG Noticias Mineras`}</h1>
+        {/* ✅ SPONSORS EN VIDEO - AOMA + Sponsor 2, siempre juntos */}
         <SponsorVideoDuo />
-
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-4">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
@@ -336,7 +339,7 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
                 </div>
                 {totalPages > 1 && (
                   <div className="bg-gray-50 dark:bg-gray-900 px-6 py-4 flex justify-center items-center space-x-2 mt-6">
-                    <button 
+                    <button
                       onClick={() => handlePageChange(page - 1)}
                       disabled={page === 1}
                       className={`px-3 py-1 rounded ${
@@ -345,12 +348,10 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
                     >
                       Anterior
                     </button>
-
                     <span className="px-3 py-1 bg-blue-600 text-white rounded">
                       {page}
                     </span>
-
-                    <button 
+                    <button
                       onClick={() => handlePageChange(page + 1)}
                       disabled={page === totalPages}
                       className={`px-3 py-1 rounded ${
@@ -366,7 +367,6 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
           </div>
           <div className="lg:col-span-1">
             <CotizacionesWidget />
-            
             {Object.entries(categories).map(([key, _]) => {
               if (key === cat) return null;
               return renderSidebarCategoryCard({
@@ -375,15 +375,16 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
                 latestNews: sidebarNews[key]
               });
             })}
-            
-            {/* ✅ MANTIENE EL CARRUSEL ANTIGUO (SIN CAMBIOS) */}
+            {/* ✅ SIDEBAR CON SPONSORS ESTÁTICOS (SIN CAMBIOS) */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
               <div className="p-3 space-y-3">
                 {[...Array(5)].map((_, i) => (
-                  <img 
+                  <img
                     key={i}
-                    src="/sponsors/aoma1.jpg" 
+                    src="/sponsors/aoma1.jpg"
                     alt="Colaborador"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-16 object-contain rounded-lg"
                   />
                 ))}
@@ -396,7 +397,6 @@ export default function CategoryPage({ newsList, cat, sidebarNews, currentDate }
   );
 }
 
-// ✅ MANTIENE getStaticPaths (correcto para categorías estáticas)
 export async function getStaticPaths() {
   return {
     paths: [
@@ -410,27 +410,22 @@ export async function getStaticPaths() {
   };
 }
 
-// ✅ CORREGIDO: URLs SIN ESPACIOS EN User-Agent
 export async function getStaticProps({ params }) {
   const { cat } = params;
   const categoryId = categories[cat];
-
   if (!categoryId) {
     return { notFound: true };
   }
-
   try {
     const mainResponse = await fetch(
       `${WORDPRESS_API_URL}/posts?categories=${categoryId}&per_page=100&orderby=date&order=desc&_embed`,
       {
         headers: {
-          // ✅ CORREGIDO: Sin espacios al final de la URL
           'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
           'Accept': 'application/json'
         }
       }
     );
-
     let newsList = [];
     if (mainResponse.ok) {
       const posts = await mainResponse.json();
@@ -445,7 +440,6 @@ export async function getStaticProps({ params }) {
           `${WORDPRESS_API_URL}/posts?categories=${id}&per_page=1&orderby=date&order=desc&_embed`,
           {
             headers: {
-              // ✅ CORREGIDO: Sin espacios al final de la URL
               'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
               'Accept': 'application/json'
             }
