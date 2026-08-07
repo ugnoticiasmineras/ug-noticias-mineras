@@ -60,8 +60,8 @@ const optimizedImage = (url, w = 720) => {
   if (!url) return url;
   if (!/(wordpress\.com|wp\.com)/.test(url)) return url;
   if (/[?&]w=/.test(url)) return url;
-  const sep = url.includes('?') ? '&' : '?';
-  return `${url}${sep}w=${w}`;
+    const sep = url.includes('?') ? '&' : '?';
+  return `${url}${sep}w=${w}&quality=70`;
 };
 
 const processPost = (post) => {
