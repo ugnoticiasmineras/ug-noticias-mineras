@@ -57,7 +57,7 @@ const forceHttps = (url) => {
   return url.trim().replace(/^http:/, 'https:');
 };
 
-// ✅ FASE 2: foto redimensionada y comprimida del CDN de WordPress
+// ✅ FASE 2: foto redimensionada y comprimida del CDN de WordPress (mucho más liviana)
 const optimizedImage = (url, w = 1024) => {
   if (!url) return url;
   if (!/(wordpress\.com|wp\.com)/.test(url)) return url;
@@ -185,19 +185,18 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
   const [lightboxImage, setLightboxImage] = useState('');
   const [contentParts, setContentParts] = useState([]);
 
-  if (!noticia) {
-    return (
-      <Layout currentDate={currentDate}>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center max-w-2xl mx-auto mt-12">
-          <h3 className="text-yellow-800 font-bold text-xl mb-2">Noticia no encontrada</h3>
-          <p className="text-yellow-700 mb-6">La noticia que buscas no está disponible.</p>
-        </div>
-      </Layout>
-    );
-  }
+  const openLightbox = (imgSrc) => {
+    setLightboxImage(imgSrc);
+    setLightboxOpen(true);
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+  };
 
   // ✅ PROCESAMOS EL CONTENIDO PARA INSERTAR SPONSORS EN <!-- SPONSOR -->
   useEffect(() => {
+    if (!noticia) return;
     try {
       const safeHtml = ContentWithLightbox({
         htmlContent: noticia.content,
@@ -208,7 +207,7 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     } catch (e) {
       setContentParts([noticia.content]);
     }
-  }, [noticia.content]);
+  }, [noticia]);
 
   useEffect(() => {
     const handleEsc = (e) => {
@@ -226,14 +225,16 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
     };
   }, [lightboxOpen]);
 
-  const openLightbox = (imgSrc) => {
-    setLightboxImage(imgSrc);
-    setLightboxOpen(true);
-  };
-
-  const closeLightbox = () => {
-    setLightboxOpen(false);
-  };
+  if (!noticia) {
+    return (
+      <Layout currentDate={currentDate}>
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center max-w-2xl mx-auto mt-12">
+          <h3 className="text-yellow-800 font-bold text-xl mb-2">Noticia no encontrada</h3>
+          <p className="text-yellow-700 mb-6">La noticia que buscas no está disponible.</p>
+        </div>
+      </Layout>
+    );
+  }
 
   const shareOnWhatsApp = () => {
     const url = encodeURIComponent(`${SITE_URL}/noticia/${cat}/${id}`);
@@ -488,44 +489,50 @@ export async function getStaticProps({ params }) {
   if (!categoryId) {
     return { notFound: true };
   }
+
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
+    'Accept': 'application/json'
+  };
+
   try {
+    // 1) La nota (necesita _embed por la imagen destacada)
     const response = await fetch(
       `${WORDPRESS_API_URL}/posts?slug=${id}&_embed`,
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
-          'Accept': 'application/json'
-        }
-      }
+      { headers }
     );
     if (!response.ok) return { notFound: true };
     const posts = await response.json();
     if (posts.length === 0) return { notFound: true };
     const noticia = processPost(posts[0], cat);
 
-    const sidebarNews = {};
-    for (const [key, catId] of Object.entries(categories)) {
-      if (key === cat) continue;
-      try {
-        const res = await fetch(
-          `${WORDPRESS_API_URL}/posts?categories=${catId}&per_page=1&orderby=date&order=desc&_embed`,
-          {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
-              'Accept': 'application/json'
+    // ✅ 2) Sidebar EN PARALELO y SIN _embed (mucho más rápido)
+    const results = await Promise.all(
+      Object.entries(categories)
+        .filter(([key]) => key !== cat)
+        .map(async ([key, catId]) => {
+          try {
+            const res = await fetch(
+              `${WORDPRESS_API_URL}/posts?categories=${catId}&per_page=1&orderby=date&order=desc`,
+              { headers }
+            );
+            if (res.ok) {
+              const p = await res.json();
+              if (p.length > 0) {
+                return [key, processPostForSidebar(p[0], key)];
+              }
             }
+          } catch (e) {
+            // Silently fail
           }
-        );
-        if (res.ok) {
-          const posts = await res.json();
-          if (posts.length > 0) {
-            sidebarNews[key] = processPostForSidebar(posts[0], key);
-          }
-        }
-      } catch (e) {
-        // Silently fail
-      }
-    }
+          return null;
+        })
+    );
+
+    const sidebarNews = {};
+    results.forEach((entry) => {
+      if (entry) sidebarNews[entry[0]] = entry[1];
+    });
 
     return {
       props: {
@@ -533,7 +540,8 @@ export async function getStaticProps({ params }) {
         sidebarNews,
         currentDate: new Date().toISOString()
       },
-      revalidate: 60
+      // ✅ 3) Menos regeneraciones: la nota vuela en visitas repetidas
+      revalidate: 300
     };
   } catch (err) {
     return { notFound: true };
