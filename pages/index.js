@@ -155,9 +155,10 @@ const renderFeaturedCard = ({ news, isLcp = false }) => {
             src={news.image}
             alt={news.title}
             className="w-full h-full object-cover"
+            loading={isLcp ? 'eager' : 'lazy'}
+            decoding="async"
             {...(isLcp && {
               fetchpriority: "high",
-              loading: "eager",
               width: 600,
               height: 315
             })}
@@ -194,6 +195,8 @@ const renderNewsCard = ({ news, basePath }) => {
               src={news.image}
               alt={news.title}
               className="w-full h-full object-cover rounded-t-xl md:rounded-l-xl md:rounded-tr-none"
+              loading="lazy"
+              decoding="async"
               onError={(e) => {
                 e.target.style.display = 'none';
                 e.target.parentNode.innerHTML = `<div class="w-full h-full bg-gradient-to-br from-blue-300 to-blue-400 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center"><div class="text-blue-800 dark:text-blue-200 font-bold text-center p-4">${news.title}</div></div>`;
@@ -274,6 +277,15 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
     }
   };
 
+  // ✅ PRECARGA LCP: la primera imagen destacada se pide antes y con prioridad alta
+  const lcpImage = allNews[0]?.image || null;
+  let lcpOrigin = null;
+  try {
+    lcpOrigin = lcpImage ? new URL(lcpImage).origin : null;
+  } catch (e) {
+    lcpOrigin = null;
+  }
+
   return (
     <Layout currentDate={currentDate}>
       <Head>
@@ -292,6 +304,8 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
         <meta name="twitter:site" content="@ugnoticiasmin" />
         <link rel="canonical" href={SITE_URL} />
         <meta name="facebook-domain-verification" content="wr93115y6b6xa1s1vi3ukgijy7wwcw" />
+        {lcpOrigin && <link rel="preconnect" href={lcpOrigin} />}
+        {lcpImage && <link rel="preload" as="image" href={lcpImage} fetchpriority="high" />}
       </Head>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -310,7 +324,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
             </div>
           )}
 
-          {/* 👇 SPONSORS EN VIDEO: reemplazan los logos placeholder, con carga diferida */}
+          {/* 👇 SPONSORS EN VIDEO: debajo de Destacadas, con carga diferida */}
           <SponsorVideoDuo />
 
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-blue-100 dark:border-blue-900 overflow-hidden">
@@ -363,6 +377,8 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                     <img
                       src={`/sponsors/sponsor${n}.webp`}
                       alt={`Colaborador ${n}`}
+                      loading="lazy"
+                      decoding="async"
                       className="max-h-full max-w-full object-contain"
                     />
                   </div>
@@ -419,6 +435,8 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
                     <img
                       src={`/sponsors/sponsor${n}.webp`}
                       alt={`Colaborador ${n}`}
+                      loading="lazy"
+                      decoding="async"
                       className="max-h-full max-w-full object-contain"
                     />
                   </div>
