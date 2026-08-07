@@ -26,11 +26,19 @@ const placeholderSponsors = [1, 2, 3, 4, 5, 6];
 const cleanText = (text) => {
   if (!text) return text;
   return text
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/&#160;/gi, ' ')
     .replace(/\u00A0/g, ' ')
-    .replace(/&/g, '&')
-    .replace(/</g, '<')
-    .replace(/>/g, '>')
-    .replace(/"/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&#8217;/g, "'")
+    .replace(/&#8220;/g, '"')
+    .replace(/&#8221;/g, '"')
+    .replace(/&#8211;/g, '-')
+    .replace(/&#8212;/g, '--')
     .replace(/’/g, "'")
     .replace(/“/g, '"')
     .replace(/”/g, '"')
@@ -307,6 +315,9 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
         {lcpOrigin && <link rel="preconnect" href={lcpOrigin} />}
         {lcpImage && <link rel="preload" as="image" href={lcpImage} fetchpriority="high" />}
       </Head>
+
+      {/* ✅ H1 oculto para accesibilidad/SEO (no cambia el diseño) */}
+      <h1 className="sr-only">UG Noticias Mineras – Información del sector minero argentino</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-4">
