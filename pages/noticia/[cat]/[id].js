@@ -275,6 +275,33 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
         <link rel="canonical" href={`${SITE_URL}/noticia/${cat}/${id}`} />
         {/* ✅ PRECARGA: la foto principal se pide antes que cualquier otra cosa */}
         {noticia.image && <link rel="preload" as="image" href={noticia.image} fetchpriority="high" />}
+        {/* ✅ JSON-LD Schema: NewsArticle */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "NewsArticle",
+              headline: noticia.title,
+              description: noticia.subtitle,
+              image: noticia.image,
+              datePublished: noticia.originalDate,
+              dateModified: noticia.originalDate, // Asumiendo que no hay fecha de modificación específica
+              author: {
+                "@type": "Organization",
+                name: noticia.source // Ej: "Fuente: WordPress" o lo que se haya extraído
+              },
+              publisher: {
+                "@type": "Organization",
+                name: "UG Noticias Mineras",
+                logo: {
+                  "@type": "ImageObject",
+                  url: "https://ugnoticiasmineras.com/UGNoticias.png"
+                }
+              }
+            })
+          }}
+        />
       </Head>
       <Layout currentDate={currentDate}>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -555,4 +582,4 @@ export async function getStaticProps({ params }) {
   } catch (err) {
     return { notFound: true };
   }
-}
+                          }
