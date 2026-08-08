@@ -57,7 +57,7 @@ const forceHttps = (url) => {
   return url.trim().replace(/^http:/, 'https:');
 };
 
-// ✅ FASE 2: foto redimensionada y comprimida del CDN de WordPress (mucho más liviana)
+// ✅ FASE 2: imagen redimensionada y comprimida del CDN de WordPress
 const optimizedImage = (url, w = 1024) => {
   if (!url) return url;
   if (!/(wordpress\.com|wp\.com)/.test(url)) return url;
@@ -293,8 +293,17 @@ export default function NoticiaPage({ noticia, sidebarNews, currentDate }) {
                       className="h-80 bg-gradient-to-br from-blue-200 to-blue-300 dark:from-gray-600 dark:to-gray-700 flex items-center justify-center relative overflow-hidden cursor-pointer"
                       onClick={() => openLightbox(noticia.image)}
                     >
+                      {/* ✅ IMAGEN CON srcSet Y sizes PARA MÓVILES — SIN ROMPER NADA */}
                       <img
                         src={noticia.image}
+                        srcSet={
+                          noticia.image
+                            ? `${optimizedImage(noticia.image, 360)} 360w,
+                                 ${optimizedImage(noticia.image, 720)} 720w,
+                                 ${optimizedImage(noticia.image, 1024)} 1024w`
+                            : undefined
+                        }
+                        sizes="(max-width: 600px) 100vw, (max-width: 1024px) 720px, 1024px"
                         alt={noticia.title}
                         loading="eager"
                         fetchpriority="high"
