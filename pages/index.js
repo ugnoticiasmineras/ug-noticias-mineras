@@ -153,8 +153,17 @@ const renderFeaturedCard = ({ news, isLcp = false }) => {
     <Link key={news.id} href={`/noticia/${news.categoryKey}/${news.id}`} legacyBehavior>
       <a className="block bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-lg transition-shadow border border-blue-100 dark:border-blue-900 overflow-hidden">
         <div className="h-48 w-full relative">
+          {/* ✅ IMAGEN CON srcSet + sizes PARA MÓVILES */}
           <img
             src={news.image}
+            srcSet={
+              news.image
+                ? `${optimizedImage(news.image, 360)} 360w,
+                     ${optimizedImage(news.image, 720)} 720w,
+                     ${optimizedImage(news.image, 1024)} 1024w`
+                : undefined
+            }
+            sizes="(max-width: 600px) 100vw, 720px"
             alt={news.title}
             className="w-full h-full object-cover"
             loading={isLcp ? 'eager' : 'lazy'}
