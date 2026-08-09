@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 import '../styles/globals.css'; // Asegúrate de tener este archivo (Next.js lo crea por defecto)
 
@@ -44,6 +45,7 @@ function MyApp({ Component, pageProps }) {
       {/* Renderiza la página con su Layout si lo usa */}
       <Component {...pageProps} />
       <Analytics />
+      <SpeedInsights />
     </>
   );
 }
