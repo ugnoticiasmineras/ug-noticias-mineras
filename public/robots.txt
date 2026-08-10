@@ -1,4 +1,7 @@
+User-agent: OAI-SearchBot
+Allow: /
+
 User-agent: *
 Allow: /
 
-Sitemap: https://ugnoticiasmineras.com/api/sitemap.xml
+Sitemap: https://www.ugnoticiasmineras.com/api/sitemap.xml
