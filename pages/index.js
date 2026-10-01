@@ -488,7 +488,7 @@ export async function getStaticProps() {
         sidebarNews,
         currentDate: new Date().toISOString()
       },
-      revalidate: 21600
+      revalidate: 60
     };
   } catch (err) {
     return {
@@ -497,7 +497,7 @@ export async function getStaticProps() {
         sidebarNews: {},
         currentDate: new Date().toISOString()
       },
-      revalidate: 21600
+      revalidate: 60
     };
   }
 }
