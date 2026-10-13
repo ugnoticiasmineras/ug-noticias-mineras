@@ -1,3 +1,5 @@
+import { editorialDate } from '../../lib/editorialDate';
+import { fetchPosts, validSlug } from '../../lib/wordpress';
 // pages/en-desarrollo/index.js
 import Head from 'next/head';
 import Link from 'next/link';
@@ -81,7 +83,7 @@ const processPost = (post) => {
     source,
     date: formattedDate,
     originalDate: post.date,
-    content: processedContent
+    searchText: processedContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
   };
 };
 
@@ -196,7 +198,7 @@ export default function EnDesarrollo({ allNews, currentDate }) {
       const results = allNews.filter(news => 
         news.title.toLowerCase().includes(query) ||
         news.subtitle.toLowerCase().includes(query) ||
-        news.content.toLowerCase().includes(query)
+        news.searchText.toLowerCase().includes(query)
       );
       setFilteredNews(results);
     }
@@ -336,37 +338,6 @@ export default function EnDesarrollo({ allNews, currentDate }) {
 }
 
 export async function getStaticProps() {
-  try {
-    const response = await fetch(
-      `${WORDPRESS_API_URL}/posts?categories=${UNCATEGORIZED_ID}&per_page=100&orderby=date&order=desc&_embed`,
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
-          'Accept': 'application/json'
-        }
-      }
-    );
-
-    let allNews = [];
-    if (response.ok) {
-      const posts = await response.json();
-      allNews = posts.map(processPost);
-    }
-
-    return {
-      props: {
-        allNews,
-        currentDate: new Date().toISOString()
-      },
-      revalidate: 60
-    };
-  } catch (err) {
-    return {
-      props: {
-        allNews: [],
-        currentDate: new Date().toISOString()
-      },
-      revalidate: 60
-    };
-  }
+  const posts = await fetchPosts(`${WORDPRESS_API_URL}/posts?categories=${UNCATEGORIZED_ID}&per_page=100&orderby=date&order=desc&_embed`);
+  return { props: { allNews: posts.map(processPost), currentDate: editorialDate() }, revalidate: 60 };
 }

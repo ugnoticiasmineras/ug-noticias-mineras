@@ -1,3 +1,5 @@
+import { editorialDate } from '../../lib/editorialDate';
+import { fetchPosts, validSlug } from '../../lib/wordpress';
 // pages/en-desarrollo/[id].js
 import Head from 'next/head';
 import Link from 'next/link';
@@ -319,68 +321,11 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const { id } = params;
-
-  try {
-    // Obtener la noticia específica por slug
-    const postResponse = await fetch(
-      `${WORDPRESS_API_URL}/posts?slug=${id}&_embed`,
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
-          'Accept': 'application/json'
-        }
-      }
-    );
-
-    if (!postResponse.ok || postResponse.status === 404) {
-      return {
-        notFound: true,
-      };
-    }
-
-    const posts = await postResponse.json();
-    if (!posts || posts.length === 0) {
-      return {
-        notFound: true,
-      };
-    }
-
-    const news = processPost(posts[0]);
-
-    // Obtener noticias relacionadas para la sección inferior
-    let relatedNews = [];
-    try {
-      const relatedResponse = await fetch(
-        `${WORDPRESS_API_URL}/posts?categories=${UNCATEGORIZED_ID}&per_page=5&orderby=date&order=desc&_embed`,
-        {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
-            'Accept': 'application/json'
-          }
-        }
-      );
-      if (relatedResponse.ok) {
-        const relatedPosts = await relatedResponse.json();
-        relatedNews = relatedPosts
-          .filter(post => post.slug !== id)
-          .map(processPost)
-          .slice(0, 4);
-      }
-    } catch (e) {
-      relatedNews = [];
-    }
-
-    return {
-      props: {
-        news,
-        relatedNews,
-        currentDate: new Date().toISOString()
-      },
-      revalidate: 60,
-    };
-  } catch (err) {
-    return {
-      notFound: true,
-    };
-  }
+  if (!validSlug(id)) return { notFound: true };
+  const posts = await fetchPosts(`${WORDPRESS_API_URL}/posts?slug=${encodeURIComponent(id)}&_embed`);
+  if (!posts.length) return { notFound: true, revalidate: 60 };
+  const news = processPost(posts[0]);
+  const relatedPosts = await fetchPosts(`${WORDPRESS_API_URL}/posts?categories=${UNCATEGORIZED_ID}&per_page=5&orderby=date&order=desc&_embed`);
+  const relatedNews = relatedPosts.filter(post => post.slug !== id).map(processPost).slice(0, 4);
+  return { props: { news, relatedNews, currentDate: editorialDate() }, revalidate: 60 };
 }
