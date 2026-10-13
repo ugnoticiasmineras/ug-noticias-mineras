@@ -1,3 +1,4 @@
+import { editorialDate, EDITORIAL_TIME_ZONE } from '../lib/editorialDate';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -5,6 +6,13 @@ import { useRouter } from 'next/router';
 
 export default function Layout({ children, currentDate }) {
   const router = useRouter();
+  const [displayDate, setDisplayDate] = useState(currentDate || null);
+  useEffect(() => {
+    const updateDate = () => setDisplayDate(editorialDate());
+    updateDate();
+    const timer = setInterval(updateDate, 60000);
+    return () => clearInterval(timer);
+  }, []);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,10 +75,11 @@ export default function Layout({ children, currentDate }) {
   }, [router]);
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const days = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-    return `${days[date.getDay()]} ${date.getDate()} de ${months[date.getMonth()]} de ${date.getFullYear()}`;
+    if (!dateString) return '';
+    const formatted = new Intl.DateTimeFormat('es-AR', {
+      timeZone: EDITORIAL_TIME_ZONE, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    }).format(new Date(dateString)).replace(',', '');
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   };
 
   const handleSearch = () => {
@@ -202,11 +211,11 @@ export default function Layout({ children, currentDate }) {
               </a>
             </Link>
           </div>
-          <div className="text-sm text-blue-900 dark:text-blue-200">{formatDate(currentDate)}</div>
+          <div className="text-sm text-blue-900 dark:text-blue-200">{formatDate(displayDate)}</div>
         </div>
       </nav>
       <div className="lg:hidden bg-white dark:bg-gray-900 py-1 border-b border-blue-200 dark:border-blue-900 text-center text-xs text-blue-900 dark:text-blue-200">
-        {formatDate(currentDate)}
+        {formatDate(displayDate)}
       </div>
          <main className="max-w-7xl mx-auto px-4 py-6">{children}</main>
       <footer className="bg-gradient-to-r from-blue-900 to-blue-800 text-white mt-8">

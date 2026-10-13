@@ -1,3 +1,5 @@
+import { editorialDate } from '../../lib/editorialDate';
+import { fetchPosts, validSlug } from '../../lib/wordpress';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -421,68 +423,15 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const { cat } = params;
-  const categoryId = categories[cat];
-  if (!categoryId) {
-    return { notFound: true };
-  }
-  try {
-    const mainResponse = await fetch(
-      `${WORDPRESS_API_URL}/posts?categories=${categoryId}&per_page=100&orderby=date&order=desc&_embed`,
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
-          'Accept': 'application/json'
-        }
-      }
-    );
-    let newsList = [];
-    if (mainResponse.ok) {
-      const posts = await mainResponse.json();
-      newsList = processPosts(posts, cat);
-    }
-
-    const sidebarNews = {};
-    for (const [key, id] of Object.entries(categories)) {
-      if (key === cat) continue;
-      try {
-        const res = await fetch(
-          `${WORDPRESS_API_URL}/posts?categories=${id}&per_page=1&orderby=date&order=desc&_embed`,
-          {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
-              'Accept': 'application/json'
-            }
-          }
-        );
-        if (res.ok) {
-          const posts = await res.json();
-          if (posts.length > 0) {
-            sidebarNews[key] = processPostForSidebar(posts[0], key);
-          }
-        }
-      } catch (e) {
-        // Silently fail
-      }
-    }
-
-    return {
-      props: {
-        newsList,
-        cat,
-        sidebarNews,
-        currentDate: new Date().toISOString()
-      },
-      revalidate: 60
-    };
-  } catch (err) {
-    return {
-      props: {
-        newsList: [],
-        cat,
-        sidebarNews: {},
-        currentDate: new Date().toISOString()
-      },
-      revalidate: 60
-    };
-  }
+  if (!Object.prototype.hasOwnProperty.call(categories, cat)) return { notFound: true };
+  const otherCategories = Object.entries(categories).filter(([key]) => key !== cat);
+  const [posts, ...sidebarPosts] = await Promise.all([
+    fetchPosts(`${WORDPRESS_API_URL}/posts?categories=${categories[cat]}&per_page=100&orderby=date&order=desc&_embed`),
+    ...otherCategories.map(([, id]) => fetchPosts(`${WORDPRESS_API_URL}/posts?categories=${id}&per_page=1&orderby=date&order=desc&_fields=slug,title`))
+  ]);
+  const sidebarNews = {};
+  otherCategories.forEach(([key], index) => {
+    if (sidebarPosts[index].length) sidebarNews[key] = processPostForSidebar(sidebarPosts[index][0], key);
+  });
+  return { props: { newsList: processPosts(posts, cat), cat, sidebarNews, currentDate: editorialDate() }, revalidate: 60 };
 }

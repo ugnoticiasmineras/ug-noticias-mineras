@@ -45,7 +45,7 @@ function MyApp({ Component, pageProps }) {
       {/* Renderiza la página con su Layout si lo usa */}
       <Component {...pageProps} />
       <Analytics />
-      <SpeedInsights />
+      {process.env.NEXT_PUBLIC_ENABLE_SPEED_INSIGHTS === 'true' && <SpeedInsights />}
     </>
   );
 }
