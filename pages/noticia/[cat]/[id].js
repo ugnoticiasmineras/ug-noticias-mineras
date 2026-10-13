@@ -1,3 +1,5 @@
+import { editorialDate } from '../../../lib/editorialDate';
+import { fetchPosts, validSlug } from '../../../lib/wordpress';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
@@ -521,65 +523,17 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const { cat, id } = params;
-  const categoryId = categories[cat];
-  if (!categoryId) {
-    return { notFound: true };
-  }
-
-  const headers = {
-    'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
-    'Accept': 'application/json'
-  };
-
-  try {
-    // 1) La nota (necesita _embed por la imagen destacada)
-    const response = await fetch(
-      `${WORDPRESS_API_URL}/posts?slug=${id}&_embed`,
-      { headers }
-    );
-    if (!response.ok) return { notFound: true };
-    const posts = await response.json();
-    if (posts.length === 0) return { notFound: true };
-    const noticia = processPost(posts[0], cat);
-
-    // ✅ 2) Sidebar EN PARALELO y SIN _embed (mucho más rápido)
-    const results = await Promise.all(
-      Object.entries(categories)
-        .filter(([key]) => key !== cat)
-        .map(async ([key, catId]) => {
-          try {
-            const res = await fetch(
-              `${WORDPRESS_API_URL}/posts?categories=${catId}&per_page=1&orderby=date&order=desc`,
-              { headers }
-            );
-            if (res.ok) {
-              const p = await res.json();
-              if (p.length > 0) {
-                return [key, processPostForSidebar(p[0], key)];
-              }
-            }
-          } catch (e) {
-            // Silently fail
-          }
-          return null;
-        })
-    );
-
-    const sidebarNews = {};
-    results.forEach((entry) => {
-      if (entry) sidebarNews[entry[0]] = entry[1];
-    });
-
-    return {
-      props: {
-        noticia,
-        sidebarNews,
-        currentDate: new Date().toISOString()
-      },
-      // ✅ 3) Menos regeneraciones: la nota vuela en visitas repetidas
-      revalidate: 300
-    };
-  } catch (err) {
-    return { notFound: true };
-  }
-                          }
+  if (!Object.prototype.hasOwnProperty.call(categories, cat) || !validSlug(id)) return { notFound: true };
+  const posts = await fetchPosts(`${WORDPRESS_API_URL}/posts?slug=${encodeURIComponent(id)}&_embed`);
+  if (!posts.length) return { notFound: true, revalidate: 60 };
+  const noticia = processPost(posts[0], cat);
+  const otherCategories = Object.entries(categories).filter(([key]) => key !== cat);
+  const sidebarPosts = await Promise.all(otherCategories.map(([, categoryId]) =>
+    fetchPosts(`${WORDPRESS_API_URL}/posts?categories=${categoryId}&per_page=1&orderby=date&order=desc&_fields=slug,title`)
+  ));
+  const sidebarNews = {};
+  otherCategories.forEach(([key], index) => {
+    if (sidebarPosts[index].length) sidebarNews[key] = processPostForSidebar(sidebarPosts[index][0], key);
+  });
+  return { props: { noticia, sidebarNews, currentDate: editorialDate() }, revalidate: 300 };
+}
