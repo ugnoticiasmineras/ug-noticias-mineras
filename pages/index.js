@@ -1,3 +1,5 @@
+import { editorialDate } from '../lib/editorialDate';
+import { fetchPosts, validSlug } from '../lib/wordpress';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -121,7 +123,7 @@ const processPost = (post) => {
     source,
     date: formattedDate,
     originalDate: post.date,
-    content: processedContent
+    searchText: processedContent.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
   };
 };
 
@@ -244,7 +246,7 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
       const results = allNews.filter(news =>
         news.title.toLowerCase().includes(query) ||
         news.subtitle.toLowerCase().includes(query) ||
-        news.content.toLowerCase().includes(query)
+        news.searchText.toLowerCase().includes(query)
       );
       setFilteredNews(results);
     }
@@ -441,63 +443,14 @@ export default function Home({ allNews, sidebarNews, currentDate }) {
 }
 
 export async function getStaticProps() {
-  try {
-    const response = await fetch(
-      `${WORDPRESS_API_URL}/posts?per_page=100&orderby=date&order=desc&_embed`,
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
-          'Accept': 'application/json'
-        }
-      }
-    );
-    let allNews = [];
-    if (response.ok) {
-      const posts = await response.json();
-      allNews = posts
-        .filter(post => post.categories && post.categories.length > 0 && categoryIdToKey[post.categories[0]])
-        .map(processPost);
-    }
-
-    const sidebarNews = {};
-    for (const [key, id] of Object.entries(categories)) {
-      try {
-        const res = await fetch(
-          `${WORDPRESS_API_URL}/posts?categories=${id}&per_page=1&orderby=date&order=desc&_embed`,
-          {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (compatible; UGNoticiasMineras/1.0; +https://ugnoticiasmineras.com)',
-              'Accept': 'application/json'
-            }
-          }
-        );
-        if (res.ok) {
-          const posts = await res.json();
-          if (posts.length > 0) {
-            sidebarNews[key] = { title: cleanText(posts[0].title?.rendered || 'Sin título') };
-          }
-        }
-      } catch (e) {
-        // Silently fail
-      }
-    }
-
-    return {
-      props: {
-        allNews,
-        sidebarNews,
-        currentDate: new Date().toISOString()
-      },
-      revalidate: 60
-    };
-  } catch (err) {
-    return {
-      props: {
-        allNews: [],
-        sidebarNews: {},
-        currentDate: new Date().toISOString()
-      },
-      revalidate: 60
-    };
-  }
+  const [posts, ...sidebarPosts] = await Promise.all([
+    fetchPosts(`${WORDPRESS_API_URL}/posts?per_page=100&orderby=date&order=desc&_embed`),
+    ...Object.values(categories).map(id => fetchPosts(`${WORDPRESS_API_URL}/posts?categories=${id}&per_page=1&orderby=date&order=desc&_fields=slug,title`))
+  ]);
+  const allNews = posts.filter(post => post.categories?.length && categoryIdToKey[post.categories[0]]).map(processPost);
+  const sidebarNews = {};
+  Object.keys(categories).forEach((key, index) => {
+    if (sidebarPosts[index].length) sidebarNews[key] = { title: cleanText(sidebarPosts[index][0].title.rendered || 'Sin título') };
+  });
+  return { props: { allNews, sidebarNews, currentDate: editorialDate() }, revalidate: 60 };
 }
